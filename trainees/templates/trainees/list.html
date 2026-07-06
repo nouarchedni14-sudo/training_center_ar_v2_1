@@ -1,0 +1,183 @@
+{% extends "trainees/base.html" %}
+{% load attr %}
+{% load cf_extras %}
+{% block content %}
+<div class="card wide">
+  <div class="row">
+    <h1>{{ title }}</h1>
+    <div class="row" style="gap:8px">
+      {% if can_add %}<a class="btn" href="{% url 'trainee_add' program %}">+ إضافة</a>{% endif %}
+      {% if graduates %}
+        <a class="btn" href="{{ list_url }}">عرض الحاليين</a>
+      {% else %}
+        <a class="btn" href="{{ graduates_url }}">عرض المتخرجين</a>
+      {% endif %}
+      {% if can_export %}<a class="btn" href="{% url 'export_program_data' program 'excel' %}?{{ query_string }}{% if query_string %}&{% endif %}graduates={% if graduates %}1{% else %}0{% endif %}">تصدير Excel</a>
+      <a class="btn" href="{% url 'export_program_data' program 'pdf' %}?{{ query_string }}{% if query_string %}&{% endif %}graduates={% if graduates %}1{% else %}0{% endif %}">تصدير PDF</a>{% endif %}
+      {% if is_staff or request.user.is_staff %}
+      <form method="post" action="{% url 'recompute_semesters_ui' %}" style="display:inline" onsubmit="return confirm('هل أنت متأكد؟ سيتم إعادة حساب السداسيات لكل البرامج.');">
+        {% csrf_token %}
+        <button type="submit" class="btn-sm">🔄 إعادة حساب السداسيات</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="get" class="search-grid js-auto-filter-form" style="margin-top:14px">
+    <div class="fg-field">
+      <label>بحث عام</label>
+      <input type="text" name="q" value="{{ filters.q }}" placeholder="الاسم أو اللقب أو رقم التسجيل أو التخصص" data-auto-submit="1">
+    </div>
+    <div class="fg-field">
+      <label>السداسي</label>
+      <select name="semester">
+        <option value="">الكل</option>
+        {% for s in semester_options %}
+        <option value="{{ s }}" {% if filters.semester == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>السنة</label>
+      <select name="year">
+        <option value="">الكل</option>
+        {% for y in year_options %}
+        <option value="{{ y }}" {% if filters.year == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>الدفعة</label>
+      <select name="promotion">
+        <option value="">الكل</option>
+        {% for p in promotion_options %}
+        <option value="{{ p.id }}" {% if filters.promotion == p.id|stringformat:'s' %}selected{% endif %}>{{ p.اسم_الدفعة }} {{ p.السنة }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>التخصص</label>
+      <select name="specialty">
+        <option value="">الكل</option>
+        {% for s in specialty_options %}
+        <option value="{{ s }}" {% if filters.specialty == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>الحالة</label>
+      <select name="status">
+        <option value="">الكل</option>
+        <option value="active" {% if filters.status == 'active' %}selected{% endif %}>الحاليون/النشطون</option>
+        <option value="removed" {% if filters.status == 'removed' %}selected{% endif %}>مشطوب/مفصول/منقطع</option>
+      </select>
+    </div>
+    <div class="fg-field" style="justify-content:flex-end">
+      <label>&nbsp;</label>
+      <div class="row" style="gap:8px">
+        <button type="submit" class="btn">بحث متقدم</button>
+        <a class="btn" href="{% if graduates %}{{ graduates_url }}{% else %}{{ list_url }}{% endif %}">مسح</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="row" style="margin-top:10px">
+    <div class="muted">عدد النتائج: {{ page_obj.paginator.count }}</div>
+    <div class="muted">الصفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</div>
+  </div>
+
+  <div class="table-wrap" id="scroll-main">
+    <table class="rtl-table">
+      <thead>
+        <tr>
+          {% for f,l in cols %}
+            {% if l == "إجراءات" or l == "الإجراءات" %}
+              <th class="actions">{{ l }}</th>
+            {% else %}
+              <th>{{ l }}</th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for obj in rows %}
+        <tr class="{% if obj.is_removed %}row-removed{% endif %}">
+          {% for f,l in cols %}
+            {% if f == "__actions__" %}
+              <td class="actions">
+                <div class="row-actions">
+                  {% if can_change %}<a class="btn-sm" href="{% url 'trainee_edit' program obj.pk %}">تعديل</a>{% endif %}
+                  {% if can_delete %}<a class="btn-sm danger" href="{% url 'trainee_delete' program obj.pk %}">حذف</a>{% endif %}
+                </div>
+              </td>
+            {% elif f|slice:":3" == "cf_" %}
+              <td>{{ obj.cf|get_item:f }}</td>
+            {% else %}
+              {% with v=obj|attr:f %}
+                {% if "تاريخ" in l or "رقم" in l or "الهاتف" in l %}
+                  <td><span class="num">{{ v }}</span></td>
+                {% else %}
+                  <td>{{ v }}</td>
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="{{ cols|length }}">لا توجد نتائج مطابقة.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination" style="margin-top:14px">
+    {% if page_obj.has_previous %}
+      <a class="btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page=1">الأولى</a>
+      <a class="btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page={{ page_obj.previous_page_number }}">السابق</a>
+    {% endif %}
+    <span class="btn-sm">صفحة {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a class="btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page={{ page_obj.next_page_number }}">التالي</a>
+      <a class="btn-sm" href="?{{ query_string }}{% if query_string %}&{% endif %}page={{ page_obj.paginator.num_pages }}">الأخيرة</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function () {
+  const forms = document.querySelectorAll('.js-auto-filter-form');
+  forms.forEach(function (form) {
+    let timer = null;
+    const submitForm = function () {
+      const pageInput = form.querySelector('input[name="page"]');
+      if (pageInput) pageInput.remove();
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
+    };
+
+    form.querySelectorAll('select').forEach(function (select) {
+      select.addEventListener('change', submitForm);
+    });
+
+    form.querySelectorAll('input[data-auto-submit="1"]').forEach(function (input) {
+      input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(submitForm, 650);
+      });
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          clearTimeout(timer);
+          submitForm();
+        }
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

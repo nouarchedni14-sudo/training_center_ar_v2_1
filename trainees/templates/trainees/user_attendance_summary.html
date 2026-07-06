@@ -1,0 +1,517 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<style>
+main.wrap {
+  display: block !important;
+  justify-content: initial !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 12px 14px !important;
+}
+.user-summary-page {
+  width: 100% !important;
+  max-width: none !important;
+  direction: rtl;
+}
+.user-summary-page,
+.user-summary-page table,
+.user-summary-page input,
+.user-summary-page select,
+.user-summary-page button,
+.user-summary-page a {
+  font-family: "Times New Roman", Times, serif !important;
+  font-weight: 700 !important;
+}
+.user-summary-page .summary-card {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding: 20px;
+  border-radius: 22px;
+  overflow: visible;
+}
+.user-summary-page .summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.user-summary-page .top-actions,
+.user-summary-page .summary-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  direction: rtl;
+  width: 100%;
+}
+.user-summary-page .top-actions { margin-bottom: 14px; }
+.user-summary-page .summary-actions { margin: 0 0 16px 0; }
+.user-summary-page .btn {
+  min-width: 112px;
+  text-align: center;
+  text-decoration: none !important;
+}
+.user-summary-page .filters-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 12px;
+  align-items: end;
+  width: 100%;
+}
+.user-summary-page .filters-grid .wide-field { min-width: 210px; }
+.user-summary-page .filters-grid input[type="text"],
+.user-summary-page .filters-grid input[type="number"],
+.user-summary-page .filters-grid select {
+  min-height: 42px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.user-summary-page .date-field {
+  direction: ltr;
+  text-align: center;
+  min-width: 145px !important;
+}
+.user-summary-page .date-ltr {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  display: inline-block;
+  white-space: nowrap;
+}
+.user-summary-page .year-field {
+  direction: ltr;
+  text-align: center;
+  min-width: 95px !important;
+}
+.user-summary-page .table-scroll-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: calc(100vh - 285px);
+  min-height: 480px;
+  max-height: 78vh;
+  overflow: auto !important;
+  border: 1px solid #d8e5df;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(15, 86, 65, .04);
+  scrollbar-gutter: stable both-edges;
+}
+.user-summary-page .summary-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  direction: rtl;
+}
+.user-summary-page .summary-table th,
+.user-summary-page .summary-table td {
+  border: 1px solid #cfe0d8;
+  padding: 7px 9px;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+  color: #0b2f24;
+  background: #fff;
+}
+.user-summary-page .summary-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #eef8f3;
+  color: #0b3b2c;
+  font-size: 15px;
+}
+.user-summary-page .summary-table td.name-cell {
+  text-align: right;
+  min-width: 200px;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: #fff;
+}
+.user-summary-page .summary-table th.name-head {
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  min-width: 200px;
+}
+.user-summary-page .status-select {
+  min-width: 58px;
+  height: 34px;
+  text-align: center;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 16px;
+  padding: 2px 4px;
+}
+.user-summary-page .status-cell { min-width: 62px; }
+.user-summary-page .status-present { color: #047857; background: #ecfdf5 !important; }
+.user-summary-page .status-absent { color: #b91c1c; background: #fef2f2 !important; }
+.user-summary-page .status-excused { color: #b45309; background: #fffbeb !important; }
+.user-summary-page .status-late { color: #1d4ed8; background: #eff6ff !important; }
+.user-summary-page .status-empty { color: #64748b; background: #f8fafc !important; }
+.user-summary-page .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.user-summary-page .result-card { margin-top: 16px; width: 100% !important; }
+.user-summary-page .legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #334155;
+  margin: 8px 0 12px 0;
+}
+.user-summary-page .legend span { display: inline-flex; align-items: center; gap: 5px; }
+.user-summary-page .legend b {
+  min-width: 24px;
+  text-align: center;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  padding: 2px 6px;
+}
+.user-summary-page .notice-box {
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 12px 14px;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+.user-summary-page .bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 14px 0;
+  justify-content: flex-start;
+  align-items: center;
+}
+.user-summary-page .btn-danger-soft { background:#b91c1c !important; color:#fff !important; }
+.user-summary-page .btn-warning-soft { background:#b0892f !important; color:#fff !important; }
+.user-summary-page .btn-present { background:#047857 !important; color:#fff !important; }
+.user-summary-page .btn-absent { background:#991b1b !important; color:#fff !important; }
+.user-summary-page .summary-table tr.is-dirty td { background:#fffbeb; }
+@media (max-width: 900px) {
+  main.wrap { padding: 8px !important; }
+  .user-summary-page .summary-card { padding: 14px; }
+  .user-summary-page .table-scroll-box { height: 62vh; min-height: 380px; }
+}
+</style>
+
+<div class="user-summary-page">
+  <div class="card glass summary-card">
+    <div class="top-actions">
+      <a href="{% url 'attendance_home' %}" class="btn" style="background:#0f6b4f;color:#fff;">العودة للغيابات</a>
+      <a href="{% url 'user_attendance_summary_archive' %}" class="btn" style="background:#374151;color:#fff;">الأرشيف</a>
+    </div>
+
+    <div class="summary-header">
+      <div>
+        <h1 style="margin:0 0 8px 0;">متابعة الحضور والغيابات لدى المستخدم</h1>
+        <p class="muted" style="margin:0;">صفحة خاصة بنمط التمهين، تعرض المتكونين الحاليين فقط، وتسمح بإدراج حالات الحضور والغياب حسب أيام الدراسة المختارة.</p>
+      </div>
+    </div>
+
+    <form method="get" class="filters-grid" id="summaryFilterForm">
+      <div>
+        <label>الشهر</label>
+        <select name="month" class="form-control">
+          {% for value,label in month_choices %}<option value="{{ value }}" {% if filters.month == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>السنة</label>
+        <input type="number" name="year" value="{{ filters.year }}" class="form-control year-field">
+      </div>
+      <div>
+        <label>من تاريخ</label>
+        <input type="text" name="date_from" value="{{ filters.date_from }}" class="form-control date-field" placeholder="YYYY-MM-DD">
+      </div>
+      <div>
+        <label>إلى تاريخ</label>
+        <input type="text" name="date_to" value="{{ filters.date_to }}" class="form-control date-field" placeholder="YYYY-MM-DD">
+      </div>
+      <div>
+        <label>الدفعة</label>
+        <select name="promotion" class="form-control js-auto-filter">
+          <option value="">كل الدفعات الحالية</option>
+          {% for p in promotion_options %}<option value="{{ p.id }}" {% if filters.promotion == p.id|stringformat:'s' %}selected{% endif %}>{{ p }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>التخصص</label>
+        <select name="specialty" class="form-control js-auto-filter">
+          <option value="">كل التخصصات الحالية</option>
+          {% for item in specialty_options %}<option value="{{ item }}" {% if filters.specialty == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>السداسي</label>
+        <select name="semester" class="form-control js-auto-filter">
+          <option value="">كل السداسيات</option>
+          {% for item in semester_options %}<option value="{{ item }}" {% if filters.semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>المستخدم</label>
+        <select name="user" class="form-control js-auto-filter">
+          <option value="">كل المستخدمين</option>
+          {% for item in user_options %}<option value="{{ item }}" {% if filters.user == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="wide-field">
+        <label>بحث</label>
+        <input type="text" name="q" value="{{ filters.q }}" class="form-control" placeholder="الاسم / رقم التسجيل / المستخدم">
+      </div>
+
+      <div><label>اليوم الأول</label><select name="weekday1" class="form-control"><option value="">اختر اليوم</option>{% for value,label in weekday_choices %}<option value="{{ value }}" {% if filters.weekday1 == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div><label>اليوم الثاني</label><select name="weekday2" class="form-control"><option value="">اختياري</option>{% for value,label in weekday_choices %}<option value="{{ value }}" {% if filters.weekday2 == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div><label>اليوم الثالث</label><select name="weekday3" class="form-control"><option value="">اختياري</option>{% for value,label in weekday_choices %}<option value="{{ value }}" {% if filters.weekday3 == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div><label>اليوم الرابع</label><select name="weekday4" class="form-control"><option value="">اختياري</option>{% for value,label in weekday_choices %}<option value="{{ value }}" {% if filters.weekday4 == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div><label>اليوم الخامس</label><select name="weekday5" class="form-control"><option value="">اختياري</option>{% for value,label in weekday_choices %}<option value="{{ value }}" {% if filters.weekday5 == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+
+      <div class="filter-actions" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">عرض الجدول</button>
+        <a href="{% url 'user_attendance_summary' %}" class="btn" style="background:#b0892f;color:#fff;">إلغاء الفلتر</a>
+      </div>
+    </form>
+
+    {% if not has_selected_weekdays %}
+      <div class="notice-box">اختر يومًا واحدًا أو أكثر من أيام الدراسة ثم اضغط على <strong>عرض الجدول</strong> لإدراج الحضور والغيابات.</div>
+    {% endif %}
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;">
+    <div class="stat-card"><div class="muted">عدد المتكونين الحاليين</div><div class="stat-num" id="stats-rows-count">{{ totals.rows_count }}</div></div>
+    <div class="stat-card"><div class="muted">عدد الحضور في الفترة</div><div class="stat-num" id="stats-period-present">{{ totals.period_present }}</div></div>
+    <div class="stat-card"><div class="muted">عدد الغيابات في الفترة</div><div class="stat-num" id="stats-period-absent">{{ totals.period_absent }}</div></div>
+    <div class="stat-card"><div class="muted">مجموع الحضور</div><div class="stat-num" id="stats-total-present">{{ totals.total_present }}</div></div>
+    <div class="stat-card"><div class="muted">مجموع الغيابات</div><div class="stat-num" id="stats-total-absent">{{ totals.total_absent }}</div></div>
+  </div>
+
+  <div class="card glass summary-card result-card">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="month" value="{{ filters.month }}">
+      <input type="hidden" name="year" value="{{ filters.year }}">
+      <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+      <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+      <input type="hidden" name="promotion" value="{{ filters.promotion }}">
+      <input type="hidden" name="specialty" value="{{ filters.specialty }}">
+      <input type="hidden" name="semester" value="{{ filters.semester }}">
+      <input type="hidden" name="user" value="{{ filters.user }}">
+      <input type="hidden" name="q" value="{{ filters.q }}">
+      <input type="hidden" name="weekday1" value="{{ filters.weekday1 }}">
+      <input type="hidden" name="weekday2" value="{{ filters.weekday2 }}">
+      <input type="hidden" name="weekday3" value="{{ filters.weekday3 }}">
+      <input type="hidden" name="weekday4" value="{{ filters.weekday4 }}">
+      <input type="hidden" name="weekday5" value="{{ filters.weekday5 }}">
+
+      <div class="summary-actions">
+        <button type="submit" name="action" value="save_attendance" class="btn btn-primary" {% if not has_selected_weekdays %}disabled{% endif %}>حفظ الحضور والغيابات</button>
+        <button type="button" class="btn btn-present" id="markAllPresent" {% if not has_selected_weekdays %}disabled{% endif %}>الكل حاضر</button>
+        <button type="button" class="btn btn-absent" id="markAllAbsent" {% if not has_selected_weekdays %}disabled{% endif %}>الكل غائب</button>
+        <button type="button" class="btn btn-warning-soft" id="clearVisibleTable" {% if not has_selected_weekdays %}disabled{% endif %}>مسح الجدول</button>
+        <button type="submit" name="action" value="clear_period" class="btn btn-danger-soft" onclick="return confirm('سيتم حذف خانات الحضور والغياب للفترة الحالية فقط. هل تريد المتابعة؟')" {% if not has_selected_weekdays %}disabled{% endif %}>مسح عدد الحضور والغيابات</button>
+        <button type="submit" name="action" value="clear_cumulative" class="btn btn-danger-soft" onclick="return confirm('تنبيه: سيتم مسح مجموع الحضور والغيابات للمتكونين المعروضين إلى غاية تاريخ النهاية. هل أنت متأكد؟')">مسح مجموع الأعمدة</button>
+        <a href="{{ print_url }}" class="btn" target="_blank" style="background:#374151;color:#fff;">طباعة</a>
+        <a href="{{ excel_url }}" class="btn" style="background:#0f766e;color:#fff;">تصدير Excel</a>
+        <a href="{{ pdf_url }}" class="btn" style="background:#7c2d12;color:#fff;">تصدير PDF</a>
+        <a href="{{ archive_url }}" class="btn" style="background:#b0892f;color:#fff;">أرشفة التقرير</a>
+        <a href="{% url 'user_attendance_summary_archive' %}" class="btn" style="background:#334155;color:#fff;">عرض الأرشيف</a>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">النتائج</h2>
+          <p class="muted" style="margin:6px 0 0 0;">الفترة: من <span class="date-ltr">{{ date_from }}</span> إلى <span class="date-ltr">{{ date_to }}</span></p>
+        </div>
+        <div class="legend">
+          <span><b class="status-present">ح</b> حاضر</span>
+          <span><b class="status-absent">غ</b> غائب</span>
+        </div>
+      </div>
+
+      <div class="table-scroll-box" style="margin-top:14px;">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>الرقم</th>
+              <th class="name-head">اسم المتكون</th>
+              <th>تاريخ الازدياد</th>
+              <th>مكان الازدياد</th>
+              <th>التخصص</th>
+              <th>رقم التسجيل</th>
+              <th>تاريخ بداية التكوين</th>
+              <th>تاريخ نهاية التكوين</th>
+              {% for col in detail_columns %}<th title="{{ col.day_label }}"><span class="date-ltr">{{ col.label }}</span></th>{% endfor %}
+              <th>عدد الحضور</th>
+              <th>عدد الغيابات</th>
+              <th>مجموع الحضور</th>
+              <th>مجموع الغيابات</th>
+              <th>نسبة الحضور</th>
+              <th>نسبة الغياب</th>
+              <th>المستخدم</th>
+              <th>السداسي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr data-summary-row data-base-present="{{ row.base_total_present }}" data-base-absent="{{ row.base_total_absent }}">
+              <td>{{ row.index }}</td>
+              <td class="name-cell">{{ row.name }}</td>
+              <td><span class="date-ltr">{{ row.birth_date }}</span></td>
+              <td>{{ row.birth_place }}</td>
+              <td>{{ row.specialty }}</td>
+              <td>{{ row.registration_number }}</td>
+              <td><span class="date-ltr">{{ row.training_start }}</span></td>
+              <td><span class="date-ltr">{{ row.training_end }}</span></td>
+              {% for cell in row.period_cells %}
+                <td class="status-cell status-{{ cell.css }}">
+                  <select name="status__{{ row.trainee_id }}__{{ cell.iso }}" class="status-select js-status-select" title="{{ cell.title }}" data-initial="{{ cell.value }}">
+                    {% for value,label in status_input_choices %}
+                      <option value="{{ value }}" {% if cell.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </td>
+              {% endfor %}
+              <td class="js-period-present">{{ row.period_present }}</td>
+              <td class="js-period-absent">{{ row.period_absent }}</td>
+              <td class="js-total-present">{{ row.total_present }}</td>
+              <td class="js-total-absent">{{ row.total_absent }}</td>
+              <td class="js-attendance-rate">{{ row.total_attendance_rate }}%</td>
+              <td class="js-absence-rate">{{ row.total_absence_rate }}%</td>
+              <td>{{ row.user }}</td>
+              <td>{{ row.semester }}</td>
+              <td>{{ row.status }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="20" class="muted">لا توجد نتائج مطابقة للفلاتر الحالية.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+    {% if page_obj.has_other_pages %}
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;align-items:center;">
+      {% if page_obj.has_previous %}<a class="btn" href="?{{ query_string }}&page={{ page_obj.previous_page_number }}">السابق</a>{% endif %}
+      <span class="muted">صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a class="btn" href="?{{ query_string }}&page={{ page_obj.next_page_number }}">التالي</a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const filterForm = document.getElementById('summaryFilterForm');
+  if (filterForm) {
+    filterForm.querySelectorAll('.js-auto-filter').forEach(function (el) {
+      el.addEventListener('change', function () {
+        // عند تغيير الدفعة أو السداسي أو المستخدم أو التخصص، تُحدّث القوائم تلقائيًا.
+        filterForm.submit();
+      });
+    });
+  }
+
+  const table = document.querySelector('.summary-table');
+  if (!table) return;
+
+  function toNumber(value) {
+    const n = parseInt(value || '0', 10);
+    return isNaN(n) ? 0 : n;
+  }
+  function setText(el, value) { if (el) el.textContent = value; }
+  function rate(part, total) { return total ? Math.round((part / total) * 10000) / 100 : 0; }
+
+  function updateRow(row) {
+    let periodPresent = 0;
+    let periodAbsent = 0;
+    row.querySelectorAll('.js-status-select').forEach(function (select) {
+      const td = select.closest('td');
+      if (td) {
+        td.classList.remove('status-present', 'status-absent', 'status-empty');
+      }
+      if (select.value === 'present') {
+        periodPresent += 1;
+        if (td) td.classList.add('status-present');
+      } else if (select.value === 'absent') {
+        periodAbsent += 1;
+        if (td) td.classList.add('status-absent');
+      } else {
+        if (td) td.classList.add('status-empty');
+      }
+      if (select.value !== (select.dataset.initial || '')) {
+        row.classList.add('is-dirty');
+      }
+    });
+
+    const basePresent = toNumber(row.dataset.basePresent);
+    const baseAbsent = toNumber(row.dataset.baseAbsent);
+    const totalPresent = basePresent + periodPresent;
+    const totalAbsent = baseAbsent + periodAbsent;
+    const total = totalPresent + totalAbsent;
+
+    setText(row.querySelector('.js-period-present'), periodPresent);
+    setText(row.querySelector('.js-period-absent'), periodAbsent);
+    setText(row.querySelector('.js-total-present'), totalPresent);
+    setText(row.querySelector('.js-total-absent'), totalAbsent);
+    setText(row.querySelector('.js-attendance-rate'), rate(totalPresent, total) + '%');
+    setText(row.querySelector('.js-absence-rate'), rate(totalAbsent, total) + '%');
+  }
+
+  function updateTotalsFromVisibleRows() {
+    let p = 0, a = 0, tp = 0, ta = 0;
+    document.querySelectorAll('tr[data-summary-row]').forEach(function (row) {
+      p += toNumber(row.querySelector('.js-period-present')?.textContent);
+      a += toNumber(row.querySelector('.js-period-absent')?.textContent);
+      tp += toNumber(row.querySelector('.js-total-present')?.textContent);
+      ta += toNumber(row.querySelector('.js-total-absent')?.textContent);
+    });
+    setText(document.getElementById('stats-period-present'), p);
+    setText(document.getElementById('stats-period-absent'), a);
+    setText(document.getElementById('stats-total-present'), tp);
+    setText(document.getElementById('stats-total-absent'), ta);
+  }
+
+  function recalcAll() {
+    document.querySelectorAll('tr[data-summary-row]').forEach(updateRow);
+    updateTotalsFromVisibleRows();
+  }
+
+  table.querySelectorAll('.js-status-select').forEach(function (select) {
+    select.addEventListener('change', recalcAll);
+  });
+
+  function setAllStatuses(value) {
+    table.querySelectorAll('.js-status-select').forEach(function (select) { select.value = value; });
+    recalcAll();
+  }
+
+  const allPresent = document.getElementById('markAllPresent');
+  const allAbsent = document.getElementById('markAllAbsent');
+  const clearTable = document.getElementById('clearVisibleTable');
+  if (allPresent) allPresent.addEventListener('click', function () { setAllStatuses('present'); });
+  if (allAbsent) allAbsent.addEventListener('click', function () { setAllStatuses('absent'); });
+  if (clearTable) clearTable.addEventListener('click', function () {
+    if (confirm('سيتم مسح خانات الجدول المعروضة من الشاشة. اضغط حفظ لتأكيد الحذف في قاعدة البيانات.')) {
+      setAllStatuses('');
+    }
+  });
+
+  recalcAll();
+});
+</script>
+
+{% endblock %}

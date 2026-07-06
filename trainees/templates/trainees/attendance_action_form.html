@@ -1,0 +1,56 @@
+{% extends 'trainees/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" dir="rtl" style="max-width:960px;margin:16px auto;">
+  <style>
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:18px}
+    .meta-box{background:#f8fafc;border:1px solid #cbd5e1;border-radius:14px;padding:12px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    .form-grid label{display:block;font-weight:700;margin-bottom:6px}
+    .form-grid input,.form-grid select,.form-grid textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    .btn-danger{background:#b91c1c !important;color:#fff !important}
+    .btn-soft{background:#475569 !important;color:#fff !important}
+  </style>
+  <h1 style="margin-top:0">{{ action_obj.get_action_type_display }} - {{ action_obj.trainee_name }}</h1>
+  <div class="meta-grid">
+    <div class="meta-box"><strong>التخصص:</strong><br>{{ action_obj.trainee_specialty|default:'—' }}</div>
+    <div class="meta-box"><strong>العنوان:</strong><br>{{ action_obj.trainee_address|default:'—' }}</div>
+    <div class="meta-box"><strong>عدد الغيابات:</strong><br>{{ action_obj.trigger_count }}</div>
+    <div class="meta-box"><strong>الفترة:</strong><br>{{ action_obj.month }}/{{ action_obj.year }}</div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+      <div style="{% if field.name == 'notes' %}grid-column:1/-1;{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<div style="color:#b91c1c">{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="actions-row">
+      <button class="btn" type="submit">حفظ التعديلات</button>
+      <a class="btn" href="{{ back_url }}">العودة إلى القائمة</a>
+      <a class="btn" target="_blank" href="{% url 'attendance_action_print' action_obj.pk %}">معاينة الوثيقة</a>
+      <a class="btn" href="{% url 'attendance_action_print' action_obj.pk %}?download=word">تحميل Word</a>
+      <a class="btn" href="{% url 'attendance_action_print' action_obj.pk %}?download=pdf">تحميل PDF</a>
+    </div>
+  </form>
+
+  <div class="actions-row">
+    {% if not action_obj.is_archived %}
+      <form method="post" action="{% url 'attendance_action_archive_toggle' action_obj.pk %}">{% csrf_token %}<input type="hidden" name="target" value="archive"><button class="btn btn-soft" type="submit">حفظ في الأرشيف</button></form>
+      <form method="post" action="{% url 'attendance_action_delete_direct' action_obj.pk %}" onsubmit="return confirm('سيتم حذف هذا السجل غير المؤرشف نهائيًا، هل أنت متأكد؟');">{% csrf_token %}<button class="btn btn-danger" type="submit">حذف مباشر</button></form>
+    {% else %}
+      <form method="post" action="{% url 'attendance_action_archive_toggle' action_obj.pk %}">{% csrf_token %}<input type="hidden" name="target" value="restore"><button class="btn" type="submit">استرجاع من الأرشيف</button></form>
+      <form method="post" action="{% url 'attendance_action_delete' action_obj.pk %}" onsubmit="return confirm('سيتم حذف هذا السجل المؤرشف نهائيًا، هل أنت متأكد؟');">{% csrf_token %}<button class="btn btn-danger" type="submit">حذف الأرشيف</button></form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

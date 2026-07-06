@@ -1,0 +1,3436 @@
+/*
+  Admin theme (RTL + modern look)
+  Safe overrides that keep Django admin functionality intact.
+*/
+
+:root{ /* بداية قواعد CSS للمحدد: :root */
+  /* ==========================================================
+     ضبط عروض الأعمدة (جدول التقرير في صفحة لوحة التحكم فقط)
+     ==========================================================
+     ✅ أنت تعدّل الأعمدة من هنا فقط.
+     ملاحظة عن الوحدات:
+     - ch مناسب للأرقام (يعني تقريباً عدد الخانات).
+     - rem مناسب للأسماء/النصوص الطويلة.
+  */
+
+  /* 1) الأعمدة الثلاثة الأولى */
+  --tc-w-code: 12ch;        /* (عمود 1) رمز التخصص */
+  --tc-w-specialty: 22rem;  /* (عمود 2) التخصص */
+  --tc-w-semester: 7ch;     /* (عمود 3) السداسي */
+
+  /* 2) أعمدة الأعداد (كل عمود لوحده) */
+  --tc-w-merged-total: 10ch;   /* (عمود 4) عدد المدمجين */
+  --tc-w-current-total: 10ch;  /* (عمود 7) العدد الحالي */
+  --tc-w-removed-total: 13ch;  /* (عمود 10) عدد المشطوبين */
+
+  /* 3) ذكور / إناث (مكررة) — متغير واحد لكل الأعمدة */
+  --tc-w-sex: 7ch;          /* (أعمدة 5,6,8,9,11,12) ذكور + إناث */
+
+  /* 4) أعمدة النِّسب (كل عمود لوحده) */
+  --tc-w-pct-current-all: 10ch;    /* (عمود 13) الحالي % */
+  --tc-w-pct-current-male: 12ch;   /* (عمود 14) ذكور الحالي % */
+  --tc-w-pct-current-female: 12ch; /* (عمود 15) إناث الحالي % */
+
+  --tc-w-pct-removed-all: 13ch;    /* (عمود 16) المشطوبين % */
+  --tc-w-pct-removed-male: 14ch;   /* (عمود 17) ذكور المشطوبين % */
+  --tc-w-pct-removed-female: 14ch; /* (عمود 18) إناث المشطوبين % */
+
+  /* 5) ألوان الواجهة (اتركها كما هي إذا لا تريد تغيير الشكل) */
+  --tc-surface: #f4f7f2; /* خاصية CSS لتنسيق العنصر */
+  --tc-surface-2: #ffffff;
+  --tc-border: rgba(21, 71, 52, .12); /* خاصية CSS لتنسيق العنصر */
+  --tc-text: #173728; /* خاصية CSS لتنسيق العنصر */
+  --tc-muted: #5f766b; /* خاصية CSS لتنسيق العنصر */
+  --tc-accent: #0f6b4a; /* خاصية CSS لتنسيق العنصر */
+  --tc-accent-2: #b08b3c;
+} /* نهاية قواعد: :root */
+
+html, body{ /* بداية قواعد CSS للمحدد: html, body */
+  direction: rtl; /* اتجاه الكتابة (rtl/ltr) */
+} /* نهاية قواعد: html, body */
+
+body{ /* بداية قواعد CSS للمحدد: body */
+  background: radial-gradient(1200px 500px at 10% 0%, rgba(96,165,250,.25), transparent 60%), /* الخلفية */
+              radial-gradient(900px 600px at 90% 10%, rgba(94,234,212,.18), transparent 55%),
+              var(--tc-surface);
+  color: var(--tc-text); /* لون النص */
+} /* نهاية قواعد: body */
+
+#header{ /* بداية قواعد CSS للمحدد: #header */
+  background: linear-gradient(90deg, rgba(96,165,250,.35), rgba(94,234,212,.22)); /* الخلفية */
+  border-bottom: 1px solid var(--tc-border); /* إطار سفلي */
+  box-shadow: 0 10px 30px rgba(0,0,0,.35); /* ظل */
+} /* نهاية قواعد: #header */
+
+#branding h1, #branding h1 a{ /* بداية قواعد CSS للمحدد: #branding h1, #branding h1 a */
+  color: var(--tc-text) !important; /* لون النص */
+  font-weight: 800; /* سماكة الخط */
+  letter-spacing: .2px; /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: #branding h1, #branding h1 a */
+
+#user-tools{ /* بداية قواعد CSS للمحدد: #user-tools */
+  color: var(--tc-muted); /* لون النص */
+} /* نهاية قواعد: #user-tools */
+
+#user-tools a{ /* بداية قواعد CSS للمحدد: #user-tools a */
+  color: var(--tc-text) !important; /* لون النص */
+} /* نهاية قواعد: #user-tools a */
+
+/* Back button */
+#user-tools a.admin-back{ /* بداية قواعد CSS للمحدد: #user-tools a.admin-back */
+  display: inline-flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  gap: 8px; /* المسافة بين العناصر */
+  margin-inline: 12px; /* خاصية CSS لتنسيق العنصر */
+  padding: 7px 12px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  background: rgba(255,255,255,.16); /* الخلفية */
+  border: 1px solid rgba(255,255,255,.20); /* إطار العنصر */
+  text-decoration: none !important; /* زخرفة النص (مثل خط تحت الرابط) */
+  transition: transform .15s ease, background .15s ease; /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: #user-tools a.admin-back */
+#user-tools a.admin-back:hover{ /* بداية قواعد CSS للمحدد: #user-tools a.admin-back:hover */
+  transform: translateY(-1px); /* تحويل/تحريك/تدوير */
+  background: rgba(255,255,255,.18); /* الخلفية */
+} /* نهاية قواعد: #user-tools a.admin-back:hover */
+
+/* Quick links (top buttons) */
+.admin-quick{ /* بداية قواعد CSS للمحدد: .admin-quick */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  flex-wrap: wrap; /* هل العناصر تلتف لسطر جديد */
+  gap: 10px; /* المسافة بين العناصر */
+  padding: 10px 12px; /* حشوة داخلية */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+} /* نهاية قواعد: .admin-quick */
+.admin-quick__group{ /* بداية قواعد CSS للمحدد: .admin-quick__group */
+  display: inline-flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  gap: 8px; /* المسافة بين العناصر */
+  padding: 6px 8px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.10); /* إطار العنصر */
+  background: rgba(255,255,255,.04); /* الخلفية */
+} /* نهاية قواعد: .admin-quick__group */
+.admin-quick__pill{ /* بداية قواعد CSS للمحدد: .admin-quick__pill */
+  display: inline-flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  justify-content: center; /* محاذاة عناصر flex أفقياً */
+  padding: 6px 10px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.14); /* إطار العنصر */
+  background: rgba(255,255,255,.06); /* الخلفية */
+  color: var(--tc-text) !important; /* لون النص */
+  text-decoration: none !important; /* زخرفة النص (مثل خط تحت الرابط) */
+  font-size: 13px; /* حجم الخط */
+  transition: transform .15s ease, background .15s ease; /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: .admin-quick__pill */
+.admin-quick__pill:hover{ /* بداية قواعد CSS للمحدد: .admin-quick__pill:hover */
+  transform: translateY(-1px); /* تحويل/تحريك/تدوير */
+  background: rgba(255,255,255,.12); /* الخلفية */
+} /* نهاية قواعد: .admin-quick__pill:hover */
+.admin-quick__btn{ /* بداية قواعد CSS للمحدد: .admin-quick__btn */
+  display: inline-flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  justify-content: center; /* محاذاة عناصر flex أفقياً */
+  padding: 7px 14px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.16); /* إطار العنصر */
+  background: rgba(255,255,255,.08); /* الخلفية */
+  color: var(--tc-text) !important; /* لون النص */
+  text-decoration: none !important; /* زخرفة النص (مثل خط تحت الرابط) */
+  transition: transform .15s ease, background .15s ease; /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: .admin-quick__btn */
+.admin-quick__btn:hover{ /* بداية قواعد CSS للمحدد: .admin-quick__btn:hover */
+  transform: translateY(-1px); /* تحويل/تحريك/تدوير */
+  background: rgba(255,255,255,.14); /* الخلفية */
+} /* نهاية قواعد: .admin-quick__btn:hover */
+
+/* Main content wrappers */
+#content, .content{ /* بداية قواعد CSS للمحدد: #content, .content */
+  background: rgba(255,255,255,.04); /* الخلفية */
+  border: 1px solid var(--tc-border); /* إطار العنصر */
+  border-radius: 18px; /* تدوير الزوايا */
+  box-shadow: 0 20px 60px rgba(0,0,0,.35); /* ظل */
+  padding: 18px; /* حشوة داخلية */
+} /* نهاية قواعد: #content, .content */
+
+/* Dashboard cards */
+.dash{ /* بداية قواعد CSS للمحدد: .dash */
+  margin: 6px 0 18px; /* هامش خارجي */
+} /* نهاية قواعد: .dash */
+.dash__row{ /* بداية قواعد CSS للمحدد: .dash__row */
+  display: grid; /* طريقة عرض العنصر (block/flex/grid..) */
+  grid-template-columns: 1fr; /* تقسيم أعمدة الشبكة */
+  gap: 14px; /* المسافة بين العناصر */
+  margin-bottom: 14px; /* هامش سفلي */
+} /* نهاية قواعد: .dash__row */
+.dash__row--3{ /* بداية قواعد CSS للمحدد: .dash__row--3 */
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* تقسيم أعمدة الشبكة */
+} /* نهاية قواعد: .dash__row--3 */
+.dash__row--2{ /* بداية قواعد CSS للمحدد: .dash__row--2 */
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* تقسيم أعمدة الشبكة */
+} /* نهاية قواعد: .dash__row--2 */
+@media (max-width: 1024px){ /* بداية قواعد CSS للمحدد: @media (max-width: 1024px) */
+  .dash__row--3, .dash__row--2{ grid-template-columns: 1fr; }
+} /* نهاية قواعد: @media (max-width: 1024px) */
+.dash__chart{ /* بداية قواعد CSS للمحدد: .dash__chart */
+  width: 100% !important; /* عرض العنصر */
+  max-height: 220px; /* أقصى ارتفاع */
+  margin-top: 6px; /* هامش علوي */
+} /* نهاية قواعد: .dash__chart */
+.dash__hint{ /* بداية قواعد CSS للمحدد: .dash__hint */
+  margin-top: 8px; /* هامش علوي */
+  color: var(--tc-muted); /* لون النص */
+  font-size: 13px; /* حجم الخط */
+} /* نهاية قواعد: .dash__hint */
+
+/* Professional admin index */
+.admin-home{ margin-top: 6px; }
+.admin-home__hero{ /* بداية قواعد CSS للمحدد: .admin-home__hero */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: flex-end; /* محاذاة عناصر flex عمودياً */
+  justify-content: space-between; /* محاذاة عناصر flex أفقياً */
+  gap: 14px; /* المسافة بين العناصر */
+  margin-bottom: 14px; /* هامش سفلي */
+} /* نهاية قواعد: .admin-home__hero */
+.admin-home__title{ /* بداية قواعد CSS للمحدد: .admin-home__title */
+  margin: 0 0 4px; /* هامش خارجي */
+  font-size: 26px; /* حجم الخط */
+  font-weight: 900; /* سماكة الخط */
+} /* نهاية قواعد: .admin-home__title */
+.admin-home__subtitle{ /* بداية قواعد CSS للمحدد: .admin-home__subtitle */
+  margin: 0; /* هامش خارجي */
+  color: var(--tc-muted); /* لون النص */
+} /* نهاية قواعد: .admin-home__subtitle */
+.admin-home__actions{ /* بداية قواعد CSS للمحدد: .admin-home__actions */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  gap: 10px; /* المسافة بين العناصر */
+  flex-wrap: wrap; /* هل العناصر تلتف لسطر جديد */
+} /* نهاية قواعد: .admin-home__actions */
+.admin-home__action{ /* بداية قواعد CSS للمحدد: .admin-home__action */
+  display: inline-flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  justify-content: center; /* محاذاة عناصر flex أفقياً */
+  padding: 8px 14px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.20); /* إطار العنصر */
+  background: rgba(255,255,255,.08); /* الخلفية */
+  color: var(--tc-text) !important; /* لون النص */
+  text-decoration: none !important; /* زخرفة النص (مثل خط تحت الرابط) */
+} /* نهاية قواعد: .admin-home__action */
+.admin-home__action:hover{ /* بداية قواعد CSS للمحدد: .admin-home__action:hover */
+  background: rgba(255,255,255,.14); /* الخلفية */
+} /* نهاية قواعد: .admin-home__action:hover */
+.admin-home__section{ /* بداية قواعد CSS للمحدد: .admin-home__section */
+  margin: 14px 0 10px; /* هامش خارجي */
+  font-weight: 900; /* سماكة الخط */
+  color: var(--tc-text); /* لون النص */
+} /* نهاية قواعد: .admin-home__section */
+
+@media (max-width: 900px){ /* بداية قواعد CSS للمحدد: @media (max-width: 900px) */
+  .admin-home__hero{ /* بداية قواعد CSS للمحدد: .admin-home__hero */
+    flex-direction: column; /* خاصية CSS لتنسيق العنصر */
+    align-items: flex-start; /* محاذاة عناصر flex عمودياً */
+  } /* نهاية قواعد: .admin-home__hero */
+} /* نهاية قواعد: @media (max-width: 900px) */
+.dash__card{ /* بداية قواعد CSS للمحدد: .dash__card */
+  background: rgba(15,26,45,.65); /* الخلفية */
+  border: 1px solid var(--tc-border); /* إطار العنصر */
+  border-radius: 18px; /* تدوير الزوايا */
+  padding: 14px; /* حشوة داخلية */
+} /* نهاية قواعد: .dash__card */
+.dash__card--total{ /* بداية قواعد CSS للمحدد: .dash__card--total */
+  background: linear-gradient(90deg, rgba(96,165,250,.18), rgba(94,234,212,.10)); /* الخلفية */
+} /* نهاية قواعد: .dash__card--total */
+.dash__title{ /* بداية قواعد CSS للمحدد: .dash__title */
+  font-weight: 800; /* سماكة الخط */
+  color: var(--tc-text); /* لون النص */
+  margin-bottom: 8px; /* هامش سفلي */
+} /* نهاية قواعد: .dash__title */
+.dash__value{ /* بداية قواعد CSS للمحدد: .dash__value */
+  font-size: 34px; /* حجم الخط */
+  font-weight: 900; /* سماكة الخط */
+  line-height: 1.1; /* ارتفاع السطر */
+  margin-bottom: 10px; /* هامش سفلي */
+} /* نهاية قواعد: .dash__value */
+.dash__sub{ /* بداية قواعد CSS للمحدد: .dash__sub */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  flex-wrap: wrap; /* هل العناصر تلتف لسطر جديد */
+  gap: 8px; /* المسافة بين العناصر */
+} /* نهاية قواعد: .dash__sub */
+.dash__pill{ /* بداية قواعد CSS للمحدد: .dash__pill */
+  padding: 6px 10px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  background: rgba(255,255,255,.08); /* الخلفية */
+  border: 1px solid rgba(255,255,255,.12); /* إطار العنصر */
+  color: var(--tc-text); /* لون النص */
+  font-size: 13px; /* حجم الخط */
+} /* نهاية قواعد: .dash__pill */
+.dash__list{ /* بداية قواعد CSS للمحدد: .dash__list */
+  list-style: none; /* خاصية CSS لتنسيق العنصر */
+  padding: 0; /* حشوة داخلية */
+  margin: 0; /* هامش خارجي */
+} /* نهاية قواعد: .dash__list */
+.dash__list li{ /* بداية قواعد CSS للمحدد: .dash__list li */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  align-items: center; /* محاذاة عناصر flex عمودياً */
+  justify-content: space-between; /* محاذاة عناصر flex أفقياً */
+  gap: 10px; /* المسافة بين العناصر */
+  padding: 8px 10px; /* حشوة داخلية */
+  border-radius: 12px; /* تدوير الزوايا */
+  background: rgba(255,255,255,.04); /* الخلفية */
+  border: 1px solid rgba(255,255,255,.08); /* إطار العنصر */
+  margin-bottom: 8px; /* هامش سفلي */
+} /* نهاية قواعد: .dash__list li */
+.dash__name{ /* بداية قواعد CSS للمحدد: .dash__name */
+  color: var(--tc-text); /* لون النص */
+  overflow: hidden; /* التمرير/القص */
+  text-overflow: ellipsis; /* خاصية CSS لتنسيق العنصر */
+  white-space: nowrap; /* التحكم في التفاف النص */
+} /* نهاية قواعد: .dash__name */
+.dash__count{ /* بداية قواعد CSS للمحدد: .dash__count */
+  flex: 0 0 auto; /* سلوك المرونة داخل flex */
+  padding: 4px 10px; /* حشوة داخلية */
+  border-radius: 999px; /* تدوير الزوايا */
+  background: rgba(255,255,255,.10); /* الخلفية */
+  border: 1px solid rgba(255,255,255,.12); /* إطار العنصر */
+  font-weight: 800; /* سماكة الخط */
+} /* نهاية قواعد: .dash__count */
+.dash__empty{ /* بداية قواعد CSS للمحدد: .dash__empty */
+  color: var(--tc-muted); /* لون النص */
+  justify-content: center; /* محاذاة عناصر flex أفقياً */
+} /* نهاية قواعد: .dash__empty */
+
+/* Modules on index */
+.module{ /* بداية قواعد CSS للمحدد: .module */
+  border-radius: 16px; /* تدوير الزوايا */
+  overflow: hidden; /* التمرير/القص */
+  border: 1px solid var(--tc-border); /* إطار العنصر */
+  background: rgba(15,26,45,.65); /* الخلفية */
+} /* نهاية قواعد: .module */
+.module caption{ /* بداية قواعد CSS للمحدد: .module caption */
+  background: rgba(255,255,255,.06); /* الخلفية */
+  color: var(--tc-text); /* لون النص */
+} /* نهاية قواعد: .module caption */
+
+/* Tables */
+#result_list{ /* بداية قواعد CSS للمحدد: #result_list */
+  border-radius: 14px; /* تدوير الزوايا */
+  overflow: hidden; /* التمرير/القص */
+} /* نهاية قواعد: #result_list */
+#result_list thead th{ /* بداية قواعد CSS للمحدد: #result_list thead th */
+  background: rgba(255,255,255,.06); /* الخلفية */
+} /* نهاية قواعد: #result_list thead th */
+#result_list tr{ /* بداية قواعد CSS للمحدد: #result_list tr */
+  border-bottom: 1px solid rgba(255,255,255,.06); /* إطار سفلي */
+} /* نهاية قواعد: #result_list tr */
+#result_list tbody tr:nth-child(odd){ /* بداية قواعد CSS للمحدد: #result_list tbody tr:nth-child(odd) */
+  background: rgba(255,255,255,.02); /* الخلفية */
+} /* نهاية قواعد: #result_list tbody tr:nth-child(odd) */
+
+/* Forms */
+input, select, textarea{ /* بداية قواعد CSS للمحدد: input, select, textarea */
+  border-radius: 12px !important; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.14) !important; /* إطار العنصر */
+  background: rgba(255,255,255,.06) !important; /* الخلفية */
+  color: var(--tc-text) !important; /* لون النص */
+} /* نهاية قواعد: input, select, textarea */
+
+/* Buttons */
+.button, input[type=submit], input[type=button], .submit-row input{ /* بداية قواعد CSS للمحدد: .button, input[type=submit], input[type=button], .submit-row input */
+  border-radius: 999px !important; /* تدوير الزوايا */
+  border: 1px solid rgba(255,255,255,.18) !important; /* إطار العنصر */
+  background: linear-gradient(90deg, rgba(96,165,250,.35), rgba(94,234,212,.25)) !important; /* الخلفية */
+  color: var(--tc-text) !important; /* لون النص */
+  box-shadow: 0 10px 20px rgba(0,0,0,.25); /* ظل */
+} /* نهاية قواعد: .button, input[type=submit], input[type=button], .submit-row input */
+.button:hover, input[type=submit]:hover{ /* بداية قواعد CSS للمحدد: .button:hover, input[type=submit]:hover */
+  filter: brightness(1.08); /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: .button:hover, input[type=submit]:hover */
+
+/* Breadcrumbs */
+.breadcrumbs{ /* بداية قواعد CSS للمحدد: .breadcrumbs */
+  background: rgba(255,255,255,.05) !important; /* الخلفية */
+  border: 1px solid var(--tc-border); /* إطار العنصر */
+  border-radius: 999px; /* تدوير الزوايا */
+} /* نهاية قواعد: .breadcrumbs */
+
+/* Fix some LTR bits in admin */
+#header, #content, .breadcrumbs, .module, table{ /* بداية قواعد CSS للمحدد: #header, #content, .breadcrumbs, .module, table */
+  text-align: right; /* محاذاة النص */
+} /* نهاية قواعد: #header, #content, .breadcrumbs, .module, table */
+
+/* Make logout button match links */
+#logout-form button{ /* بداية قواعد CSS للمحدد: #logout-form button */
+  border-radius: 999px; /* تدوير الزوايا */
+  padding: 6px 12px; /* حشوة داخلية */
+  border: 1px solid rgba(255,255,255,.18); /* إطار العنصر */
+  background: rgba(255,255,255,.08); /* الخلفية */
+  color: var(--tc-text); /* لون النص */
+} /* نهاية قواعد: #logout-form button */
+#logout-form button:hover{ /* بداية قواعد CSS للمحدد: #logout-form button:hover */
+  background: rgba(255,255,255,.14); /* الخلفية */
+} /* نهاية قواعد: #logout-form button:hover */
+
+
+/* Search input: black + bold (requested) */
+#searchbar input[type='text'], #toolbar form#changelist-search input[type='text']{ /* بداية قواعد CSS للمحدد: #searchbar input[type='text'], #toolbar form#changelist-search input[type='text'] */
+  color:#000 !important; /* لون النص */
+  font-weight:700 !important; /* سماكة الخط */
+} /* نهاية قواعد: #searchbar input[type='text'], #toolbar form#changelist-search input[type='text'] */
+#searchbar input[type='text']::placeholder, #toolbar form#changelist-search input[type='text']::placeholder{ /* بداية قواعد CSS للمحدد: #searchbar input[type='text']::placeholder, #toolbar form#changelist-search input[type='text']::placeholder */
+  color: rgba(0,0,0,.55) !important; /* لون النص */
+} /* نهاية قواعد: #searchbar input[type='text']::placeholder, #toolbar form#changelist-search input[type='text']::placeholder */
+
+
+/* Dashboard report table */
+
+/* =====================================================================
+   تنسيق جدول التقرير (محدود داخل .admin-home__table فقط)
+   =====================================================================
+   الهدف:
+   - تثبيت عرض الأعمدة باستخدام <colgroup>
+   - منع تداخل عناوين الأعمدة العربية
+   - جعل قيم الأرقام والنسب LTR (مثال: 12%)
+*/
+
+/* الجدول نفسه */
+.admin-home__table{ /* بداية قواعد CSS للمحدد: .admin-home__table */
+  background:#fff;            /* خلفية الجدول */
+  border-collapse: separate;  /* أفضل مع sticky */
+  border-spacing: 0;          /* بدون فراغات بين الخلايا */
+  table-layout: fixed;        /* ضروري: يعتمد على <colgroup> */
+  width: max-content;         /* حتى يظهر scroll أفقي عند الحاجة */
+  display: inline-table;      /* يساعد داخل الـ wrapper */
+} /* نهاية قواعد: .admin-home__table */
+
+/* ------------------------------
+   (A) عروض الأعمدة عبر <colgroup>
+   ------------------------------ */
+
+/* الأعمدة الثلاثة الأولى */
+.admin-home__table col.c-code{ width: var(--tc-w-code); }              /* رمز التخصص */
+.admin-home__table col.c-specialty{ width: var(--tc-w-specialty); }    /* التخصص */
+.admin-home__table col.c-semester{ width: var(--tc-w-semester); }      /* السداسي */
+
+/* أعمدة الأعداد */
+.admin-home__table col.c-merged-total{ width: var(--tc-w-merged-total); }   /* عدد المدمجين */
+.admin-home__table col.c-current-total{ width: var(--tc-w-current-total); } /* العدد الحالي */
+.admin-home__table col.c-removed-total{ width: var(--tc-w-removed-total); } /* عدد المشطوبين */
+
+/* ذكور/إناث (كلها نفس العرض) */
+.admin-home__table col.c-sex{ width: var(--tc-w-sex); }                /* ذكور + إناث */
+
+/* النِّسب (كل عمود لوحده) */
+.admin-home__table col.c-pct-current-all{ width: var(--tc-w-pct-current-all); }       /* الحالي % */
+.admin-home__table col.c-pct-current-male{ width: var(--tc-w-pct-current-male); }     /* ذكور الحالي % */
+.admin-home__table col.c-pct-current-female{ width: var(--tc-w-pct-current-female); } /* إناث الحالي % */
+
+.admin-home__table col.c-pct-removed-all{ width: var(--tc-w-pct-removed-all); }       /* المشطوبين % */
+.admin-home__table col.c-pct-removed-male{ width: var(--tc-w-pct-removed-male); }     /* ذكور المشطوبين % */
+.admin-home__table col.c-pct-removed-female{ width: var(--tc-w-pct-removed-female); } /* إناث المشطوبين % */
+
+/* ------------------------------
+   (B) شكل الخلايا
+   ------------------------------ */
+.admin-home__table th,
+.admin-home__table td{ /* بداية قواعد CSS للمحدد: .admin-home__table td */
+  border:1px solid #e5e7eb;   /* حدود بين الخلايا */
+  padding:.45rem .5rem;       /* مسافة داخلية */
+} /* نهاية قواعد: .admin-home__table td */
+
+/* توحيد شكل النص داخل الجدول */
+.admin-home__table,
+.admin-home__table *{ color:#000 !important; }            /* نص أسود */
+.admin-home__table th,
+.admin-home__table td{ /* بداية قواعد CSS للمحدد: .admin-home__table td */
+  text-align:center !important; /* توسيط */
+  font-weight:700 !important;   /* خط غامق */
+  font-size:15px !important;    /* حجم مناسب */
+} /* نهاية قواعد: .admin-home__table td */
+
+/* (B1) ترويسات الأعمدة: تسمح بالالتفاف حتى لا تتداخل */
+.admin-home__table thead th{ /* بداية قواعد CSS للمحدد: .admin-home__table thead th */
+  font-size:16px !important;      /* أكبر قليلاً */
+  background:#f9fafb !important;  /* خلفية خفيفة */
+  white-space: normal !important; /* يسمح بنزول النص سطر ثاني */
+  overflow-wrap: anywhere;        /* يمنع التلاصق */
+  line-height: 1.15;              /* تباعد أسطر */
+  direction: rtl;                 /* عناوين عربية */
+  unicode-bidi: isolate; /* طريقة دمج اتجاه النص */
+} /* نهاية قواعد: .admin-home__table thead th */
+
+/* (B2) خلايا البيانات: أرقام على سطر واحد */
+.admin-home__table tbody td{ /* بداية قواعد CSS للمحدد: .admin-home__table tbody td */
+  white-space: nowrap;            /* يمنع التفاف الأرقام */
+  font-variant-numeric: tabular-nums; /* خاصية CSS لتنسيق العنصر */
+  direction: ltr;                 /* يمنع انقلاب 12% */
+  unicode-bidi: isolate; /* طريقة دمج اتجاه النص */
+} /* نهاية قواعد: .admin-home__table tbody td */
+
+/* تمييز أعمدة النِّسب (خلفية خفيفة) */
+.admin-home__table thead th:nth-child(n+13){ /* بداية قواعد CSS للمحدد: .admin-home__table thead th:nth-child(n+13) */
+  background: rgba(94,234,212,.20) !important; /* رأس النِّسب */
+} /* نهاية قواعد: .admin-home__table thead th:nth-child(n+13) */
+.admin-home__table tbody td:nth-child(n+13){ /* بداية قواعد CSS للمحدد: .admin-home__table tbody td:nth-child(n+13) */
+  background: rgba(94,234,212,.10) !important; /* جسم النِّسب */
+  font-size: 14px !important; /* حجم الخط */
+} /* نهاية قواعد: .admin-home__table tbody td:nth-child(n+13) */
+
+/* ------------------------------
+   (C) Wrapper للـ scroll
+   ------------------------------ */
+.admin-home__tablewrap{ /* بداية قواعد CSS للمحدد: .admin-home__tablewrap */
+  max-height: 520px;                 /* ارتفاع ثابت للتمرير العمودي */
+  overflow: auto;                    /* X و Y */
+  border: 1px solid rgba(0,0,0,.12); /* إطار العنصر */
+  border-radius: 10px; /* تدوير الزوايا */
+  padding: 0 8px;                    /* يبعد آخر عمود عن scrollbar */
+  scrollbar-gutter: stable both-edges; /* خاصية CSS لتنسيق العنصر */
+} /* نهاية قواعد: .admin-home__tablewrap */
+
+/* ------------------------------
+   (D) Sticky: تثبيت الرأس + أول 3 أعمدة
+   ------------------------------ */
+
+/* تثبيت رأس الجدول */
+.admin-home__table thead th{ /* بداية قواعد CSS للمحدد: .admin-home__table thead th */
+  position: sticky;  /* يثبت أثناء التمرير */
+  top: 0;            /* فوق */
+  z-index: 20;       /* فوق الخلايا */
+} /* نهاية قواعد: .admin-home__table thead th */
+
+/* تثبيت الأعمدة الثلاثة الأولى (RTL: نستخدم right) */
+.admin-home__table th:nth-child(1),
+.admin-home__table td:nth-child(1){ /* بداية قواعد CSS للمحدد: .admin-home__table td:nth-child(1) */
+  position: sticky; /* تموضع العنصر (static/relative/absolute..) */
+  right: 0; /* إزاحة من اليمين */
+  background: #fff; /* الخلفية */
+  z-index: 25; /* ترتيب الطبقات */
+  min-width: var(--tc-w-code);     /* حتى لا يضغطه المتصفح */
+} /* نهاية قواعد: .admin-home__table td:nth-child(1) */
+
+.admin-home__table th:nth-child(2),
+.admin-home__table td:nth-child(2){ /* بداية قواعد CSS للمحدد: .admin-home__table td:nth-child(2) */
+  position: sticky; /* تموضع العنصر (static/relative/absolute..) */
+  right: var(--tc-w-code);         /* بعد العمود الأول */
+  background: #fff; /* الخلفية */
+  z-index: 25; /* ترتيب الطبقات */
+  min-width: var(--tc-w-specialty); /* أقل عرض */
+} /* نهاية قواعد: .admin-home__table td:nth-child(2) */
+
+.admin-home__table th:nth-child(3),
+.admin-home__table td:nth-child(3){ /* بداية قواعد CSS للمحدد: .admin-home__table td:nth-child(3) */
+  position: sticky; /* تموضع العنصر (static/relative/absolute..) */
+  right: calc(var(--tc-w-code) + var(--tc-w-specialty));  /* بعد (1+2) */
+  background: #fff; /* الخلفية */
+  z-index: 25; /* ترتيب الطبقات */
+  min-width: var(--tc-w-semester); /* أقل عرض */
+} /* نهاية قواعد: .admin-home__table td:nth-child(3) */
+
+/* رفع z-index للرأس في الأعمدة المثبتة حتى لا يغطيها شيء */
+.admin-home__table thead th:nth-child(1),
+.admin-home__table thead th:nth-child(2),
+.admin-home__table thead th:nth-child(3){ /* بداية قواعد CSS للمحدد: .admin-home__table thead th:nth-child(3) */
+  z-index: 40; /* ترتيب الطبقات */
+} /* نهاية قواعد: .admin-home__table thead th:nth-child(3) */
+
+/* خط فاصل بسيط للأعمدة المثبتة */
+.admin-home__table td:nth-child(1),
+.admin-home__table td:nth-child(2),
+.admin-home__table td:nth-child(3),
+.admin-home__table thead th:nth-child(1),
+.admin-home__table thead th:nth-child(2),
+.admin-home__table thead th:nth-child(3){ /* بداية قواعد CSS للمحدد: .admin-home__table thead th:nth-child(3) */
+  box-shadow: -1px 0 0 rgba(0,0,0,.12); /* ظل */
+} /* نهاية قواعد: .admin-home__table thead th:nth-child(3) */
+
+
+
+/* ===== Light professional override ===== */
+:root{
+  --tc-surface: #f4f7fb;
+  --tc-surface-2: #ffffff;
+  --tc-border: #d9e2ec;
+  --tc-text: #000000;
+  --tc-muted: #222222;
+  --tc-accent: #0f766e;
+  --tc-accent-2: #1d4ed8;
+}
+body{
+  background: #f4f7fb;
+  color: #000 !important;
+}
+#header{
+  background: #ffffff;
+  border-bottom: 1px solid #d9e2ec;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+}
+#branding h1, #branding h1 a, #user-tools, #user-tools a, .breadcrumbs, .breadcrumbs a,
+.module caption, .module h2, .module th, .module td, .module a, #content h1, #content h2,
+#content h3, #content h4, #content p, #content label, #content caption, #content td, #content th,
+#content li, #content a, .selector, .selector h2, .selector span, .selector-chosen h2, .paginator,
+.object-tools a, .help, .quiet, .small, .messagelist li{
+  color: #000 !important;
+}
+#content, .content, .module, .inline-group, .selector, .submit-row, div.breadcrumbs{
+  background: #ffffff !important;
+  border-color: #d9e2ec !important;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, .06);
+}
+.admin-home__subtitle, .dash__hint, .dash__metric-note{
+  color: #111 !important;
+}
+.admin-quick__group, .admin-quick__btn, .admin-quick__pill, .admin-home__action, #user-tools a.admin-back, .dash__pill, .dash__count{
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #000 !important;
+  box-shadow: 0 4px 14px rgba(15,23,42,.05);
+}
+.admin-quick__btn:hover, .admin-quick__pill:hover, .admin-home__action:hover, #user-tools a.admin-back:hover{
+  background: #f8fafc !important;
+}
+.dash__row--4{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 1200px){
+  .dash__row--4{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px){
+  .dash__row--4{ grid-template-columns: 1fr; }
+}
+.dash__card, .dash__card--total{
+  background: #ffffff !important;
+  border: 1px solid #d9e2ec !important;
+}
+.dash__metric{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 118px;
+}
+.dash__metric-icon{
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 54px;
+  border: 1px solid #d9e2ec;
+  background: #f8fafc;
+}
+.dash__metric-icon svg, .tc-icon svg{
+  width: 24px;
+  height: 24px;
+  fill: #000;
+}
+.tc-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-inline-end: 6px;
+}
+.tc-icon--back{ width: 20px; height: 20px; }
+.dash__metric-body{
+  min-width: 0;
+}
+.dash__metric-title{
+  font-size: 14px;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 6px;
+}
+.dash__metric-value{
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 900;
+  color: #000;
+  margin-bottom: 8px;
+}
+.dash__metric-note{
+  font-size: 13px;
+  font-weight: 700;
+}
+.dash__metric--primary .dash__metric-icon{ background: #eef6ff; }
+.dash__metric--success .dash__metric-icon{ background: #ecfdf5; }
+.dash__metric--danger .dash__metric-icon{ background: #fef2f2; }
+.dash__metric--warning .dash__metric-icon{ background: #fff7ed; }
+#result_list, #result_list thead th, #result_list tbody td, #result_list tbody th, #changelist-form .results, #changelist .actions{
+  background: #fff !important;
+  color: #000 !important;
+}
+#result_list thead th{
+  font-weight: 900 !important;
+  background: #f8fafc !important;
+}
+#result_list tbody td, #result_list tbody th, #result_list tbody td a, #result_list tbody th a{
+  color: #000 !important;
+  font-weight: 700 !important;
+}
+#result_list tbody tr.tc-row--active > td,
+#result_list tbody tr.tc-row--active > th{
+  background: #ecfdf5 !important;
+}
+#result_list tbody tr.tc-row--recent-removed > td,
+#result_list tbody tr.tc-row--recent-removed > th{
+  background: #fff7ed !important;
+}
+#result_list tbody tr.tc-row--removed > td,
+#result_list tbody tr.tc-row--removed > th{
+  background: #fef2f2 !important;
+}
+input, select, textarea{
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.button, input[type=submit], input[type=button], .submit-row input{
+  background: #ffffff !important;
+  color: #000 !important;
+  border: 1px solid #94a3b8 !important;
+  box-shadow: 0 4px 14px rgba(15,23,42,.05) !important;
+}
+.button:hover, input[type=submit]:hover{
+  background: #f8fafc !important;
+}
+
+
+/* Sticky admin table like Excel */
+:root{
+  --tc-sticky-header-top: 0px;
+  --tc-rownum-width: 52px;
+  --tc-first-col-width: 150px;
+}
+
+.tc-table-wrap{
+  position: relative;
+}
+
+.tc-table-scroll{
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+#result_list thead th,
+#result_list .tc-rownum-head{
+  position: sticky;
+  top: var(--tc-sticky-header-top);
+  z-index: 6;
+  background: #ffffff !important;
+  box-shadow: inset 0 -1px 0 rgba(15,23,42,.08);
+  text-align: center !important;
+}
+
+#result_list tbody td,
+#result_list tbody th{
+  text-align: center !important;
+}
+
+#result_list .tc-rownum-head,
+#result_list .tc-rownum,
+#result_list .tc-rownum-foot{
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  min-width: var(--tc-rownum-width);
+  width: var(--tc-rownum-width);
+  max-width: var(--tc-rownum-width);
+  text-align: center !important;
+  font-weight: 900 !important;
+  background: #f8fafc !important;
+}
+
+#result_list thead th:nth-child(2),
+#result_list tbody td:nth-child(2),
+#result_list tbody th:nth-child(2),
+#result_list tfoot td:nth-child(2),
+#result_list tfoot th:nth-child(2){
+  position: sticky;
+  right: var(--tc-rownum-width);
+  z-index: 4;
+  min-width: var(--tc-first-col-width);
+  background: #ffffff !important;
+}
+
+#result_list thead th:nth-child(2){
+  z-index: 7;
+  background: #f8fafc !important;
+}
+
+#result_list tbody tr:hover > td,
+#result_list tbody tr:hover > th{
+  background: #eaf3ff !important;
+  transition: background .15s ease;
+}
+
+#result_list tbody tr.tc-row--active:hover > td,
+#result_list tbody tr.tc-row--active:hover > th{
+  background: #dcfce7 !important;
+}
+
+#result_list tbody tr.tc-row--recent-removed:hover > td,
+#result_list tbody tr.tc-row--recent-removed:hover > th{
+  background: #ffedd5 !important;
+}
+
+#result_list tbody tr.tc-row--removed:hover > td,
+#result_list tbody tr.tc-row--removed:hover > th{
+  background: #fee2e2 !important;
+}
+
+
+/* Make changelist table scroll inside its own panel like the report table */
+.tc-table-wrap{
+  max-height: calc(100vh - 260px);
+  overflow: auto;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  scrollbar-gutter: stable both-edges;
+}
+
+.tc-table-scroll{
+  max-height: inherit;
+  overflow: auto;
+}
+
+#result_list{
+  overflow: visible !important;
+  border-collapse: separate !important;
+  border-spacing: 0;
+}
+
+#result_list thead,
+#result_list thead tr{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+#result_list thead th,
+#result_list .tc-rownum-head{
+  top: 0 !important;
+}
+
+/* عناوين أعمدة الجدول */
+#changelist table thead th {
+    font-size: 14px;      /* حجم الخط */
+    font-weight: 700;     /* عريض */
+    color: black;
+    text-align: center;
+    background: white;
+}
+
+body{
+  background: linear-gradient(180deg, #eef3ec 0%, #f8fbf7 100%);
+  color: var(--tc-text);
+}
+#header{
+  background: linear-gradient(90deg, #0f6b4a, #195a45 55%, #2f6e58);
+  border-bottom: 3px solid #b08b3c;
+  box-shadow: 0 10px 24px rgba(15, 56, 40, .16);
+}
+#branding{display:flex;align-items:center;min-height:72px;}
+.tc-branding{display:flex;align-items:center;gap:14px;}
+.tc-branding__badge{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#f8f1dc,#d8ba72);color:#29513d;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;box-shadow:0 8px 18px rgba(0,0,0,.12);}
+.tc-branding__eyebrow{font-size:11px;color:rgba(255,255,255,.82);margin-bottom:3px;}
+.tc-branding__subtitle{margin:3px 0 0;color:rgba(255,255,255,.80);font-size:12px;}
+#branding h1, #branding h1 a{color:#fff !important;}
+#user-tools{color:rgba(255,255,255,.92);}
+#user-tools a.admin-back{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);}
+#content, .content{background:#fff;border:1px solid rgba(15, 107, 74, .10);box-shadow:0 14px 40px rgba(27, 62, 46, .08);}
+.admin-home__eyebrow{display:inline-block;padding:6px 10px;border-radius:999px;background:#edf6f1;color:#0f6b4a;font-weight:800;font-size:12px;margin-bottom:8px;border:1px solid rgba(15, 107, 74, .12);}
+.admin-home__subtitle,.admin-home__section-subtitle{color:var(--tc-muted);}
+.admin-home__section-subtitle{margin-top:-2px;margin-bottom:12px;}
+.admin-home__action,.admin-quick__btn,.admin-quick__pill{background:#fff;border:1px solid rgba(15, 107, 74, .14);color:var(--tc-text) !important;box-shadow:0 8px 18px rgba(15, 56, 40, .06);}
+.admin-home__action:hover,.admin-quick__btn:hover,.admin-quick__pill:hover{background:#f5faf7;}
+.admin-quick__group{background:#f7faf8;border:1px solid rgba(15, 107, 74, .10);}
+.dash__card{background:#fff;border:1px solid rgba(15, 107, 74, .10);box-shadow:0 10px 30px rgba(15, 56, 40, .05);}
+.dash__card--total{background:linear-gradient(135deg, rgba(15,107,74,.09), rgba(176,139,60,.10));}
+.dash__title,.dash__value,.admin-home__title,.admin-home__section{color:#173728;}
+.tc-module{margin-bottom:16px;border-radius:18px;overflow:hidden;border:1px solid rgba(15,107,74,.12);box-shadow:0 12px 28px rgba(15,56,40,.05);}
+.tc-module table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;}
+.tc-module caption{caption-side:top;text-align:right;padding:16px 18px;background:linear-gradient(90deg, #f0f6f2, #fbfcfb);color:#173728;font-size:18px;font-weight:900;border-bottom:1px solid rgba(15,107,74,.10);}
+.tc-module th,.tc-module td{padding:14px 18px;border-bottom:1px solid rgba(15,107,74,.08);}
+.tc-module tr:last-child th,.tc-module tr:last-child td{border-bottom:none;}
+.tc-module th a{font-weight:800;color:#163928 !important;}
+.tc-module .addlink,.tc-module .changelink{display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border-radius:999px;background:#f8fbf9;border:1px solid rgba(15,107,74,.12);text-decoration:none !important;color:#0f6b4a !important;font-weight:800;}
+#nav-sidebar{background:#fff;border-left:1px solid rgba(15,107,74,.08);}
+.module h2, .module caption, .inline-group h2{background:#f3f8f4;color:#173728;}
+div.breadcrumbs{background:#f7faf8;border-bottom:1px solid rgba(15,107,74,.08);color:#466154;}
+div.breadcrumbs a{color:#0f6b4a !important;}
+.button, input[type=submit], input[type=button], .submit-row input, a.button{background:#0f6b4a !important;border:none !important;border-radius:10px !important;box-shadow:none !important;}
+.button.default, input[type=submit].default, .submit-row input.default{background:#b08b3c !important;}
+.selector-chosen h2{background:#0f6b4a !important;color:#fff !important;}
+@media (max-width: 900px){.tc-branding__subtitle{display:none;}.tc-branding__eyebrow{display:none;}}
+
+.tc-institution-banner{display:flex;align-items:center;justify-content:center;gap:14px;flex:1 1 100%;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.16)}
+.tc-institution-banner__name{color:#fff;font-weight:900;font-size:36px;text-align:center;line-height:1.35}
+.tc-institution-banner__logo{width:54px;height:54px;object-fit:cover;border-radius:14px;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 18px rgba(0,0,0,.16)}
+#branding{display:flex;align-items:center;flex-wrap:wrap;min-height:72px;}
+body.login #content-main::before{content:"";display:block;width:88px;height:88px;margin:0 auto 18px;background:url("../branding/mfep.ico") center/contain no-repeat;filter:drop-shadow(0 8px 18px rgba(0,0,0,.18));}
+@media (max-width: 900px){.tc-institution-banner{gap:10px}.tc-institution-banner__name{font-size:22px}.tc-institution-banner__logo{width:44px;height:44px}}
+
+
+/* ===== Final admin header layout ===== */
+#header{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:14px 18px !important;
+}
+
+#branding{
+  order:0 !important;
+  float:none !important;
+  width:100% !important;
+  min-height:auto !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+
+.admin-quick{
+  order:1 !important;
+  width:100% !important;
+  justify-content:center !important;
+  margin-top:14px !important;
+}
+
+#user-tools{
+  order:2 !important;
+  float:none !important;
+  width:100% !important;
+  margin:12px 0 0 0 !important;
+  text-align:center !important;
+}
+
+#user-tools *{
+  float:none !important;
+}
+
+
+
+
+
+
+
+/* ===== Institution header professional style ===== */
+
+.tc-institution-banner{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    flex:1 1 100%;
+    margin-bottom:12px;
+    padding-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,.20);
+}
+
+/* اسم المؤسسة */
+.tc-institution-banner__name{
+    color:#ffffff;
+    font-weight:900;
+    font-size:48px;
+    text-align:center;
+    line-height:1.4;
+    letter-spacing:.5px;
+
+    /* ظل للنص يعطي احترافية */
+    text-shadow:
+        0 2px 4px rgba(0,0,0,.35),
+        0 4px 10px rgba(0,0,0,.25);
+}
+
+/* الشعار */
+.tc-institution-banner__logo{
+    width:70px;
+    height:70px;
+    object-fit:cover;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.25);
+    box-shadow:0 10px 22px rgba(0,0,0,.20);
+}
+
+/* الموبايل */
+@media (max-width: 900px){
+
+  .tc-institution-banner{
+      gap:12px;
+  }
+
+  .tc-institution-banner__name{
+      font-size:28px;
+  }
+
+  .tc-institution-banner__logo{
+      width:50px;
+      height:50px;
+  }
+}
+
+
+/* تكبير اسم المؤسسة بشكل إجباري */
+#header .tc-institution-banner__name{
+    font-size:52px !important;
+    font-weight:900 !important;
+    letter-spacing:.5px;
+    text-shadow:0 2px 6px rgba(0,0,0,.35);
+}
+
+/* تكبير الشعارين قليلاً */
+#header .tc-institution-banner__logo{
+    width:80px !important;
+    height:80px !important;
+}
+
+/* تحسين المسافة بين العناصر */
+#header .tc-institution-banner{
+    gap:28px !important;
+}
+
+/* الموبايل */
+@media (max-width:900px){
+    #header .tc-institution-banner__name{
+        font-size:30px !important;
+    }
+
+    #header .tc-institution-banner__logo{
+        width:50px !important;
+        height:50px !important;
+    }
+}
+
+/* ==========================================================
+   Luxe admin polish for user permissions, login, and bold typography
+   ========================================================== */
+
+html, body,
+button, input, select, textarea, option,
+label, .help, .helptext, .readonly,
+table, th, td, li, a, p, div, span {
+  font-weight: 700;
+}
+
+h1, h2, h3, h4, h5, h6,
+.module h2,
+.inline-group h2,
+.submit-row input,
+.button,
+input[type="submit"],
+input[type="button"],
+.button.default,
+a.button {
+  font-weight: 900 !important;
+}
+
+#content h1,
+#content h2,
+.inline-group .tabular fieldset.module h2,
+.inline-group h2 {
+  letter-spacing: .2px;
+}
+
+/* Login page: keep only MFEP look, remove institution name and INSFP visuals */
+body.login #header,
+body.login .breadcrumbs,
+body.login .admin-quick,
+body.login #nav-sidebar {
+  display: none !important;
+}
+
+body.login {
+  background:
+    radial-gradient(1200px 500px at 10% 0%, rgba(31, 128, 92, .22), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(176, 139, 60, .16), transparent 55%),
+    linear-gradient(180deg, #f6f8f4, #edf2ec 60%, #e7eeea);
+}
+
+body.login #container {
+  max-width: 540px;
+}
+
+body.login #content {
+  border-radius: 30px;
+  box-shadow: 0 24px 60px rgba(9, 46, 31, .18);
+  border: 1px solid rgba(15, 107, 74, .14);
+  background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(248,251,248,.98));
+  padding: 26px 24px 30px;
+}
+
+body.login #content-main::before {
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 20px;
+  background: url("../branding/mfep.ico") center/contain no-repeat;
+  filter: drop-shadow(0 12px 26px rgba(0,0,0,.20));
+}
+
+body.login #content-main h1,
+body.login .form-row label,
+body.login .submit-row input {
+  font-weight: 900 !important;
+}
+
+body.login .form-row input {
+  font-size: 18px;
+  min-height: 52px;
+}
+
+body.login .submit-row input {
+  min-height: 52px;
+  font-size: 18px;
+  border-radius: 18px;
+}
+
+/* User edit page cards */
+fieldset.tc-user-card,
+.inline-group fieldset.tc-permission-card {
+  border: 1px solid rgba(15, 107, 74, .12) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(244,248,245,.98)) !important;
+  box-shadow: 0 14px 36px rgba(15, 43, 31, .08);
+  padding: 0 !important;
+  overflow: hidden;
+  margin-bottom: 18px !important;
+}
+
+fieldset.tc-user-card > h2,
+.inline-group fieldset.tc-permission-card > h2,
+.inline-group h2 {
+  background: linear-gradient(90deg, #2f6f8a, #3c89a7) !important;
+  color: #fff !important;
+  border: 0 !important;
+  padding: 16px 22px !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+}
+
+fieldset.tc-user-card .description,
+.inline-group fieldset.tc-permission-card .description {
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  color: #234636 !important;
+  background: rgba(14, 92, 63, .05);
+  border: 1px solid rgba(15, 107, 74, .10);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 16px 16px 8px;
+  line-height: 1.9;
+}
+
+fieldset.tc-user-card .form-row,
+.inline-group fieldset.tc-permission-card .form-row {
+  padding: 14px 18px !important;
+  border-top: 1px solid rgba(15, 107, 74, .08);
+}
+
+fieldset.tc-user-card .form-row label,
+.inline-group fieldset.tc-permission-card .form-row label,
+.inline-group .form-row .readonly,
+.inline-group .form-row p {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  color: #102d21 !important;
+}
+
+fieldset.tc-user-card .help,
+fieldset.tc-user-card .helptext,
+.inline-group fieldset.tc-permission-card .help,
+.inline-group fieldset.tc-permission-card .helptext,
+fieldset.tc-user-card .form-row div.help,
+.inline-group fieldset.tc-permission-card .form-row div.help {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #325344 !important;
+  line-height: 2.0 !important;
+  margin-top: 8px;
+}
+
+fieldset.tc-account-status-group > h2 {
+  font-size: 28px !important;
+}
+
+fieldset.tc-account-status-group .form-row label,
+fieldset.tc-account-status-group .checkbox-row label {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+}
+
+fieldset.tc-account-status-group .help,
+fieldset.tc-account-status-group .helptext,
+fieldset.tc-account-status-group .form-row div.help {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  line-height: 2.1 !important;
+}
+
+.inline-group .module {
+  border: none !important;
+  background: transparent !important;
+}
+
+.inline-group .tabular fieldset.module,
+.inline-group fieldset.module {
+  margin-top: 0 !important;
+}
+
+.inline-group .original,
+.inline-group .tabular .original {
+  display: none !important;
+}
+
+.tc-permissions-inline > h2,
+.inline-group.tc-permissions-inline > h2 {
+  background: linear-gradient(90deg, #cddbd4, #eef5f1) !important;
+  color: #0f2b20 !important;
+  font-size: 28px !important;
+  padding: 16px 22px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(15, 107, 74, .10) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,.05);
+}
+
+.inline-group fieldset.tc-program-permissions .form-row > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 14px 18px;
+  align-items: start;
+}
+
+.inline-group fieldset.tc-general-permissions .form-row > div,
+.inline-group fieldset.tc-security-permissions .form-row > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 16px 20px;
+}
+
+.inline-group fieldset.tc-permission-card .checkbox-row,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox,
+fieldset.tc-user-card .checkbox-row,
+fieldset.tc-user-card .form-row .fieldBox {
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(15, 107, 74, .10);
+  border-radius: 18px;
+  padding: 14px 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+.inline-group input[type="checkbox"],
+fieldset.tc-user-card input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #c98a18;
+}
+
+@media (max-width: 980px) {
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div {
+    grid-template-columns: 1fr;
+  }
+
+  fieldset.tc-user-card > h2,
+  .inline-group fieldset.tc-permission-card > h2,
+  .inline-group h2,
+  fieldset.tc-account-status-group > h2,
+  .tc-permissions-inline > h2,
+  .inline-group.tc-permissions-inline > h2 {
+    font-size: 22px !important;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   Luxury / Enterprise Admin UI
+   نسخة احترافية فاخرة لتكبير الأزرار وعناوين الصلاحيات
+   ضع هذا المقطع في آخر ملف custom_admin.css
+   ========================================================= */
+
+/* =========================================================
+   1) متغيرات الألوان والأحجام العامة
+   هنا يمكنك تغيير الطابع العام بسهولة من مكان واحد
+   ========================================================= */
+:root{
+  --tc-lx-primary: #0f6b4a;                    /* اللون الرئيسي للأزرار والعناصر الأساسية */
+  --tc-lx-primary-dark: #0b573c;               /* الدرجة الأغمق للمرور أو الظلال */
+  --tc-lx-secondary: #b08b3c;                  /* اللون الذهبي الاحترافي للعناصر المميزة */
+  --tc-lx-secondary-soft: #f6ecd2;             /* خلفية ذهبية خفيفة */
+  --tc-lx-surface: #ffffff;                    /* خلفية البطاقات */
+  --tc-lx-surface-2: #f7faf8;                  /* خلفية ثانوية ناعمة */
+  --tc-lx-border: rgba(15, 107, 74, .14);      /* لون حدود خفيف ومتناسق */
+  --tc-lx-text: #102d21;                       /* لون النص الرئيسي */
+  --tc-lx-muted: #466154;                      /* لون النص الثانوي */
+  --tc-lx-shadow: 0 14px 34px rgba(15, 56, 40, .08); /* ظل احترافي موحد */
+  --tc-lx-shadow-hover: 0 18px 36px rgba(15, 56, 40, .14); /* ظل أكبر عند التفاعل */
+  --tc-lx-radius-lg: 22px;                     /* تدوير كبير للبطاقات */
+  --tc-lx-radius-md: 16px;                     /* تدوير متوسط للأزرار والصناديق */
+  --tc-lx-title-size: 34px;                    /* حجم عنوان الصفحة الرئيسي */
+  --tc-lx-section-size: 30px;                  /* حجم عناوين الأقسام */
+  --tc-lx-label-size: 21px;                    /* حجم أسماء الحقول والصلاحيات */
+  --tc-lx-help-size: 18px;                     /* حجم النصوص التوضيحية */
+  --tc-lx-button-size: 18px;                   /* حجم خط الأزرار */
+}
+
+/* =========================================================
+   2) عنوان الصفحة الرئيسي
+   مثل: صلاحيات المستخدم: صلاحيات ali
+   ========================================================= */
+#content h1,                                   /* عنوان الصفحة داخل المحتوى */
+.content h1,                                   /* دعم إضافي لبعض القوالب */
+h1 {                                           /* احتياط لأي عنوان رئيسي */
+  font-size: var(--tc-lx-title-size) !important; /* تكبير العنوان الرئيسي */
+  font-weight: 900 !important;                 /* جعل العنوان ثقيلاً وواضحاً */
+  line-height: 1.5 !important;                 /* تحسين تباعد السطر للعربية */
+  color: var(--tc-lx-text) !important;         /* لون مناسب ومريح */
+  margin-bottom: 22px !important;              /* مسافة أسفل العنوان */
+  letter-spacing: .2px !important;             /* تحسين شكل الحروف */
+}
+
+/* =========================================================
+   3) رؤوس الأقسام الكبيرة
+   مثل:
+   الصلاحيات العامة
+   صلاحيات الحضوري الأولي
+   صلاحيات التمهين
+   صلاحيات المسائي والمعابر
+   إعدادات الأمان
+   ========================================================= */
+fieldset.tc-user-card > h2,                    /* رأس بطاقة المستخدم */
+.inline-group fieldset.tc-permission-card > h2,/* رأس بطاقة صلاحية */
+.inline-group h2,                              /* أي عنوان h2 داخل مجموعات الصلاحيات */
+.tc-permissions-inline > h2,                   /* العنوان الأعلى لقسم الصلاحيات */
+.inline-group.tc-permissions-inline > h2,      /* دعم إضافي حسب البنية */
+fieldset.tc-account-status-group > h2 {        /* عنوان إعدادات الأمان والحالة */
+  background: linear-gradient(135deg, #2f6f8a 0%, #317895 50%, #3d8eac 100%) !important; /* شريط عنوان أزرق فاخر */
+  color: #ffffff !important;                   /* نص أبيض واضح */
+  font-size: var(--tc-lx-section-size) !important; /* تكبير عنوان القسم */
+  font-weight: 900 !important;                 /* جعله بارزاً جداً */
+  line-height: 1.45 !important;                /* راحة أكبر في القراءة */
+  padding: 20px 26px !important;               /* مساحة داخلية كبيرة */
+  border: 0 !important;                        /* إزالة أي حد قديم */
+  border-radius: var(--tc-lx-radius-lg) var(--tc-lx-radius-lg) 0 0 !important; /* تدوير علوي أنيق */
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.10) !important; /* فصل ناعم داخل الشريط */
+}
+
+/* =========================================================
+   4) شكل البطاقة نفسها
+   يجعل كل قسم يبدو كلوحة احترافية مستقلة
+   ========================================================= */
+fieldset.tc-user-card,                         /* بطاقة بيانات المستخدم */
+.inline-group fieldset.tc-permission-card,     /* بطاقات الصلاحيات */
+fieldset.tc-account-status-group {             /* بطاقة إعدادات الأمان */
+  border: 1px solid var(--tc-lx-border) !important; /* حد خارجي أنيق */
+  border-radius: var(--tc-lx-radius-lg) !important; /* زوايا كبيرة حديثة */
+  background: linear-gradient(180deg, #ffffff, #f8fbf9) !important; /* خلفية فاخرة خفيفة */
+  box-shadow: var(--tc-lx-shadow) !important;  /* ظل احترافي */
+  overflow: hidden !important;                 /* منع خروج المحتوى خارج الزوايا */
+  margin-bottom: 22px !important;              /* مسافة بين البطاقات */
+}
+
+/* =========================================================
+   5) النصوص الوصفية داخل كل قسم
+   مثل النص الذي يشرح وظيفة الصلاحيات داخل البطاقة
+   ========================================================= */
+fieldset.tc-user-card .description,            /* وصف بطاقة المستخدم */
+.inline-group fieldset.tc-permission-card .description, /* وصف بطاقة الصلاحيات */
+fieldset.tc-account-status-group .help,
+fieldset.tc-account-status-group .helptext,
+fieldset.tc-account-status-group .form-row div.help {
+  font-size: var(--tc-lx-help-size) !important; /* تكبير النص الوصفي */
+  font-weight: 800 !important;                 /* جعله أوضح */
+  line-height: 2.0 !important;                 /* تباعد مريح جداً للنص العربي */
+  color: #244437 !important;                   /* لون واضح لكن غير حاد */
+  background: linear-gradient(180deg, #f8fbf9, #f1f7f3) !important; /* خلفية خفيفة جداً */
+  border: 1px solid rgba(15, 107, 74, .08) !important; /* حد بسيط */
+  border-radius: 16px !important;              /* زوايا ناعمة */
+  padding: 16px 18px !important;               /* مساحة داخلية جيدة */
+  margin: 18px 18px 10px !important;           /* مسافات خارجية منتظمة */
+}
+
+/* =========================================================
+   6) كل سطر داخل الصلاحيات
+   مثل سطر: الحضوري : عرض / إضافة / تعديل / حذف
+   ========================================================= */
+fieldset.tc-user-card .form-row,               /* سطر داخل بطاقة المستخدم */
+.inline-group fieldset.tc-permission-card .form-row, /* سطر داخل بطاقة الصلاحيات */
+fieldset.tc-account-status-group .form-row {   /* سطر داخل إعدادات الأمان */
+  padding: 16px 20px !important;               /* مساحة داخلية للسطر */
+  border-top: 1px solid rgba(15, 107, 74, .08) !important; /* فاصل بين الأسطر */
+  background: transparent !important;          /* ترك الخلفية نظيفة */
+}
+
+/* =========================================================
+   7) أسماء الحقول داخل الأسطر
+   مثل:
+   الصلاحيات العامة
+   الحضوري
+   التمهين
+   المسائي والمعابر
+   ========================================================= */
+fieldset.tc-user-card .form-row label,         /* تسمية الحقول داخل بطاقة المستخدم */
+.inline-group fieldset.tc-permission-card .form-row label, /* تسمية الحقول داخل بطاقات الصلاحيات */
+.inline-group .form-row .readonly,             /* النصوص غير القابلة للتحرير */
+.inline-group .form-row p,                     /* الفقرات داخل الأسطر */
+fieldset.tc-account-status-group .form-row label,
+fieldset.tc-account-status-group .checkbox-row label {
+  font-size: var(--tc-lx-label-size) !important; /* تكبير واضح لأسماء الحقول */
+  font-weight: 900 !important;                 /* جعل النص ثقيلاً */
+  line-height: 1.95 !important;                /* تحسين المسافة العمودية */
+  color: var(--tc-lx-text) !important;         /* لون العنوان */
+}
+
+/* =========================================================
+   8) الصناديق الصغيرة داخل الأسطر
+   مثل صندوق كل صلاحية أو كل حقل مستقل
+   ========================================================= */
+.inline-group fieldset.tc-permission-card .checkbox-row, /* صندوق checkbox داخل بطاقات الصلاحيات */
+.inline-group fieldset.tc-permission-card .form-row .fieldBox, /* أي صندوق حقل داخل الصلاحيات */
+fieldset.tc-user-card .checkbox-row,           /* صندوق checkbox في بطاقة المستخدم */
+fieldset.tc-user-card .form-row .fieldBox,
+fieldset.tc-account-status-group .checkbox-row { /* صندوق checkbox في إعدادات الأمان */
+  background: linear-gradient(180deg, #ffffff, #f9fcfa) !important; /* خلفية بيضاء ناعمة */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد خفيف */
+  border-radius: 18px !important;              /* تدوير أنيق */
+  padding: 16px 18px !important;               /* تكبير الصندوق */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.80), 0 6px 16px rgba(15, 56, 40, .04) !important; /* لمعان وظل خفيف */
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important; /* حركة ناعمة */
+}
+
+/* تأثير المرور بالفأرة على صناديق الصلاحيات */
+.inline-group fieldset.tc-permission-card .checkbox-row:hover,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox:hover,
+fieldset.tc-user-card .checkbox-row:hover,
+fieldset.tc-user-card .form-row .fieldBox:hover,
+fieldset.tc-account-status-group .checkbox-row:hover {
+  transform: translateY(-1px) !important;      /* رفع بسيط للصندوق */
+  border-color: rgba(15, 107, 74, .18) !important; /* إبراز الحد */
+  box-shadow: 0 10px 22px rgba(15, 56, 40, .08) !important; /* ظل أكبر قليلاً */
+}
+
+/* =========================================================
+   9) مربعات الاختيار
+   تكبيرها لتصبح أسهل في الاستخدام وأوضح بصرياً
+   ========================================================= */
+.inline-group input[type="checkbox"],
+fieldset.tc-user-card input[type="checkbox"],
+fieldset.tc-account-status-group input[type="checkbox"] {
+  width: 24px !important;                      /* عرض مربع الاختيار */
+  height: 24px !important;                     /* ارتفاع مربع الاختيار */
+  accent-color: var(--tc-lx-secondary) !important; /* لون ذهبي أنيق عند التحديد */
+  cursor: pointer !important;                  /* مؤشر تفاعلي */
+  transform: translateY(2px);                  /* ضبط تموضع بسيط بالنسبة للنص */
+}
+
+/* =========================================================
+   10) الأزرار العامة
+   مثل: حفظ / حفظ وإضافة / حفظ ومتابعة / حذف / رجوع
+   ========================================================= */
+.button,                                       /* أي زر عام */
+input[type="submit"],                          /* زر إرسال */
+input[type="button"],                          /* زر عادي */
+.submit-row input,                             /* أزرار صف الحفظ */
+a.button {                                     /* الروابط ذات شكل الأزرار */
+  display: inline-flex !important;             /* جعل الزر مرناً */
+  align-items: center !important;              /* توسيط عمودي */
+  justify-content: center !important;          /* توسيط أفقي */
+  min-height: 54px !important;                 /* ارتفاع أكبر للزر */
+  padding: 12px 24px !important;               /* مساحة داخلية كبيرة */
+  border-radius: 16px !important;              /* زوايا أكثر فخامة */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد خفيف */
+  background: linear-gradient(180deg, #ffffff 0%, #f1f7f3 100%) !important; /* خلفية راقية */
+  color: var(--tc-lx-text) !important;         /* نص واضح */
+  font-size: var(--tc-lx-button-size) !important; /* تكبير خط الزر */
+  font-weight: 900 !important;                 /* خط ثقيل */
+  letter-spacing: .2px !important;             /* تحسين الطابع البصري */
+  text-decoration: none !important;            /* إزالة أي خط أسفل النص */
+  box-shadow: 0 10px 22px rgba(15, 56, 40, .07) !important; /* ظل احترافي */
+  transition: all .18s ease !important;        /* حركة ناعمة عند التفاعل */
+}
+
+/* تأثير المرور على الأزرار العامة */
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover {
+  transform: translateY(-1px) !important;      /* رفع خفيف */
+  box-shadow: var(--tc-lx-shadow-hover) !important; /* ظل أكبر */
+  background: linear-gradient(180deg, #ffffff 0%, #eaf5ef 100%) !important; /* تفتيح بسيط */
+}
+
+/* =========================================================
+   11) الزر الرئيسي
+   مثل زر "حفظ" الرئيسي في الصفحة
+   ========================================================= */
+.button.default,
+input[type="submit"].default,
+.submit-row input.default {
+  background: linear-gradient(180deg, var(--tc-lx-primary) 0%, var(--tc-lx-primary-dark) 100%) !important; /* الزر الرئيسي باللون الأخضر */
+  color: #ffffff !important;                   /* نص أبيض */
+  border: 1px solid rgba(255,255,255,.10) !important; /* حد شفاف خفيف */
+  box-shadow: 0 14px 28px rgba(15, 107, 74, .22) !important; /* ظل أقوى */
+}
+
+/* المرور على الزر الرئيسي */
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover {
+  background: linear-gradient(180deg, #147653 0%, #0f6246 100%) !important; /* تغيير بسيط في اللون */
+  box-shadow: 0 18px 34px rgba(15, 107, 74, .28) !important; /* ظل أوضح */
+}
+
+/* =========================================================
+   12) الأزرار الصغيرة داخل جداول وروابط الإدارة
+   مثل: إضافة / تعديل / عرض / حذف
+   ========================================================= */
+.tc-module .addlink,                           /* زر إضافة داخل الجداول أو الكتل */
+.tc-module .changelink,                        /* زر تعديل */
+.tc-module .deletelink,                        /* زر حذف */
+.tc-module .viewlink,                          /* زر عرض إذا كان موجوداً */
+.tc-module a.button,                           /* أي زر داخل tc-module */
+.tc-module td a.addlink,                       /* زر إضافة داخل خلية */
+.tc-module td a.changelink,
+.tc-module td a.deletelink,
+#nav-sidebar .addlink,                         /* زر إضافة في الشريط الجانبي */
+#nav-sidebar .changelink {                     /* زر تعديل في الشريط الجانبي */
+  display: inline-flex !important;             /* عرض مرن */
+  align-items: center !important;              /* توسيط عمودي */
+  justify-content: center !important;          /* توسيط أفقي */
+  min-height: 44px !important;                 /* تكبير الارتفاع */
+  padding: 10px 18px !important;               /* تكبير الأبعاد */
+  border-radius: 14px !important;              /* زوايا حديثة */
+  background: linear-gradient(180deg, #ffffff, #f5f9f6) !important; /* خلفية جميلة */
+  border: 1px solid rgba(15, 107, 74, .12) !important; /* حد ناعم */
+  color: var(--tc-lx-primary) !important;      /* لون نص متناسق */
+  font-size: 17px !important;                  /* تكبير الخط */
+  font-weight: 900 !important;                 /* خط قوي */
+  text-decoration: none !important;            /* إزالة الخط السفلي */
+  box-shadow: 0 8px 18px rgba(15, 56, 40, .06) !important; /* ظل خفيف */
+  transition: all .18s ease !important;        /* حركة ناعمة */
+}
+
+/* المرور على هذه الأزرار */
+.tc-module .addlink:hover,
+.tc-module .changelink:hover,
+.tc-module .deletelink:hover,
+.tc-module .viewlink:hover,
+.tc-module a.button:hover,
+.tc-module td a.addlink:hover,
+.tc-module td a.changelink:hover,
+.tc-module td a.deletelink:hover,
+#nav-sidebar .addlink:hover,
+#nav-sidebar .changelink:hover {
+  background: linear-gradient(180deg, #ffffff, #eaf4ef) !important; /* تفتيح الخلفية */
+  transform: translateY(-1px) !important;      /* رفع خفيف */
+  box-shadow: 0 12px 24px rgba(15, 56, 40, .12) !important; /* ظل أوضح */
+}
+
+/* =========================================================
+   13) عناوين وحدات الشريط الجانبي
+   مثل:
+   إدارة المستخدمين
+   تسيير تعداد المتكوّنين
+   ========================================================= */
+#nav-sidebar .module caption,                  /* عنوان الوحدة */
+#nav-sidebar .module h2,                       /* عنوان h2 داخل الشريط */
+#nav-sidebar .section,                         /* أي قسم داخلي */
+#nav-sidebar th,                               /* خلايا عناوين الجدول */
+#nav-sidebar td {                              /* خلايا النصوص */
+  font-size: 20px !important;                  /* تكبير النص */
+  font-weight: 900 !important;                 /* جعله واضحاً جداً */
+  line-height: 1.85 !important;                /* إراحة القراءة */
+  color: var(--tc-lx-text) !important;         /* لون النص */
+}
+
+/* =========================================================
+   14) تحسين بطاقات الشريط الجانبي نفسها
+   ========================================================= */
+#nav-sidebar .module {
+  border-radius: 20px !important;              /* تدوير البطاقة */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد خفيف */
+  background: linear-gradient(180deg, #ffffff, #f9fcfa) !important; /* خلفية البطاقة */
+  box-shadow: 0 10px 24px rgba(15, 56, 40, .05) !important; /* ظل بسيط */
+  overflow: hidden !important;                 /* الحفاظ على الزوايا */
+  margin-bottom: 16px !important;              /* مسافة بين الوحدات */
+}
+
+/* عنوان كل بطاقة يمين الصفحة */
+#nav-sidebar .module caption,
+#nav-sidebar .module h2 {
+  background: linear-gradient(180deg, #f3f8f4, #ecf4ef) !important; /* شريط علوي هادئ */
+  padding: 16px 18px !important;               /* مساحة داخلية */
+  border-bottom: 1px solid rgba(15, 107, 74, .08) !important; /* خط فاصل */
+}
+
+/* =========================================================
+   15) أزرار وإطارات منطقة الحفظ النهائية
+   ========================================================= */
+.submit-row {
+  background: linear-gradient(180deg, #ffffff, #f8fbf9) !important; /* خلفية صف الحفظ */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد ناعم */
+  border-radius: 20px !important;              /* تدوير الصندوق */
+  padding: 18px !important;                    /* مساحة داخلية */
+  box-shadow: 0 10px 24px rgba(15, 56, 40, .05) !important; /* ظل ناعم */
+}
+
+/* =========================================================
+   16) تحسين الروابط العادية داخل صفحة الصلاحيات
+   ========================================================= */
+#content a,
+.inline-group a,
+fieldset a {
+  font-weight: 800 !important;                 /* جعل الروابط واضحة */
+  text-decoration-thickness: 2px;             /* سماكة الخط السفلي إن وجد */
+  text-underline-offset: 3px;                 /* إزاحة خط الرابط */
+}
+
+/* =========================================================
+   17) تخطيط أقسام الصلاحيات
+   يجعل الصناديق أكثر اتساعاً واحترافية
+   ========================================================= */
+.inline-group fieldset.tc-program-permissions .form-row > div { /* أقسام البرامج أو الصلاحيات الكثيرة */
+  display: grid !important;                    /* استخدام grid */
+  grid-template-columns: repeat(4, minmax(180px, 1fr)) !important; /* 4 أعمدة عريضة */
+  gap: 18px 22px !important;                   /* فراغات مريحة */
+  align-items: stretch !important;             /* توحيد الإحساس البصري */
+}
+
+.inline-group fieldset.tc-general-permissions .form-row > div, /* الصلاحيات العامة */
+.inline-group fieldset.tc-security-permissions .form-row > div { /* إعدادات الأمان */
+  display: grid !important;                    /* استخدام grid */
+  grid-template-columns: repeat(2, minmax(260px, 1fr)) !important; /* عمودان كبيران */
+  gap: 18px 22px !important;                   /* مسافة بين العناصر */
+}
+
+/* =========================================================
+   18) تحسين نسخة الهاتف والتابلت
+   ========================================================= */
+@media (max-width: 980px){
+
+  :root{
+    --tc-lx-title-size: 28px;                  /* تصغير العنوان الرئيسي قليلاً للتابلت */
+    --tc-lx-section-size: 24px;                /* تصغير عناوين الأقسام */
+    --tc-lx-label-size: 19px;                  /* تصغير أسماء الحقول */
+    --tc-lx-help-size: 17px;                   /* تصغير النص التوضيحي */
+    --tc-lx-button-size: 17px;                 /* تصغير خط الأزرار قليلاً */
+  }
+
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div {
+    grid-template-columns: 1fr 1fr !important; /* عمودان على الشاشات المتوسطة */
+  }
+}
+
+@media (max-width: 640px){
+
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div {
+    grid-template-columns: 1fr !important;     /* عمود واحد على الهاتف */
+  }
+
+  .button,
+  input[type="submit"],
+  input[type="button"],
+  .submit-row input,
+  a.button,
+  .tc-module .addlink,
+  .tc-module .changelink,
+  .tc-module .deletelink,
+  .tc-module .viewlink,
+  #nav-sidebar .addlink,
+  #nav-sidebar .changelink {
+    width: 100% !important;                    /* تمديد الأزرار بعرض السطر على الهاتف */
+  }
+
+  fieldset.tc-user-card > h2,
+  .inline-group fieldset.tc-permission-card > h2,
+  .inline-group h2,
+  .tc-permissions-inline > h2,
+  .inline-group.tc-permissions-inline > h2,
+  fieldset.tc-account-status-group > h2 {
+    padding: 16px 18px !important;             /* تقليل الحشوة قليلاً للموبايل */
+  }
+}
+/* =========================================================
+   FINAL FIX PACK - refined after visual review
+   الغرض: إصلاح فعلي لصفحة الصلاحيات والشريط الجانبي مع تصغير الخط قليلاً
+   ضعيف التأثير من الأعلى وقوي جداً هنا لأنه آخر الملف
+   ========================================================= */
+
+:root{
+  --tc-fx-text: #163428; /* لون النص الأساسي */
+  --tc-fx-muted: #486154; /* لون النص الثانوي */
+  --tc-fx-border: rgba(15, 107, 74, .10); /* لون الحدود */
+  --tc-fx-soft-border: rgba(15, 107, 74, .08); /* لون حدود أخف */
+  --tc-fx-bg: #f6faf7; /* خلفية ناعمة */
+  --tc-fx-card: #ffffff; /* خلفية البطاقات */
+  --tc-fx-card-2: #f8fcf9; /* خلفية ثانوية للبطاقات */
+  --tc-fx-blue-1: #2e718d; /* بداية تدرج العناوين */
+  --tc-fx-blue-2: #3e8cab; /* نهاية تدرج العناوين */
+  --tc-fx-green-1: #0f6b4a; /* لون أخضر رئيسي */
+  --tc-fx-green-2: #0b5a3e; /* أخضر أغمق */
+  --tc-fx-gold: #b48b34; /* ذهبي ناعم */
+  --tc-fx-shadow-sm: 0 6px 16px rgba(20, 52, 38, .05); /* ظل صغير */
+  --tc-fx-shadow-md: 0 12px 28px rgba(20, 52, 38, .08); /* ظل متوسط */
+  --tc-fx-shadow-lg: 0 18px 40px rgba(20, 52, 38, .10); /* ظل أكبر */
+}
+
+body{
+  background: linear-gradient(180deg, #eef4ef 0%, #f8fbf9 100%) !important; /* خلفية عامة مريحة */
+  color: var(--tc-fx-text) !important; /* لون النص */
+}
+
+#content,
+.content{
+  background: transparent !important; /* إزالة التراكمات القديمة */
+  border: 0 !important; /* إزالة الحدود القديمة */
+  box-shadow: none !important; /* إزالة الظل القديم */
+  padding: 14px !important; /* حشوة أخف */
+}
+
+/* =========================
+   عنوان الصفحة الرئيسي
+   ========================= */
+#content h1,
+.content h1,
+#content-main h1{
+  font-size: 27px !important; /* تصغير العنوان الرئيسي قليلاً */
+  font-weight: 900 !important; /* عنوان قوي */
+  line-height: 1.45 !important; /* تباعد سطور مناسب */
+  color: var(--tc-fx-text) !important; /* لون العنوان */
+  margin: 0 0 14px !important; /* مسافة أسفل العنوان */
+}
+
+/* =========================
+   الحاويات الكبيرة للصلاحيات
+   ========================= */
+.inline-group,
+fieldset.tc-user-card,
+.inline-group fieldset.tc-permission-card,
+fieldset.tc-account-status-group{
+  background: linear-gradient(180deg, var(--tc-fx-card), var(--tc-fx-card-2)) !important; /* خلفية البطاقة */
+  border: 1px solid var(--tc-fx-border) !important; /* حد ناعم */
+  border-radius: 22px !important; /* تدوير احترافي */
+  box-shadow: var(--tc-fx-shadow-md) !important; /* ظل أنيق */
+  overflow: hidden !important; /* منع خروج المحتوى */
+}
+
+/* =========================
+   رؤوس الأقسام الأساسية
+   ========================= */
+fieldset.tc-user-card > h2,
+.inline-group fieldset.tc-permission-card > h2,
+.inline-group h2,
+.tc-permissions-inline > h2,
+.inline-group.tc-permissions-inline > h2,
+fieldset.tc-account-status-group > h2{
+  background: linear-gradient(135deg, var(--tc-fx-blue-1), var(--tc-fx-blue-2)) !important; /* شريط علوي فاخر */
+  color: #fff !important; /* نص أبيض */
+  font-size: 24px !important; /* حجم عنوان القسم بعد التصغير */
+  font-weight: 900 !important; /* خط قوي */
+  line-height: 1.4 !important; /* تباعد مناسب */
+  padding: 16px 20px !important; /* حشوة معقولة */
+  border: 0 !important; /* إزالة أي حدود سابقة */
+  border-radius: 22px 22px 0 0 !important; /* تدوير علوي */
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.12) !important; /* فصل خفيف */
+}
+
+/* =========================
+   تظليل خاص لكل قسم رئيسي
+   - القسم الأول: الصلاحيات العامة
+   - القسم الثاني: الحضوري الأولي
+   - القسم الثالث: التمهين
+   - القسم الرابع: المسائي والمعابر
+   - القسم الأخير: إعدادات الأمان/الحالة
+   ========================= */
+.inline-group fieldset.tc-permission-card:nth-of-type(1){
+  background: linear-gradient(180deg, #ffffff, #f4faf6) !important; /* تظليل أخضر فاتح */
+  border-color: rgba(15, 107, 74, .16) !important; /* حد أوضح */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(2){
+  background: linear-gradient(180deg, #ffffff, #f3f8fc) !important; /* تظليل أزرق فاتح */
+  border-color: rgba(46, 113, 141, .16) !important; /* حد أزرق خفيف */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(3){
+  background: linear-gradient(180deg, #ffffff, #fff8ef) !important; /* تظليل ذهبي فاتح */
+  border-color: rgba(180, 139, 52, .18) !important; /* حد ذهبي خفيف */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(4){
+  background: linear-gradient(180deg, #ffffff, #f6f4fc) !important; /* تظليل بنفسجي هادئ */
+  border-color: rgba(109, 92, 160, .16) !important; /* حد بنفسجي خفيف */
+}
+fieldset.tc-account-status-group{
+  background: linear-gradient(180deg, #ffffff, #f7fbf8) !important; /* تظليل إعدادات الأمان */
+  border-color: rgba(15, 107, 74, .18) !important; /* حد أوضح */
+}
+
+/* عناوين شريط القسم حسب ترتيبه */
+.inline-group fieldset.tc-permission-card:nth-of-type(1) > h2{
+  background: linear-gradient(135deg, #1d7a57, #3c9a73) !important; /* أخضر للصلاحيات العامة */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(2) > h2{
+  background: linear-gradient(135deg, #2e718d, #4a98b4) !important; /* أزرق للحضوري الأولي */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(3) > h2{
+  background: linear-gradient(135deg, #9b7424, #c79b43) !important; /* ذهبي للتمهين */
+}
+.inline-group fieldset.tc-permission-card:nth-of-type(4) > h2{
+  background: linear-gradient(135deg, #6650a3, #8972c7) !important; /* بنفسجي للمسائي والمعابر */
+}
+fieldset.tc-account-status-group > h2{
+  background: linear-gradient(135deg, #415f52, #648877) !important; /* أخضر رمادي لإعدادات الأمان */
+}
+
+/* =========================
+   الأسطر الداخلية والوصف
+   ========================= */
+fieldset.tc-user-card .description,
+.inline-group fieldset.tc-permission-card .description,
+fieldset.tc-account-status-group .help,
+fieldset.tc-account-status-group .helptext,
+fieldset.tc-account-status-group .form-row div.help{
+  font-size: 15px !important; /* تصغير النص التوضيحي قليلاً */
+  font-weight: 700 !important; /* وزن متوسط واضح */
+  line-height: 1.9 !important; /* قراءة مريحة */
+  color: #355245 !important; /* لون مناسب */
+  background: #f9fcfa !important; /* خلفية هادئة */
+  border: 1px solid var(--tc-fx-soft-border) !important; /* حد خفيف */
+  border-radius: 16px !important; /* زوايا ناعمة */
+  padding: 12px 15px !important; /* حشوة داخلية */
+  margin: 14px 14px 8px !important; /* مسافات مضبوطة */
+}
+
+fieldset.tc-user-card .form-row,
+.inline-group fieldset.tc-permission-card .form-row,
+fieldset.tc-account-status-group .form-row{
+  padding: 12px 14px !important; /* حشوة السطر */
+  border-top: 1px solid var(--tc-fx-soft-border) !important; /* فاصل السطور */
+  background: transparent !important; /* بدون خلفية مزعجة */
+}
+
+fieldset.tc-user-card .form-row label,
+.inline-group fieldset.tc-permission-card .form-row label,
+.inline-group .form-row .readonly,
+.inline-group .form-row p,
+fieldset.tc-account-status-group .form-row label,
+fieldset.tc-account-status-group .checkbox-row label{
+  font-size: 17px !important; /* تصغير طفيف للخط بعد أن كان كبيراً */
+  font-weight: 800 !important; /* خط واضح */
+  line-height: 1.75 !important; /* تباعد جيد */
+  color: var(--tc-fx-text) !important; /* لون النص */
+}
+
+fieldset.tc-user-card .help,
+fieldset.tc-user-card .helptext,
+.inline-group fieldset.tc-permission-card .help,
+.inline-group fieldset.tc-permission-card .helptext,
+fieldset.tc-user-card .form-row div.help,
+.inline-group fieldset.tc-permission-card .form-row div.help{
+  font-size: 14px !important; /* تصغير نص المساعدة */
+  font-weight: 700 !important; /* وضوح جيد */
+  line-height: 1.8 !important; /* راحة في القراءة */
+  color: var(--tc-fx-muted) !important; /* لون أهدأ */
+  margin-top: 8px !important; /* مسافة فوق النص */
+}
+
+/* =========================
+   صناديق الحقول والاختيارات
+   ========================= */
+.inline-group fieldset.tc-permission-card .checkbox-row,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox,
+fieldset.tc-user-card .checkbox-row,
+fieldset.tc-user-card .form-row .fieldBox,
+fieldset.tc-account-status-group .checkbox-row{
+  background: linear-gradient(180deg, #ffffff, #fbfdfb) !important; /* خلفية الصندوق */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد خفيف */
+  border-radius: 18px !important; /* تدوير جميل */
+  padding: 12px 14px !important; /* حشوة داخلية */
+  box-shadow: var(--tc-fx-shadow-sm) !important; /* ظل خفيف */
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important; /* حركة ناعمة */
+}
+
+.inline-group fieldset.tc-permission-card .checkbox-row:hover,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox:hover,
+fieldset.tc-user-card .checkbox-row:hover,
+fieldset.tc-user-card .form-row .fieldBox:hover,
+fieldset.tc-account-status-group .checkbox-row:hover{
+  transform: translateY(-1px) !important; /* رفع بسيط */
+  box-shadow: var(--tc-fx-shadow-md) !important; /* ظل أوضح */
+  border-color: rgba(15, 107, 74, .16) !important; /* حد أوضح */
+}
+
+/* =========================
+   مربعات الاختيار
+   ========================= */
+.inline-group input[type="checkbox"],
+fieldset.tc-user-card input[type="checkbox"],
+fieldset.tc-account-status-group input[type="checkbox"]{
+  width: 20px !important; /* عرض checkbox */
+  height: 20px !important; /* ارتفاع checkbox */
+  accent-color: var(--tc-fx-gold) !important; /* لون العلامة */
+  cursor: pointer !important; /* مؤشر تفاعلي */
+  transform: translateY(1px) !important; /* تمركز لطيف */
+}
+
+/* =========================
+   الأزرار الرئيسية والعامة
+   ========================= */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button{
+  display: inline-flex !important; /* عرض مرن */
+  align-items: center !important; /* توسيط عمودي */
+  justify-content: center !important; /* توسيط أفقي */
+  min-height: 42px !important; /* ارتفاع أقل من السابق */
+  padding: 8px 18px !important; /* أبعاد متوازنة */
+  border-radius: 12px !important; /* تدوير احترافي */
+  border: 1px solid rgba(15, 107, 74, .14) !important; /* حد خارجي */
+  background: linear-gradient(180deg, #ffffff, #f2f7f4) !important; /* خلفية أنيقة */
+  color: var(--tc-fx-text) !important; /* لون النص */
+  font-size: 15px !important; /* تصغير الخط قليلاً */
+  font-weight: 800 !important; /* خط واضح */
+  box-shadow: var(--tc-fx-shadow-sm) !important; /* ظل ناعم */
+  text-decoration: none !important; /* بدون خط سفلي */
+  transition: all .16s ease !important; /* حركة */
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover{
+  background: linear-gradient(180deg, #ffffff, #eaf4ee) !important; /* تفتيح عند المرور */
+  transform: translateY(-1px) !important; /* رفع بسيط */
+  box-shadow: var(--tc-fx-shadow-md) !important; /* ظل أقوى */
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default{
+  background: linear-gradient(180deg, var(--tc-fx-green-1), var(--tc-fx-green-2)) !important; /* الزر الرئيسي */
+  color: #fff !important; /* نص أبيض */
+  border-color: rgba(255,255,255,.10) !important; /* حد خفيف */
+  box-shadow: 0 12px 24px rgba(15, 107, 74, .20) !important; /* ظل أقوى */
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover{
+  background: linear-gradient(180deg, #137352, #0d5a3f) !important; /* تغيير بسيط */
+}
+
+/* =========================
+   تحسين الشريط الجانبي الأيمن بشكل واضح
+   ========================= */
+#nav-sidebar{
+  background: linear-gradient(180deg, #f7fbf8, #eef6f1) !important; /* خلفية الشريط */
+  border-left: 1px solid rgba(15, 107, 74, .10) !important; /* حد يسار الشريط */
+  padding: 10px 10px 18px !important; /* حشوة داخلية */
+}
+
+#nav-sidebar .module{
+  background: linear-gradient(180deg, #ffffff, #f8fcf9) !important; /* خلفية بطاقات الشريط */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد البطاقة */
+  border-radius: 20px !important; /* تدوير جميل */
+  box-shadow: var(--tc-fx-shadow-sm) !important; /* ظل ناعم */
+  overflow: hidden !important; /* حفظ الشكل */
+  margin-bottom: 16px !important; /* مسافة بين البطاقات */
+}
+
+#nav-sidebar .module caption,
+#nav-sidebar .module h2{
+  background: linear-gradient(180deg, #eef6f1, #e6f1eb) !important; /* عنوان البطاقة */
+  color: var(--tc-fx-text) !important; /* لون النص */
+  font-size: 18px !important; /* تصغير العنوان قليلاً */
+  font-weight: 900 !important; /* وضوح */
+  line-height: 1.6 !important; /* تباعد مناسب */
+  padding: 14px 16px !important; /* حشوة */
+  border-bottom: 1px solid rgba(15, 107, 74, .08) !important; /* خط فاصل */
+}
+
+#nav-sidebar th,
+#nav-sidebar td,
+#nav-sidebar a{
+  font-size: 15px !important; /* تصغير نص الشريط الجانبي */
+  font-weight: 700 !important; /* خط واضح */
+  line-height: 1.65 !important; /* تباعد جيد */
+  color: var(--tc-fx-text) !important; /* لون النص */
+}
+
+#nav-sidebar table{
+  width: 100% !important; /* ملء البطاقة */
+  border-collapse: separate !important; /* تحكم أفضل */
+  border-spacing: 0 !important; /* بدون فراغات */
+}
+
+#nav-sidebar th,
+#nav-sidebar td{
+  padding: 12px 12px !important; /* حشوة داخل الخلايا */
+  border-bottom: 1px solid rgba(15, 107, 74, .06) !important; /* فاصل أسطر */
+  vertical-align: middle !important; /* توسيط عمودي */
+}
+
+#nav-sidebar tr:last-child th,
+#nav-sidebar tr:last-child td{
+  border-bottom: none !important; /* إزالة آخر فاصل */
+}
+
+/* أزرار إضافة/تعديل في الشريط الجانبي */
+#nav-sidebar .addlink,
+#nav-sidebar .changelink,
+.tc-module .addlink,
+.tc-module .changelink,
+.tc-module .deletelink,
+.tc-module .viewlink,
+.tc-module td a.addlink,
+.tc-module td a.changelink,
+.tc-module td a.deletelink{
+  display: inline-flex !important; /* زر مرن */
+  align-items: center !important; /* توسيط عمودي */
+  justify-content: center !important; /* توسيط أفقي */
+  min-height: 38px !important; /* ارتفاع معقول */
+  padding: 7px 14px !important; /* أبعاد متوازنة */
+  border-radius: 12px !important; /* تدوير أنيق */
+  border: 1px solid rgba(15, 107, 74, .12) !important; /* حد ناعم */
+  background: linear-gradient(180deg, #ffffff, #f2f7f4) !important; /* خلفية زر */
+  color: var(--tc-fx-green-1) !important; /* لون النص */
+  font-size: 14px !important; /* تصغير الخط قليلاً */
+  font-weight: 800 !important; /* خط واضح */
+  text-decoration: none !important; /* إزالة الخط */
+  box-shadow: 0 4px 10px rgba(20, 52, 38, .05) !important; /* ظل بسيط */
+  transition: all .16s ease !important; /* حركة ناعمة */
+}
+
+#nav-sidebar .addlink:hover,
+#nav-sidebar .changelink:hover,
+.tc-module .addlink:hover,
+.tc-module .changelink:hover,
+.tc-module .deletelink:hover,
+.tc-module .viewlink:hover,
+.tc-module td a.addlink:hover,
+.tc-module td a.changelink:hover,
+.tc-module td a.deletelink:hover{
+  background: linear-gradient(180deg, #ffffff, #e8f3ec) !important; /* تفتيح عند المرور */
+  transform: translateY(-1px) !important; /* رفع بسيط */
+  box-shadow: var(--tc-fx-shadow-sm) !important; /* ظل أوضح */
+}
+
+/* =========================
+   صف الحفظ النهائي
+   ========================= */
+.submit-row{
+  background: linear-gradient(180deg, #ffffff, #f8fcf9) !important; /* خلفية صف الحفظ */
+  border: 1px solid rgba(15, 107, 74, .10) !important; /* حد الصندوق */
+  border-radius: 18px !important; /* تدوير */
+  padding: 14px 16px !important; /* حشوة */
+  box-shadow: var(--tc-fx-shadow-sm) !important; /* ظل */
+}
+
+/* =========================
+   شبكة الصلاحيات: نجعلها أعرض لكن ليست ضخمة
+   ========================= */
+.inline-group fieldset.tc-program-permissions .form-row > div{
+  display: grid !important; /* تنظيم بالعناصر */
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) !important; /* 4 أعمدة */
+  gap: 14px 16px !important; /* مسافات مضبوطة */
+  align-items: start !important; /* محاذاة علوية */
+}
+
+.inline-group fieldset.tc-general-permissions .form-row > div,
+.inline-group fieldset.tc-security-permissions .form-row > div{
+  display: grid !important; /* تنظيم بالعناصر */
+  grid-template-columns: repeat(2, minmax(220px, 1fr)) !important; /* عمودان */
+  gap: 14px 16px !important; /* مسافات */
+}
+
+/* =========================
+   تحسين عام للنصوص المكررة حتى لا تبدو ضخمة
+   ========================= */
+html, body,
+button, input, select, textarea, option,
+label, .help, .helptext, .readonly,
+table, th, td, li, a, p, div, span{
+  font-weight: 700 !important; /* توحيد الوزن */
+}
+
+/* =========================
+   الموبايل والتابلت
+   ========================= */
+@media (max-width: 980px){
+  #content h1,
+  .content h1,
+  #content-main h1{
+    font-size: 24px !important; /* تصغير العنوان على التابلت */
+  }
+
+  fieldset.tc-user-card > h2,
+  .inline-group fieldset.tc-permission-card > h2,
+  .inline-group h2,
+  .tc-permissions-inline > h2,
+  .inline-group.tc-permissions-inline > h2,
+  fieldset.tc-account-status-group > h2{
+    font-size: 21px !important; /* تصغير عناوين الأقسام */
+  }
+
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div{
+    grid-template-columns: 1fr 1fr !important; /* عمودان */
+  }
+}
+
+@media (max-width: 640px){
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div{
+    grid-template-columns: 1fr !important; /* عمود واحد */
+  }
+
+  #nav-sidebar th,
+  #nav-sidebar td,
+  #nav-sidebar a{
+    font-size: 14px !important; /* تصغير نص الشريط الجانبي على الهاتف */
+  }
+
+  .button,
+  input[type="submit"],
+  input[type="button"],
+  .submit-row input,
+  a.button,
+  #nav-sidebar .addlink,
+  #nav-sidebar .changelink,
+  .tc-module .addlink,
+  .tc-module .changelink,
+  .tc-module .deletelink,
+  .tc-module .viewlink{
+    width: 100% !important; /* الأزرار بعرض السطر */
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   أزرار احترافية خضراء وذهبية (Enterprise Style)
+   ========================================= */
+
+/* الأزرار العامة */
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button{
+
+  background: linear-gradient(180deg,#0f6b4a,#0c573d) !important; /* تدرج أخضر احترافي */
+  color:#ffffff !important; /* لون النص أبيض */
+  border:1px solid rgba(0,0,0,.08) !important; /* حد خفيف */
+  border-radius:12px !important; /* تدوير الزوايا */
+  padding:8px 18px !important; /* حجم الزر */
+  font-size:15px !important; /* حجم الخط */
+  font-weight:800 !important; /* سماكة الخط */
+
+  box-shadow:0 6px 14px rgba(0,0,0,.12) !important; /* ظل خفيف */
+  transition:all .2s ease !important; /* حركة ناعمة */
+}
+
+/* تأثير المرور */
+.button:hover,
+input[type=submit]:hover,
+input[type=button]:hover,
+.submit-row input:hover,
+a.button:hover{
+
+  background: linear-gradient(180deg,#147653,#0f6b4a) !important; /* تفتيح الأخضر */
+  transform:translateY(-1px); /* رفع خفيف */
+  box-shadow:0 10px 20px rgba(0,0,0,.18) !important;
+}
+
+
+/* =========================================
+   الزر الرئيسي (حفظ)
+   ========================================= */
+
+.button.default,
+input[type=submit].default,
+.submit-row input.default{
+
+  background: linear-gradient(180deg,#b08b3c,#8c6d2d) !important; /* ذهبي */
+  color:#ffffff !important;
+  border:none !important;
+
+  box-shadow:0 10px 22px rgba(176,139,60,.35) !important;
+}
+
+/* تأثير المرور */
+.button.default:hover,
+input[type=submit].default:hover,
+.submit-row input.default:hover{
+
+  background: linear-gradient(180deg,#c59a3e,#9a7a32) !important;
+}
+
+
+/* =========================================
+   أزرار إضافة وتعديل داخل الجداول
+   ========================================= */
+
+.addlink,
+.changelink,
+.deletelink{
+
+  background:#0f6b4a !important; /* أخضر */
+  color:#ffffff !important;
+
+  padding:6px 14px !important;
+  border-radius:10px !important;
+
+  font-size:14px !important;
+  font-weight:700 !important;
+
+  box-shadow:0 4px 10px rgba(0,0,0,.12) !important;
+}
+
+/* زر التعديل */
+.changelink{
+  background:#b08b3c !important; /* ذهبي */
+}
+
+/* تأثير المرور */
+.addlink:hover{
+  background:#147653 !important;
+}
+
+.changelink:hover{
+  background:#c59a3e !important;
+}
+/* ==========================================================
+   FINAL ENTERPRISE OVERRIDES v3
+   طبقة نهائية قوية لتوحيد لوحة الإدارة بأسلوب الشركات الكبرى
+   ========================================================== */
+
+:root{
+  --tc-pro-surface: #ffffff;
+  --tc-pro-surface-2: #f5f9f6;
+  --tc-pro-surface-3: #eef5f0;
+  --tc-pro-border: rgba(15, 107, 74, .12);
+  --tc-pro-border-strong: rgba(15, 107, 74, .18);
+  --tc-pro-text: #102d21;
+  --tc-pro-muted: #5b7066;
+  --tc-pro-green: #0f6b4a;
+  --tc-pro-green-dark: #0b583d;
+  --tc-pro-green-soft: #edf7f1;
+  --tc-pro-gold: #b08b3c;
+  --tc-pro-gold-dark: #8d6d2c;
+  --tc-pro-gold-soft: #fbf4e3;
+  --tc-pro-blue-soft: #edf5fb;
+  --tc-pro-rose-soft: #fff1f0;
+  --tc-pro-shadow-sm: 0 8px 20px rgba(15, 56, 40, .05);
+  --tc-pro-shadow-md: 0 14px 34px rgba(15, 56, 40, .09);
+  --tc-pro-shadow-lg: 0 24px 58px rgba(15, 56, 40, .14);
+}
+
+/* تخفيف الحجم العام للخطوط لتبدو أكثر توازناً */
+html, body,
+button, input, select, textarea, option,
+label, .help, .helptext, .readonly,
+table, th, td, li, a, p, div, span{
+  font-size: 14px !important;
+  letter-spacing: 0 !important;
+}
+
+#content h1,
+.content h1,
+#content-main h1{
+  font-size: 28px !important;
+  font-weight: 900 !important;
+  color: var(--tc-pro-text) !important;
+  margin-bottom: 16px !important;
+}
+
+/* الخلفية العامة */
+body{
+  background:
+    radial-gradient(900px 380px at 10% 0%, rgba(15,107,74,.07), transparent 60%),
+    radial-gradient(900px 380px at 96% 3%, rgba(176,139,60,.07), transparent 60%),
+    linear-gradient(180deg, #eef3ef 0%, #f6faf7 55%, #f8fbf8 100%) !important;
+  color: var(--tc-pro-text) !important;
+}
+
+/* الهيدر */
+#header{
+  background: linear-gradient(135deg, #0f6b4a 0%, #155f47 55%, #325f50 100%) !important;
+  border-bottom: 3px solid rgba(176,139,60,.85) !important;
+  box-shadow: 0 14px 34px rgba(15, 56, 40, .16) !important;
+}
+
+#header .tc-branding__badge{
+  background: linear-gradient(135deg, #f8edd0, #d7b566) !important;
+  color: #204636 !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.16) !important;
+}
+
+/* محتوى الصفحة */
+#content, .content, .module, .inline-group, .selector, .submit-row, div.breadcrumbs{
+  background: linear-gradient(180deg, #ffffff, #f8fbf9) !important;
+  border: 1px solid var(--tc-pro-border) !important;
+  box-shadow: var(--tc-pro-shadow-md) !important;
+}
+
+/* بطاقات الصلاحيات - الشكل العام */
+fieldset.tc-user-card,
+.inline-group fieldset.tc-permission-card,
+fieldset.tc-account-status-group{
+  border: 1px solid var(--tc-pro-border-strong) !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%) !important;
+  box-shadow: var(--tc-pro-shadow-md) !important;
+  margin-bottom: 20px !important;
+}
+
+/* تظليل متنوع لكل قسم */
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+1),
+fieldset.tc-user-card{
+  background: linear-gradient(180deg, #ffffff 0%, #eef8f2 100%) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+2){
+  background: linear-gradient(180deg, #ffffff 0%, #fbf5e7 100%) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+3),
+fieldset.tc-account-status-group{
+  background: linear-gradient(180deg, #ffffff 0%, #edf5fb 100%) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+4){
+  background: linear-gradient(180deg, #ffffff 0%, #f5f4fb 100%) !important;
+}
+
+/* شريط عنوان القسم */
+fieldset.tc-user-card > h2,
+.inline-group fieldset.tc-permission-card > h2,
+.inline-group h2,
+.tc-permissions-inline > h2,
+.inline-group.tc-permissions-inline > h2,
+fieldset.tc-account-status-group > h2{
+  background: linear-gradient(135deg, #1f7b63 0%, #0f6b4a 52%, #0c5a3d 100%) !important;
+  color: #ffffff !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  padding: 16px 22px !important;
+  border: 0 !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.10) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+2) > h2{
+  background: linear-gradient(135deg, #c39a45 0%, #b08b3c 52%, #8b6b2d 100%) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+3) > h2,
+fieldset.tc-account-status-group > h2{
+  background: linear-gradient(135deg, #3f7f9d 0%, #2f6f8a 52%, #295e75 100%) !important;
+}
+
+.inline-group fieldset.tc-permission-card:nth-of-type(4n+4) > h2{
+  background: linear-gradient(135deg, #6d6ab1 0%, #5d5aa0 52%, #4a4786 100%) !important;
+}
+
+/* أوصاف الأقسام */
+fieldset.tc-user-card .description,
+.inline-group fieldset.tc-permission-card .description,
+fieldset.tc-account-status-group .help,
+fieldset.tc-account-status-group .helptext,
+fieldset.tc-account-status-group .form-row div.help{
+  background: rgba(255,255,255,.70) !important;
+  border: 1px solid rgba(15,107,74,.08) !important;
+  border-radius: 16px !important;
+  margin: 16px 16px 10px !important;
+  padding: 14px 16px !important;
+  color: #29483a !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.9 !important;
+}
+
+/* أسطر الصلاحيات */
+fieldset.tc-user-card .form-row,
+.inline-group fieldset.tc-permission-card .form-row,
+fieldset.tc-account-status-group .form-row{
+  padding: 14px 18px !important;
+  border-top: 1px solid rgba(15,107,74,.08) !important;
+}
+
+fieldset.tc-user-card .form-row label,
+.inline-group fieldset.tc-permission-card .form-row label,
+.inline-group .form-row .readonly,
+.inline-group .form-row p,
+fieldset.tc-account-status-group .form-row label,
+fieldset.tc-account-status-group .checkbox-row label{
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  color: var(--tc-pro-text) !important;
+  line-height: 1.8 !important;
+}
+
+/* صناديق عناصر كل صلاحية */
+.inline-group fieldset.tc-permission-card .checkbox-row,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox,
+fieldset.tc-user-card .checkbox-row,
+fieldset.tc-user-card .form-row .fieldBox,
+fieldset.tc-account-status-group .checkbox-row{
+  background: rgba(255,255,255,.82) !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.80), 0 8px 16px rgba(15,56,40,.04) !important;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+}
+
+.inline-group fieldset.tc-permission-card .checkbox-row:hover,
+.inline-group fieldset.tc-permission-card .form-row .fieldBox:hover,
+fieldset.tc-user-card .checkbox-row:hover,
+fieldset.tc-user-card .form-row .fieldBox:hover,
+fieldset.tc-account-status-group .checkbox-row:hover{
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 24px rgba(15,56,40,.08) !important;
+  border-color: rgba(15,107,74,.18) !important;
+}
+
+/* تكبير checkbox بشكل منطقي */
+.inline-group input[type="checkbox"],
+fieldset.tc-user-card input[type="checkbox"],
+fieldset.tc-account-status-group input[type="checkbox"]{
+  width: 20px !important;
+  height: 20px !important;
+  accent-color: var(--tc-pro-gold) !important;
+}
+
+/* الأزرار العامة */
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 42px !important;
+  padding: 8px 18px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  background: linear-gradient(180deg, var(--tc-pro-green) 0%, var(--tc-pro-green-dark) 100%) !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 10px 20px rgba(15,107,74,.18) !important;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease !important;
+}
+
+.button:hover,
+input[type=submit]:hover,
+input[type=button]:hover,
+.submit-row input:hover,
+a.button:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.04) !important;
+  box-shadow: 0 14px 28px rgba(15,107,74,.22) !important;
+}
+
+/* الأزرار الرئيسية الذهبية */
+.button.default,
+input[type=submit].default,
+.submit-row input.default{
+  background: linear-gradient(180deg, var(--tc-pro-gold) 0%, var(--tc-pro-gold-dark) 100%) !important;
+  box-shadow: 0 10px 20px rgba(176,139,60,.24) !important;
+}
+
+.button.default:hover,
+input[type=submit].default:hover,
+.submit-row input.default:hover{
+  box-shadow: 0 14px 28px rgba(176,139,60,.28) !important;
+}
+
+/* أزرار إضافة/تعديل داخل الوحدات والجداول والشريط الجانبي */
+#nav-sidebar .addlink,
+#nav-sidebar .changelink,
+.tc-module .addlink,
+.tc-module .changelink,
+.tc-module .deletelink,
+.tc-module .viewlink,
+.tc-module td a.addlink,
+.tc-module td a.changelink,
+.tc-module td a.deletelink,
+.addlink,
+.changelink,
+.deletelink,
+.viewlink{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 38px !important;
+  padding: 7px 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  text-decoration: none !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 8px 16px rgba(15,56,40,.10) !important;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease !important;
+}
+
+#nav-sidebar .addlink,
+.tc-module .addlink,
+.addlink,
+.viewlink{
+  background: linear-gradient(180deg, var(--tc-pro-green) 0%, var(--tc-pro-green-dark) 100%) !important;
+}
+
+#nav-sidebar .changelink,
+.tc-module .changelink,
+.changelink{
+  background: linear-gradient(180deg, var(--tc-pro-gold) 0%, var(--tc-pro-gold-dark) 100%) !important;
+}
+
+.tc-module .deletelink,
+.deletelink{
+  background: linear-gradient(180deg, #c43d2f 0%, #a61f14 100%) !important;
+}
+
+#nav-sidebar .addlink:hover,
+#nav-sidebar .changelink:hover,
+.tc-module .addlink:hover,
+.tc-module .changelink:hover,
+.tc-module .deletelink:hover,
+.tc-module .viewlink:hover,
+.tc-module td a.addlink:hover,
+.tc-module td a.changelink:hover,
+.tc-module td a.deletelink:hover,
+.addlink:hover,
+.changelink:hover,
+.deletelink:hover,
+.viewlink:hover{
+  transform: translateY(-1px) !important;
+  filter: brightness(1.04) !important;
+  box-shadow: 0 12px 22px rgba(15,56,40,.16) !important;
+}
+
+/* صف الحفظ */
+.submit-row{
+  background: linear-gradient(180deg, #ffffff, #f8fbf9) !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  border-radius: 18px !important;
+  padding: 14px 16px !important;
+  box-shadow: var(--tc-pro-shadow-sm) !important;
+}
+
+/* الشريط الجانبي الأيمن */
+#nav-sidebar{
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%) !important;
+  border-left: 1px solid rgba(15,107,74,.08) !important;
+  box-shadow: -10px 0 24px rgba(15,56,40,.04) !important;
+}
+
+#nav-sidebar .module{
+  border-radius: 22px !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fcfa 100%) !important;
+  box-shadow: 0 10px 22px rgba(15,56,40,.05) !important;
+  overflow: hidden !important;
+  margin-bottom: 18px !important;
+}
+
+#nav-sidebar .module:nth-of-type(3n+1){
+  background: linear-gradient(180deg, #ffffff 0%, #eef8f2 100%) !important;
+}
+
+#nav-sidebar .module:nth-of-type(3n+2){
+  background: linear-gradient(180deg, #ffffff 0%, #fbf5e7 100%) !important;
+}
+
+#nav-sidebar .module:nth-of-type(3n){
+  background: linear-gradient(180deg, #ffffff 0%, #edf5fb 100%) !important;
+}
+
+#nav-sidebar .module caption,
+#nav-sidebar .module h2{
+  background: linear-gradient(180deg, #f2f8f4, #eaf3ed) !important;
+  color: var(--tc-pro-text) !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  padding: 16px 18px !important;
+  border-bottom: 1px solid rgba(15,107,74,.08) !important;
+}
+
+#nav-sidebar th,
+#nav-sidebar td,
+#nav-sidebar a{
+  color: var(--tc-pro-text) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.9 !important;
+}
+
+#nav-sidebar td,
+#nav-sidebar th{
+  padding: 14px 14px !important;
+}
+
+/* جدول النتائج */
+#result_list,
+#result_list thead th,
+#result_list tbody td,
+#result_list tbody th,
+#changelist-form .results,
+#changelist .actions{
+  background: #fff !important;
+  color: var(--tc-pro-text) !important;
+}
+
+#result_list{
+  border-radius: 16px !important;
+  overflow: visible !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+#result_list thead th{
+  background: linear-gradient(180deg, #f3f8f4, #eaf2ed) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  color: var(--tc-pro-text) !important;
+}
+
+#result_list tbody td,
+#result_list tbody th,
+#result_list tbody td a,
+#result_list tbody th a{
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--tc-pro-text) !important;
+}
+
+#result_list tbody tr:nth-child(odd) > td,
+#result_list tbody tr:nth-child(odd) > th{
+  background: #fbfdfb !important;
+}
+
+#result_list tbody tr:hover > td,
+#result_list tbody tr:hover > th{
+  background: #eef7f2 !important;
+}
+
+#result_list tbody tr.tc-row--active > td,
+#result_list tbody tr.tc-row--active > th{
+  background: #eaf8ef !important;
+}
+
+#result_list tbody tr.tc-row--recent-removed > td,
+#result_list tbody tr.tc-row--recent-removed > th{
+  background: #fff7e9 !important;
+}
+
+#result_list tbody tr.tc-row--removed > td,
+#result_list tbody tr.tc-row--removed > th{
+  background: #fff1f0 !important;
+}
+
+/* الحقول */
+input, select, textarea{
+  background: #ffffff !important;
+  color: var(--tc-pro-text) !important;
+  border: 1px solid rgba(15,107,74,.14) !important;
+  border-radius: 12px !important;
+  box-shadow: inset 0 1px 1px rgba(15,56,40,.02) !important;
+}
+
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(15,107,74,.30) !important;
+  box-shadow: 0 0 0 4px rgba(15,107,74,.08) !important;
+}
+
+/* عناوين الوحدات في الصفحة الرئيسية */
+.tc-module{
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(15,107,74,.10) !important;
+  box-shadow: 0 12px 26px rgba(15,56,40,.05) !important;
+}
+
+.tc-module caption{
+  background: linear-gradient(180deg, #f2f8f4, #eaf2ed) !important;
+  color: var(--tc-pro-text) !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+}
+
+.tc-module table{background:#fff !important}
+
+/* تنظيم شبكات الصلاحيات */
+.inline-group fieldset.tc-program-permissions .form-row > div{
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) !important;
+  gap: 14px 16px !important;
+  align-items: start !important;
+}
+
+.inline-group fieldset.tc-general-permissions .form-row > div,
+.inline-group fieldset.tc-security-permissions .form-row > div{
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(220px, 1fr)) !important;
+  gap: 14px 16px !important;
+}
+
+@media (max-width: 980px){
+  #content h1,
+  .content h1,
+  #content-main h1{
+    font-size: 24px !important;
+  }
+
+  fieldset.tc-user-card > h2,
+  .inline-group fieldset.tc-permission-card > h2,
+  .inline-group h2,
+  .tc-permissions-inline > h2,
+  .inline-group.tc-permissions-inline > h2,
+  fieldset.tc-account-status-group > h2{
+    font-size: 21px !important;
+  }
+
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div{
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 640px){
+  .inline-group fieldset.tc-program-permissions .form-row > div,
+  .inline-group fieldset.tc-general-permissions .form-row > div,
+  .inline-group fieldset.tc-security-permissions .form-row > div{
+    grid-template-columns: 1fr !important;
+  }
+
+  #nav-sidebar th,
+  #nav-sidebar td,
+  #nav-sidebar a{
+    font-size: 14px !important;
+  }
+
+  .button,
+  input[type=submit],
+  input[type=button],
+  .submit-row input,
+  a.button,
+  #nav-sidebar .addlink,
+  #nav-sidebar .changelink,
+  .tc-module .addlink,
+  .tc-module .changelink,
+  .tc-module .deletelink,
+  .tc-module .viewlink,
+  .addlink,
+  .changelink,
+  .deletelink,
+  .viewlink{
+    width: 100% !important;
+  }
+}
+
+
+/* ==========================================================
+   Final dashboard polish: professional cards + prettier charts
+   ========================================================== */
+.admin-home .dash__row--metrics{
+  gap: 18px !important;
+}
+
+.admin-home .dash__card{
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-home .dash__metric{
+  min-height: 132px;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 18px 16px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 18px 38px rgba(15, 56, 40, .08) !important;
+  background: linear-gradient(180deg, #ffffff, #f9fcfa) !important;
+}
+
+.admin-home .dash__metric-accent{
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 5px;
+  opacity: .95;
+}
+
+.admin-home .dash__metric--primary .dash__metric-accent{
+  background: linear-gradient(90deg, #0f6b4a, #2f6f8a);
+}
+.admin-home .dash__metric--success .dash__metric-accent{
+  background: linear-gradient(90deg, #0f6b4a, #1f9d6e);
+}
+.admin-home .dash__metric--danger .dash__metric-accent{
+  background: linear-gradient(90deg, #c43d2f, #e27d60);
+}
+.admin-home .dash__metric--warning .dash__metric-accent{
+  background: linear-gradient(90deg, #b08b3c, #d3ad52);
+}
+
+.admin-home .dash__metric-icon{
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 8px 18px rgba(15,56,40,.06);
+}
+
+.admin-home .dash__metric-title{
+  font-size: 13px;
+  color: #5c7268 !important;
+  margin-bottom: 8px;
+}
+
+.admin-home .dash__metric-value{
+  font-size: 38px;
+  line-height: 1;
+  color: #173728 !important;
+  margin-bottom: 10px;
+}
+
+.admin-home .dash__metric-note{
+  font-size: 13px;
+  color: #466154 !important;
+}
+
+.admin-home .dash__totals-card{
+  padding: 20px 22px !important;
+  border-radius: 24px !important;
+  background: linear-gradient(135deg, rgba(15,107,74,.08), rgba(176,139,60,.10)) !important;
+  box-shadow: 0 16px 32px rgba(15,56,40,.07) !important;
+}
+
+.admin-home .dash__sub--totals{
+  gap: 12px;
+}
+
+.admin-home .dash__pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px !important;
+  border-radius: 999px;
+  background: rgba(255,255,255,.82) !important;
+  border: 1px solid rgba(15,107,74,.12) !important;
+  box-shadow: 0 6px 14px rgba(15,56,40,.05);
+}
+
+.admin-home .dash__pill strong{
+  color: #173728;
+  font-size: 15px;
+}
+
+.admin-home .dash__pill span{
+  color: #466154;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-home .dash__row--charts{
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+  gap: 18px;
+}
+
+.admin-home .dash__chart-card{
+  padding: 20px 22px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 18px 38px rgba(15,56,40,.08) !important;
+  background: linear-gradient(180deg, #ffffff, #f9fcfa) !important;
+}
+
+.admin-home .dash__chart-header{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-home .dash__title{
+  font-size: 21px;
+  margin-bottom: 6px;
+}
+
+.admin-home .dash__hint{
+  font-size: 13px;
+  color: #5c7268 !important;
+}
+
+.admin-home .dash__chart-wrap{
+  position: relative;
+  min-height: 320px;
+}
+
+.admin-home .dash__chart-wrap--donut{
+  min-height: 260px;
+}
+
+.admin-home .dash__legend{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-home .dash__legend-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(15,107,74,.10);
+  box-shadow: 0 8px 16px rgba(15,56,40,.04);
+}
+
+.admin-home .dash__legend-item i{
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 12px;
+}
+
+.admin-home .dash__legend-item span{
+  flex: 1 1 auto;
+  color: #173728;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.admin-home .dash__legend-item strong{
+  color: #0f6b4a;
+  font-size: 14px;
+}
+
+@media (max-width: 1080px){
+  .admin-home .dash__row--charts{
+    grid-template-columns: 1fr;
+  }
+
+  .admin-home .dash__chart-wrap,
+  .admin-home .dash__chart-wrap--donut{
+    min-height: 280px;
+  }
+}
+
+
+/* =========================================================
+   Responsive admin fix + button visibility
+   - keep buttons fully visible
+   - adapt sidebar/main content to all screens
+   ========================================================= */
+#header,
+#user-tools,
+.admin-quick,
+.admin-quick__group,
+.admin-home__actions,
+.object-tools,
+.submit-row,
+#changelist .actions,
+.top-filters,
+.top-filters .filters-wrap{
+  overflow: visible !important;
+}
+
+.button,
+input[type=submit],
+input[type=button],
+a.button,
+.submit-row input,
+.addlink,
+.changelink,
+.deletelink,
+.viewlink,
+.admin-quick__btn,
+.admin-quick__pill,
+#nav-sidebar .addlink,
+#nav-sidebar .changelink{
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.25 !important;
+  max-width: 100%;
+}
+
+/* تخفيف طفيف للأزرار حتى لا تبدو مقصوصة */
+.button,
+input[type=submit],
+input[type=button],
+a.button,
+.submit-row input{
+  min-height: 44px !important;
+  padding: 9px 16px !important;
+  font-size: 14px !important;
+}
+
+.addlink,
+.changelink,
+.deletelink,
+.viewlink,
+.admin-quick__btn,
+.admin-quick__pill,
+#nav-sidebar .addlink,
+#nav-sidebar .changelink{
+  min-height: 38px !important;
+  padding: 8px 14px !important;
+  font-size: 13px !important;
+}
+
+/* تحسين تخطيط الصفحة مع الشريط الجانبي */
+#container,
+#content,
+#content-main,
+#nav-sidebar,
+.main,
+.content,
+.dashboard #content{
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body{
+  overflow-x: hidden;
+}
+
+/* جداول ونتائج قابلة للتمرير بسلاسة */
+#changelist-form .results,
+.tc-table-wrap,
+.tc-table-scroll,
+.admin-home__tablewrap{
+  max-width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* سطح مكتب متوسط */
+@media (max-width: 1200px){
+  #nav-sidebar{width: 280px !important;min-width: 280px !important;}
+  #content{margin-right: 0 !important;}
+  .admin-quick{justify-content: center !important;}
+}
+
+/* تابلت وأجهزة مكتبية صغيرة */
+@media (max-width: 992px){
+  #main,
+  .main,
+  #content-start,
+  #content-related{
+    display: block !important;
+  }
+
+  #nav-sidebar{
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 16px 0 0 0 !important;
+    position: static !important;
+    border-left: 0 !important;
+    border-top: 1px solid rgba(15,107,74,.08) !important;
+  }
+
+  #content{
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 14px !important;
+  }
+
+  .admin-quick,
+  .admin-home__actions,
+  .submit-row,
+  #changelist .actions,
+  .top-filters .filters-wrap{
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .dash__row--4,
+  .dash__row--3,
+  .dash__row--2,
+  .admin-home .dash__row--charts{
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+}
+
+/* هواتف كبيرة */
+@media (max-width: 768px){
+  #header{padding: 12px !important;}
+  #content,.content{padding: 12px !important;border-radius: 16px !important;}
+  .button,input[type=submit],input[type=button],a.button,.submit-row input{min-height: 40px !important;padding: 8px 13px !important;font-size: 13px !important;}
+  .addlink,.changelink,.deletelink,.viewlink,.admin-quick__btn,.admin-quick__pill,#nav-sidebar .addlink,#nav-sidebar .changelink{min-height: 36px !important;padding: 7px 11px !important;font-size: 12px !important;}
+  .dash__row--4,.dash__row--3,.dash__row--2,.admin-home .dash__row--charts{grid-template-columns: 1fr !important;}
+  .top-filters details{min-width: 100% !important;}
+}
+
+/* هواتف صغيرة */
+@media (max-width: 560px){
+  .tc-institution-banner__name{font-size: 18px !important;}
+  .tc-institution-banner__logo{width: 46px !important;height: 46px !important;}
+  .button,input[type=submit],input[type=button],a.button,.submit-row input,.addlink,.changelink,.deletelink,.viewlink,#nav-sidebar .addlink,#nav-sidebar .changelink{width: auto !important;max-width: 100% !important;}
+  #result_list th,#result_list td,#changelist table thead th{font-size: 12px !important;}
+}
+
+/* ===== Fix access date fields in user permissions ===== */
+.inline-group fieldset.tc-general-permissions .form-row > div{
+  grid-template-columns: repeat(2, minmax(320px, 1fr)) !important;
+}
+
+.inline-group .field-access_start_date,
+.inline-group .field-access_end_date{
+  min-width: 320px !important;
+  overflow: visible !important;
+}
+
+.inline-group .field-access_start_date .fieldBox,
+.inline-group .field-access_end_date .fieldBox{
+  min-width: 320px !important;
+  overflow: visible !important;
+}
+
+.inline-group .field-access_start_date input,
+.inline-group .field-access_end_date input{
+  width: 100% !important;
+  min-width: 170px !important;
+  box-sizing: border-box !important;
+}
+
+.inline-group .field-access_start_date .datetimeshortcuts,
+.inline-group .field-access_end_date .datetimeshortcuts{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  margin-inline-start: 8px !important;
+}
+
+.inline-group .field-access_start_date .datepicker,
+.inline-group .field-access_end_date .datepicker{
+  min-width: 150px !important;
+}
+
+/* ===== Admin field width fixes ===== */
+.field-app_mode .flex-container,
+.field-document_number .flex-container,
+.field-absence_start_date .flex-container,
+.field-send_date .flex-container,
+.field-organization_name .flex-container,
+.field-update_server_url .flex-container,
+.field-current_version .flex-container,
+.field-latest_version .flex-container{
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+}
+
+.field-app_mode select{
+  width: min(100%, 620px) !important;
+  min-width: 420px !important;
+}
+
+.field-organization_name input,
+.field-update_server_url input{
+  width: min(100%, 620px) !important;
+  min-width: 420px !important;
+}
+
+.field-current_version input,
+.field-latest_version input{
+  width: min(100%, 240px) !important;
+  min-width: 180px !important;
+}
+
+.field-document_number input{
+  width: min(100%, 360px) !important;
+  min-width: 280px !important;
+}
+
+.field-absence_start_date input,
+.field-send_date input{
+  width: min(100%, 180px) !important;
+  min-width: 120px !important;
+}
+
+.field-absence_start_date .datetimeshortcuts,
+.field-send_date .datetimeshortcuts{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+}
+
+.field-app_mode select option{
+  white-space: normal !important;
+}
+
+/* give more room to admin sidebar labels */
+#nav-sidebar{
+  width: 300px !important;
+  min-width: 300px !important;
+}
+#nav-sidebar th,
+#nav-sidebar td,
+#nav-sidebar a{
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+@media (max-width: 1200px){
+  #nav-sidebar{width: 280px !important;min-width: 280px !important;}
+}
+
+/* ===== FIX: select & input height (system config + admin forms) ===== */
+
+/* جميع الحقول */
+.inline-group select,
+.inline-group input,
+.inline-group textarea,
+select,
+input,
+textarea {
+  min-height: 42px !important;
+  height: auto !important;
+  line-height: 1.6 !important;
+  padding: 8px 12px !important;
+  box-sizing: border-box !important;
+  font-size: 14px !important;
+}
+
+/* حقول select (المهم) */
+select {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* خانة وضع التشغيل */
+.field-operating_mode select {
+  min-height: 44px !important;
+  line-height: 1.8 !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* خانة الحالة (في الغياب) */
+.field-status select {
+  min-height: 44px !important;
+  line-height: 1.8 !important;
+}
+
+/* خانة رقم الوثيقة */
+.field-document_number input {
+  min-height: 44px !important;
+}
+
+/* تحسين textarea (الملاحظات) */
+textarea {
+  min-height: 120px !important;
+}
+
+/* =========================================
+   Access audit inline - final layout tuning
+   ========================================= */
+
+.inline-group .tabular table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.inline-group .tabular td.field-created_at_display,
+.inline-group .tabular th.column-created_at_display {
+  width: 118px !important;
+  min-width: 118px !important;
+  max-width: 118px !important;
+  white-space: normal !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+.tc-audit-datetime {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.tc-audit-datetime__date {
+  font-weight: 900;
+  font-size: 14px;
+  direction: ltr;
+}
+
+.tc-audit-datetime__time {
+  font-size: 12px;
+  color: #5f6b66;
+  direction: ltr;
+}
+
+.inline-group .tabular td.field-actor_display,
+.inline-group .tabular th.column-actor_display {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+.inline-group .tabular td.field-action,
+.inline-group .tabular th.column-action {
+  width: 110px !important;
+  min-width: 110px !important;
+  max-width: 110px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+.inline-group .tabular td.field-changed_fields_display,
+.inline-group .tabular th.column-changed_fields_display {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+.inline-group .tabular td.field-notes_display,
+.inline-group .tabular th.column-notes_display {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  vertical-align: top !important;
+}
+
+.tc-audit-notes {
+  white-space: normal;
+  line-height: 1.8;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.inline-group .tabular td.field-before_after_preview,
+.inline-group .tabular th.column-before_after_preview {
+  width: 210px !important;
+  min-width: 210px !important;
+  max-width: 210px !important;
+  vertical-align: top !important;
+}
+
+.tc-audit-before-after {
+  background: #f8faf8;
+  border: 1px solid #d8e6dd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  white-space: pre-line;
+  line-height: 1.8;
+  font-size: 13px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+  word-break: break-word;
+}
+
+.inline-group .tabular thead th {
+  white-space: normal !important;
+  line-height: 1.5 !important;
+}
+
+/* تحديد الكل لكل نمط داخل صفحة صلاحيات المستخدم */
+.tc-pattern-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 12px 0;
+  padding: 9px 14px;
+  border: 1px solid #b7d8c6;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #064e3b;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+.tc-pattern-select-all:hover {
+  background: #dcfce7;
+  border-color: #86c99f;
+}
+.tc-pattern-select-all__input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0b6b4f;
+}
+
+/* عمود المكتب في جدول إدارة المستخدمين والصلاحيات */
+.tc-office-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e8f5ef;
+  color: #0b6b4f;
+  border: 1px solid #b7d8c6;
+  font-weight: 700;
+  white-space: nowrap;
+}

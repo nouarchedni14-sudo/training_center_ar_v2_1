@@ -1,0 +1,160 @@
+{% extends 'trainees/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" dir="rtl" style="max-width:1280px;margin:16px auto;">
+  <style>
+    .bulk-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px}
+    .bulk-toolbar h1{margin:0;font-size:1.55rem}
+    .bulk-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0 18px}
+    .bulk-tool-card{background:#f8fafc;border:1px solid #cbd5e1;border-radius:14px;padding:14px}
+    .bulk-tool-card h3{margin:0 0 10px 0;font-size:1.03rem}
+    .bulk-tool-card p{margin:0 0 10px 0;color:#475569;font-size:.95rem}
+    .bulk-tool-card input,.bulk-tool-card select,.bulk-tool-card textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .bulk-tool-card .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .table-wrap{overflow:auto}
+    .rtl-table{width:100%;border-collapse:collapse}
+    .rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:top}
+    .rtl-table th{background:#1d4ed8;color:#fff;white-space:nowrap}
+    .rtl-table tbody tr:nth-child(even){background:#f8fafc}
+    .rtl-table input,.rtl-table select,.rtl-table textarea{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+    .rtl-table textarea{min-height:76px;resize:vertical}
+    .name-cell{text-align:right;min-width:220px}
+    .tiny{font-size:.82rem;color:#64748b}
+    .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+    .muted{color:#475569}
+  </style>
+
+  <div class="bulk-toolbar">
+    <div>
+      <h1>تعديل جماعي - {{ program_label }}</h1>
+      <p class="muted" style="margin:6px 0 0 0;">تم تحديد {{ actions|length }} سجل/سجلات. يمكنك إدخال البيانات يدويًا لكل متكوّن أو استعمال أزرار التعبئة السريعة أدناه.</p>
+    </div>
+    <div class="actions-row">
+      <a class="btn" href="{{ back_url }}">العودة إلى القائمة</a>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for item in actions %}<input type="hidden" name="ids" value="{{ item.pk }}">{% endfor %}
+    <input type="hidden" name="return_query" value="{{ return_query }}">
+
+    <div class="bulk-tools">
+      <div class="bulk-tool-card">
+        <h3>الترقيم التلقائي</h3>
+        <p>أدخل أول رقم وثيقة، ثم اضغط الزر ليتم ترقيم بقية السجلات تلقائيًا بالتسلسل.</p>
+        <input type="text" id="sequenceStartInput" placeholder="مثال: 0001">
+        <div class="btn-row">
+          <button class="btn" type="button" onclick="applySequentialNumbers()">ترقيم الوثائق تلقائيًا</button>
+        </div>
+      </div>
+
+      <div class="bulk-tool-card">
+        <h3>نسخ التواريخ للجميع</h3>
+        <p>أدخل التواريخ مرة واحدة ثم انسخها لكل السجلات المحددة.</p>
+        <label style="display:block;font-weight:700;margin-bottom:6px">تاريخ بداية الغياب</label>
+        <input type="text" id="bulkAbsenceDate" placeholder="2026-03-01" dir="ltr">
+        <label style="display:block;font-weight:700;margin:10px 0 6px">تاريخ التحرير/الإرسال</label>
+        <input type="text" id="bulkSendDate" placeholder="2026-03-05" dir="ltr">
+        <div class="btn-row">
+          <button class="btn" type="button" onclick="applyBulkDates()">تعبئة التواريخ للجميع</button>
+        </div>
+      </div>
+
+      <div class="bulk-tool-card">
+        <h3>تعبئة الحالة للجميع</h3>
+        <p>اختياريًا يمكنك تعيين نفس الحالة لكل السجلات ثم تعديل أي سطر يدويًا عند الحاجة.</p>
+        <select id="bulkStatus">
+          <option value="">— اختر الحالة —</option>
+          {% for value,label in status_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+        <div class="btn-row">
+          <button class="btn" type="button" onclick="applyBulkStatus()">تطبيق الحالة للجميع</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="rtl-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>المتكوّن</th>
+            <th>نوع الإجراء</th>
+            <th>عدد الغيابات</th>
+            <th>رقم الوثيقة</th>
+            <th>بداية الغياب</th>
+            <th>تاريخ التحرير/الإرسال</th>
+            <th>الحالة</th>
+            <th>ملاحظات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in actions %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td class="name-cell"><strong>{{ item.trainee_name }}</strong><div class="tiny">{{ item.trainee_specialty|default:'—' }}</div></td>
+            <td>{{ item.get_action_type_display }}</td>
+            <td>{{ item.trigger_count }}</td>
+            <td><input type="text" name="row_{{ item.pk }}_document_number" class="doc-number-input" value="{{ item.document_number|default:'' }}" dir="ltr"></td>
+            <td><input type="text" name="row_{{ item.pk }}_absence_start_date" class="absence-date-input" value="{{ item.absence_start_date|date:'Y-m-d'|default:'' }}" placeholder="2026-03-01" dir="ltr"></td>
+            <td><input type="text" name="row_{{ item.pk }}_send_date" class="send-date-input" value="{{ item.send_date|date:'Y-m-d'|default:'' }}" placeholder="2026-03-05" dir="ltr"></td>
+            <td><select name="row_{{ item.pk }}_status" class="status-input">{% for value,label in status_choices %}<option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></td>
+            <td><textarea name="row_{{ item.pk }}_notes">{{ item.notes|default:'' }}</textarea></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn" type="submit">حفظ التعديلات الجماعية</button>
+      <a class="btn" href="{{ back_url }}">إلغاء</a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  function padNumber(value, width){
+    const num = String(value);
+    return num.length >= width ? num : '0'.repeat(width - num.length) + num;
+  }
+  window.applySequentialNumbers = function(){
+    const startValue = (document.getElementById('sequenceStartInput').value || '').trim();
+    if (!startValue){ alert('أدخل أول رقم الوثيقة أولاً.'); return; }
+    const inputs = Array.from(document.querySelectorAll('.doc-number-input'));
+    if (!inputs.length){ return; }
+    const match = startValue.match(/^(.*?)(\d+)([^\d]*)$/);
+    if (!match){
+      inputs.forEach((input, idx) => { input.value = idx === 0 ? startValue : startValue; });
+      return;
+    }
+    const prefix = match[1] || '';
+    const digits = match[2] || '';
+    const suffix = match[3] || '';
+    const startNumber = parseInt(digits, 10);
+    const width = digits.length;
+    inputs.forEach((input, idx) => {
+      input.value = `${prefix}${padNumber(startNumber + idx, width)}${suffix}`;
+    });
+  };
+
+  window.applyBulkDates = function(){
+    const absence = document.getElementById('bulkAbsenceDate').value.trim();
+    const send = document.getElementById('bulkSendDate').value.trim();
+    if (!absence && !send){ alert('أدخل تاريخًا واحدًا على الأقل.'); return; }
+    document.querySelectorAll('.absence-date-input').forEach(input => { if (absence) input.value = absence; });
+    document.querySelectorAll('.send-date-input').forEach(input => { if (send) input.value = send; });
+  };
+
+  window.applyBulkStatus = function(){
+    const status = document.getElementById('bulkStatus').value;
+    if (!status){ alert('اختر الحالة أولاً.'); return; }
+    document.querySelectorAll('.status-input').forEach(select => { select.value = status; });
+  };
+})();
+</script>
+{% endblock %}

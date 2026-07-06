@@ -1,0 +1,166 @@
+{% extends "admin/base.html" %}
+{% load static i18n admin_dashboard %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/custom_admin.css' %}?v=20260401b">
+  <script defer src="{% static 'admin/custom_admin_tables.js' %}"></script>
+  <script defer src="{% static 'admin/admin_row_status.js' %}"></script>
+
+  <style>
+    /* مربع إظهار كلمة المرور في صفحة دخول لوحة الإدارة */
+    body.login .tc-admin-password-wrap{
+      position:relative!important;
+      display:block!important;
+      width:100%!important;
+    }
+    body.login .tc-admin-password-wrap input[name="password"],
+    body.login .tc-admin-password-wrap #id_password{
+      width:100%!important;
+      box-sizing:border-box!important;
+      padding-left:58px!important;
+      padding-right:12px!important;
+      font-weight:700!important;
+      direction:ltr!important;
+      text-align:right!important;
+    }
+    body.login .tc-admin-password-checkbox{
+      appearance:none!important;
+      -webkit-appearance:none!important;
+      position:absolute!important;
+      left:16px!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+      width:24px!important;
+      min-width:24px!important;
+      max-width:24px!important;
+      height:24px!important;
+      min-height:24px!important;
+      max-height:24px!important;
+      margin:0!important;
+      padding:0!important;
+      border:2px solid #0f766e!important;
+      border-radius:7px!important;
+      background:#fff!important;
+      cursor:pointer!important;
+      box-sizing:border-box!important;
+      z-index:20!important;
+      display:block!important;
+      box-shadow:0 3px 8px rgba(15,118,110,.12)!important;
+      outline:none!important;
+    }
+    body.login .tc-admin-password-checkbox:hover{
+      background:#f0fdfa!important;
+    }
+    body.login .tc-admin-password-checkbox:focus{
+      outline:3px solid rgba(15,118,110,.18)!important;
+      outline-offset:2px!important;
+    }
+    body.login .tc-admin-password-checkbox:checked::after{
+      content:'✓'!important;
+      position:absolute!important;
+      left:0!important;
+      top:0!important;
+      width:100%!important;
+      height:100%!important;
+      line-height:19px!important;
+      text-align:center!important;
+      font-family:Arial,Tahoma,sans-serif!important;
+      font-size:19px!important;
+      font-weight:900!important;
+      color:#0f766e!important;
+      -webkit-text-fill-color:#0f766e!important;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      if(!document.body || !document.body.classList.contains('login')) return;
+      var passwordInput = document.querySelector('input[name="password"], #id_password');
+      if(!passwordInput || document.querySelector('.tc-admin-password-checkbox')) return;
+
+      var parent = passwordInput.parentNode;
+      if(!parent) return;
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'tc-admin-password-wrap';
+      parent.insertBefore(wrapper, passwordInput);
+      wrapper.appendChild(passwordInput);
+
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'tc-admin-password-checkbox';
+      checkbox.setAttribute('aria-label', 'إظهار كلمة المرور');
+      checkbox.title = 'إظهار كلمة المرور';
+      wrapper.appendChild(checkbox);
+
+      checkbox.addEventListener('change', function(){
+        var show = !!checkbox.checked;
+        passwordInput.type = show ? 'text' : 'password';
+        checkbox.setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+        checkbox.title = show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور';
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block branding %}
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin:0 auto;">
+    <div class="tc-institution-banner" style="width:min(100%,980px);display:grid;grid-template-columns:72px 1fr 72px;align-items:center;justify-items:center;gap:16px;margin:0 auto 14px auto;padding:0 0 14px 0;border-bottom:1px solid rgba(255,255,255,.18);">
+      <img src="{% static 'branding/INSFP.jpg' %}" alt="INSFP" class="tc-institution-banner__logo" style="width:72px;height:72px;min-width:72px;max-width:72px;min-height:72px;max-height:72px;display:block;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 18px rgba(0,0,0,.16);margin:0;">
+      <div class="tc-institution-banner__name" style="display:block;width:100%;margin:0;color:#fff;font-weight:900;font-size:28px;line-height:1.35;text-align:center;">المعهد الوطني المتخصص في التكوين المهني</div>
+      <img src="{% static 'branding/INSFP.jpg' %}" alt="INSFP" class="tc-institution-banner__logo" style="width:72px;height:72px;min-width:72px;max-width:72px;min-height:72px;max-height:72px;display:block;object-fit:cover;border-radius:16px;border:1px solid rgba(255,255,255,.18);box-shadow:0 8px 18px rgba(0,0,0,.16);margin:0;">
+    </div>
+
+    <div class="tc-branding" style="width:min(100%,980px);margin:0 auto;display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;">
+      <div class="tc-branding__badge">TC</div>
+      <div style="text-align:center;">
+        <div class="tc-branding__eyebrow">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+        <h1 id="site-name" style="margin:0;text-align:center;"><a href="{% url 'admin:index' %}">منظومة تسيير المتكوّنين</a></h1>
+        <p class="tc-branding__subtitle" style="margin:3px 0 0;text-align:center;">فضاء إداري مهني لمتابعة المتكوّنين والدفعات والتقارير وسجل النشاط.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block userlinks %}
+  <a class="admin-back" href="{% url 'dashboard' %}" title="الرجوع إلى الواجهة الرئيسية">
+    <span class="tc-icon tc-icon--back">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.75 18.25 4.5 12l6.25-6.25 1.4 1.4L8.3 11h11.2v2H8.3l3.85 3.85Z"/></svg>
+    </span>الواجهة الرئيسية
+  </a>
+  {{ block.super }}
+{% endblock %}
+
+{% block nav-global %}
+  {% quick_counts as qc %}
+  <div class="admin-quick">
+    <div class="admin-quick__group">
+      <a class="admin-quick__btn" href="{% url 'admin_quick_filtered' 'initial' 'all' %}"><span class="tc-icon tc-icon--program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 1 9l11 6 9-4.91V17h2V9Zm0 14L5.5 13.45V17L12 21l6.5-4v-3.55Z"/></svg></span>حضوري أولي ({{ qc.initial.total }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'initial' 'active' %}">نشط ({{ qc.initial.active }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'initial' 'removed' %}">مشطوب ({{ qc.initial.removed }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'initial' 'recent_removed' %}">حديثًا ({{ qc.initial.recent_removed }})</a>
+    </div>
+
+    <div class="admin-quick__group">
+      <a class="admin-quick__btn" href="{% url 'admin_quick_filtered' 'apprentice' 'all' %}"><span class="tc-icon tc-icon--program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-3 4 3 4-3 4 3V8Zm1 7V4.5L19.5 9Z"/></svg></span>التمهين ({{ qc.apprentice.total }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'apprentice' 'active' %}">نشط ({{ qc.apprentice.active }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'apprentice' 'removed' %}">مشطوب ({{ qc.apprentice.removed }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'apprentice' 'recent_removed' %}">حديثًا ({{ qc.apprentice.recent_removed }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'apprentice' 'repeater' %}">معيد ({{ qc.apprentice.repeater }})</a>
+    </div>
+
+    <div class="admin-quick__group">
+      <a class="admin-quick__btn" href="{% url 'admin_quick_filtered' 'evening' 'all' %}"><span class="tc-icon tc-icon--program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.77 4.57A9 9 0 1 0 19.43 9.23 7 7 0 1 1 14.77 4.57Z"/></svg></span>الدروس المسائية ({{ qc.evening.total }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'evening' 'active' %}">نشط ({{ qc.evening.active }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'evening' 'removed' %}">مشطوب ({{ qc.evening.removed }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'evening' 'recent_removed' %}">حديثًا ({{ qc.evening.recent_removed }})</a>
+    </div>
+
+    <div class="admin-quick__group">
+      <a class="admin-quick__btn" href="{% url 'admin_quick_filtered' 'crossing' 'all' %}"><span class="tc-icon tc-icon--program"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.77 4.57A9 9 0 1 0 19.43 9.23 7 7 0 1 1 14.77 4.57Z"/></svg></span>المعابر ({{ qc.crossing.total }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'crossing' 'active' %}">نشط ({{ qc.crossing.active }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'crossing' 'removed' %}">مشطوب ({{ qc.crossing.removed }})</a>
+      <a class="admin-quick__pill" href="{% url 'admin_quick_filtered' 'crossing' 'recent_removed' %}">حديثًا ({{ qc.crossing.recent_removed }})</a>
+    </div>
+  </div>
+{% endblock %}

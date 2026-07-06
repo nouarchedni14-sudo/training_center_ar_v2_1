@@ -1,0 +1,355 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide attendance-card">
+  <style>
+    .slots-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+    .slots-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px;align-items:end}
+    .slots-filters label{display:block;margin-bottom:6px;font-weight:800;color:#111}
+    .slots-filters input,.slots-filters select{width:100%;min-width:0;padding:10px 12px;border-radius:12px;border:1px solid #c8d4cc;background:#fff;color:#111827;font-size:.95rem;line-height:1.2}
+    .slots-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+    .slots-summary{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:12px 0;color:#000;font-weight:700}
+    .slots-note{background:#ecfdf5;border:1px solid #a7f3d0;color:#064e3b;border-radius:14px;padding:10px 12px;margin:12px 0;font-weight:700;line-height:1.7}
+    .table-wrap.slots-grid{max-height:72vh;overflow:auto;border-radius:10px;border:1px solid #aab8af;background:#fff;scrollbar-gutter:stable both-edges;overscroll-behavior:contain;scroll-behavior:auto}
+    .slots-grid table{width:max-content!important;min-width:max-content!important;background:#fff;border-collapse:collapse!important;table-layout:fixed!important}
+    .slots-grid col.col-index{width:58px!important;min-width:58px!important;max-width:58px!important}
+    .slots-grid col.col-name{width:210px!important;min-width:210px!important;max-width:210px!important}
+    .slots-grid col.col-specialty{width:180px!important;min-width:180px!important;max-width:180px!important}
+    .slots-grid col.col-slot{width:34px!important;min-width:34px!important;max-width:34px!important}
+    .slots-grid th,.slots-grid td{border:1px solid #aebbb3!important;text-align:center;vertical-align:middle;box-sizing:border-box}
+
+    /* تثبيت صفوف العناوين الثلاثة عند النزول داخل جدول الحصص */
+    .slots-grid thead th{position:sticky;z-index:8;background:#edf3ee;color:#0f172a;padding:6px;font-weight:900}
+    .slots-grid thead tr:nth-child(1) th{top:0;height:32px}
+    .slots-grid thead tr:nth-child(2) th{top:32px;height:32px}
+    .slots-grid thead tr:nth-child(3) th{top:64px;height:32px}
+
+    /* أعمدة الرقم والاسم تبقى ثابتة يمينا، ولا تؤثر على رؤوس الأيام والحصص */
+    .slots-grid tbody td:nth-child(1),.slots-grid tbody td:nth-child(2){position:sticky;z-index:2;background:#f8fbf9}
+    .slots-grid thead tr:first-child th:nth-child(1),.slots-grid tbody td:nth-child(1){right:0;min-width:58px;width:58px}
+    .slots-grid thead tr:first-child th:nth-child(2),.slots-grid tbody td:nth-child(2){right:58px;min-width:210px;width:210px}
+    .slots-grid thead th[rowspan="3"]{top:0!important;height:96px;z-index:15;background:#f8fbf9}
+    .slots-grid thead tr:first-child th:nth-child(1),.slots-grid thead tr:first-child th:nth-child(2){position:sticky;z-index:20;background:#f8fbf9}
+    .slots-grid td.name-cell{min-width:210px;width:210px;max-width:210px;white-space:nowrap;font-weight:800;text-align:right!important;padding:6px 8px;overflow:hidden;text-overflow:ellipsis}
+    .slots-grid th.slot-head,.slots-grid td.slot-cell{min-width:34px!important;width:34px!important;max-width:34px!important;height:32px;padding:0!important;overflow:hidden;background:#fff}
+    .slots-grid th.day-head{min-width:136px!important;width:136px!important;max-width:136px!important}
+    .status-select{width:100%;min-width:0;height:32px;min-height:32px;border:none!important;border-radius:0!important;text-align:center;text-align-last:center;font-size:15px;font-weight:900;line-height:1;background:#fff;color:#0b1325;appearance:none;-webkit-appearance:none;-moz-appearance:none;cursor:pointer;padding:0!important;box-shadow:none!important}
+    .status-select:focus{outline:2px solid #0f766e!important;outline-offset:-2px;position:relative;z-index:4}
+    .status-readonly{display:flex;align-items:center;justify-content:center;min-height:32px;height:32px;font-size:15px;font-weight:900}
+    .status-present{background:#bbf7d0!important}
+    .status-absent{background:#fecaca!important}
+    .year-input{width:140px!important;min-width:140px!important;text-align:center}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:8px 0;color:#000;font-weight:700}
+    .legend-swatch{width:14px;height:14px;border-radius:4px;border:1px solid #b9c5be;display:inline-block;vertical-align:middle;margin-left:4px}
+    .danger-btn{background:#b91c1c!important;color:#fff!important}
+    .success-btn{background:#15803d!important;color:#fff!important}
+    .secondary-btn{background:#475569!important;color:#fff!important}
+    @media print{
+      @page{size:A4 landscape;margin:4mm}
+      .topbar,.institution-banner,.slots-filters,.slots-actions,.legend,.no-print,.flash-wrap{display:none!important}
+      .wrap,.card,.attendance-card{padding:0!important;margin:0!important;box-shadow:none!important;border:none!important;background:#fff!important}
+      .table-wrap.slots-grid{max-height:none!important;overflow:visible!important;border:none!important}
+      .slots-grid table{width:100%!important;min-width:0!important;table-layout:fixed}
+      .slots-grid th,.slots-grid td{position:static!important;border:1px solid #000!important;padding:1px!important;font-size:8px!important;line-height:1.1!important;background:#fff!important;color:#000!important}
+      .slots-grid td.name-cell{min-width:0!important;font-size:8px!important}
+      .status-select,.status-readonly{min-height:16px!important;height:16px!important;font-size:9px!important;padding:0!important}
+    }
+  </style>
+
+  <div class="slots-toolbar">
+    <div>
+      <h1>{{ program_label }}</h1>
+      <p style="color:#000;font-weight:600;line-height:1.7;margin-bottom:0;">{{ program_description }}</p>
+    </div>
+    <div class="slots-actions no-print">
+      <a href="{% url 'attendance_home' %}" class="btn">اختيار نمط آخر</a>
+      <a href="{% url 'dashboard' %}" class="btn">الرئيسية</a>
+    </div>
+  </div>
+
+  <div class="slots-note">
+    هذا نظام جديد مستقل عن الجداول القديمة. القاعدة الرسمية هنا: عدد الحصص البيداغوجية = عدد المتكونين غير المشطوبين × عدد الأيام الظاهرة × 4.
+  </div>
+
+  <form method="get" class="slots-filters" autocomplete="off" id="slots-filter-form">
+    <input type="hidden" name="show_table" id="show_table_input" value="{% if show_table %}1{% else %}0{% endif %}">
+    <div>
+      <label>الشهر</label>
+      <select name="month">
+        {% for item in month_choices %}
+          <option value="{{ item.value }}" {% if scope.month == item.value %}selected{% endif %}>{{ item.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>السنة</label>
+      <input type="number" min="2020" max="2100" name="year" value="{{ scope.year }}" class="year-input" autocomplete="off">
+    </div>
+    <div>
+      <label>الدفعة</label>
+      <select name="promotion" onchange="resetSlotsShowAndSubmit(true)">
+        <option value="">كل الدفعات</option>
+        {% for p in promotion_options %}
+          <option value="{{ p.id }}" {% if scope.promotion_id == p.id|stringformat:'s' %}selected{% endif %}>{{ p.اسم_الدفعة }} {{ p.السنة }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>التخصص</label>
+      <select name="specialty" id="specialty_select" onchange="resetSlotsShowOnly()">
+        <option value="">كل التخصصات</option>
+        {% for s in specialty_options %}
+          <option value="{{ s }}" {% if scope.specialty == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if requires_custom_weekdays %}
+      <div>
+        <label>يوم الدراسة الأول</label>
+        <select name="weekday1">
+          <option value="">اختر اليوم</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday1 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>يوم الدراسة الثاني</label>
+        <select name="weekday2">
+          <option value="">اختر اليوم</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday2 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_third_weekday %}
+      <div>
+        <label>اليوم الثالث الإضافي</label>
+        <select name="weekday3">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday3 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_fourth_weekday %}
+      <div>
+        <label>اليوم الرابع الإضافي</label>
+        <select name="weekday4">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday4 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_fifth_weekday %}
+      <div>
+        <label>اليوم الخامس الإضافي</label>
+        <select name="weekday5">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday5 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    <div>
+      <label>&nbsp;</label>
+      <div class="slots-actions">
+        <button type="submit" name="action" value="filter" class="btn" onclick="setSlotsShow(1)">عرض الجدول</button>
+        <button type="submit" name="action" value="all" class="btn secondary-btn" onclick="setSlotsShow(1)">عرض كل التخصصات</button>
+      </div>
+    </div>
+  </form>
+
+  {% if not columns %}
+    <div class="card" style="margin-top:16px">
+      <p style="margin:0;color:#000;font-weight:700;">
+        {% if weekday_validation.message %}
+          {{ weekday_validation.message }}
+        {% elif not scope.promotion and not scope.specialty %}
+          اختر الدفعة ثم التخصص، أو اضغط على "عرض كل التخصصات".
+        {% elif action != 'all' and not scope.specialty %}
+          اختر التخصص ثم اضغط على زر عرض الجدول.
+        {% else %}
+          اضغط على الزر المناسب لعرض الجدول.
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <form method="post" style="margin-top:16px" id="slots-attendance-form">
+      {% csrf_token %}
+      <input type="hidden" name="month" value="{{ scope.month }}">
+      <input type="hidden" name="year" value="{{ scope.year }}">
+      <input type="hidden" name="promotion" value="{{ scope.promotion_id }}">
+      <input type="hidden" name="specialty" value="{{ scope.specialty }}">
+      <input type="hidden" name="weekday1" value="{{ scope.weekday1 }}">
+      <input type="hidden" name="weekday2" value="{{ scope.weekday2 }}">
+      <input type="hidden" name="weekday3" value="{{ scope.weekday3 }}">
+      <input type="hidden" name="weekday4" value="{{ scope.weekday4 }}">
+      <input type="hidden" name="weekday5" value="{{ scope.weekday5 }}">
+      <input type="hidden" name="show_table" value="1">
+      <input type="hidden" name="action" value="{% if show_all_specialties %}all{% else %}filter{% endif %}">
+
+      <div class="slots-summary">
+        <div>عدد المتكونين: {{ rows|length }}</div>
+        <div>عدد الأيام الظاهرة: {{ columns|length }}</div>
+        <div>الحصص لكل متكون: {{ scheduled_slots_per_trainee }}</div>
+        <div>الحصص لكل المتكونين: {{ total_pedagogical_slots }}</div>
+        {% if sheet %}<div>الجدول: {{ sheet }}</div>{% endif %}
+      </div>
+
+      <div class="slots-actions no-print">
+        {% if can_change %}
+          <button type="submit" class="btn" name="post_action" value="save_and_stats" formaction="{% url stats_url_name %}" formmethod="post">حفظ ثم حساب النسبة الرسمية</button>
+        {% else %}
+          <a class="btn" href="{% url stats_url_name %}?{{ current_query }}">حساب النسبة الرسمية</a>
+        {% endif %}
+        <a class="btn" href="{% url export_url_name 'excel' %}?{{ current_query }}">تصدير Excel</a>
+        <a class="btn success-btn" href="{% url 'attendance_slot_actions' program %}?{{ current_query }}">إعذارات الحصص</a>
+        <a class="btn secondary-btn" href="{% url 'summons_records' program %}?scope=current&summons_type=intermittent_absence">استدعاءات الغيابات المتذبذبة</a>
+        <button type="button" class="btn" onclick="window.print()">طباعة</button>
+        {% if can_change %}
+          <button type="submit" class="btn success-btn" name="post_action" value="save">حفظ الجدول</button>
+          <button type="submit" class="btn danger-btn" name="post_action" value="delete_saved" onclick="return confirm('سيتم حذف البيانات المحفوظة في هذا الجدول فقط. هل تريد المتابعة؟');">حذف البيانات المحفوظة</button>
+          <button type="button" class="btn success-btn" onclick="setAllSlotsStatus('present')">الجميع حاضر</button>
+          <button type="button" class="btn danger-btn" onclick="setAllSlotsStatus('absent')">الجميع غائب</button>
+          <button type="button" class="btn secondary-btn" onclick="clearAllSlots()">مسح الكل</button>
+        {% endif %}
+      </div>
+
+      <div class="legend no-print">
+        <span><span class="legend-swatch status-present"></span> ح = حاضر</span>
+        <span><span class="legend-swatch status-absent"></span> غ = غائب</span>
+        <span>الخانة الفارغة لا تسجل كغياب.</span>
+      </div>
+
+      <div class="table-wrap slots-grid">
+        <table class="rtl-table slots-split">
+          <colgroup>
+            <col class="col-index">
+            <col class="col-name">
+            {% if show_all_specialties %}<col class="col-specialty">{% endif %}
+            {% for col in columns %}
+              <col class="col-slot"><col class="col-slot"><col class="col-slot"><col class="col-slot">
+            {% endfor %}
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="3">الرقم</th>
+              <th rowspan="3">الاسم واللقب</th>
+              {% if show_all_specialties %}<th rowspan="3">التخصص</th>{% endif %}
+              {% for col in columns %}
+                <th class="day-head" colspan="4">{{ col.weekday_label }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for col in columns %}
+                <th class="day-head" colspan="4"><span class="num">{{ col.day_num }}</span></th>
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for col in columns %}
+                <th class="slot-head">ح1</th><th class="slot-head">ح2</th><th class="slot-head">ح3</th><th class="slot-head">ح4</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td><span class="num">{{ row.index|stringformat:"02d" }}</span></td>
+                <td class="name-cell">{{ row.trainee.اللقب }} {{ row.trainee.الاسم }}</td>
+                {% if show_all_specialties %}<td class="name-cell">{{ row.trainee.التخصص|default:"—" }}</td>{% endif %}
+                {% for cell in row.cells %}
+                  {% for slot in cell.slots %}
+                    <td class="slot-cell">
+                      {% if can_change %}
+                        <select name="status__{{ row.trainee.pk }}__{{ cell.iso }}__{{ slot.slot }}" class="status-select {% if slot.status %}status-{{ slot.status }}{% endif %}" onchange="applySlotColor(this); restoreSlotsScroll(this);" ondblclick="cycleSlotStatus(this);">
+                          <option value="" {% if not slot.status %}selected{% endif %}></option>
+                          {% for value,label in status_choices %}
+                            <option value="{{ value }}" {% if slot.status == value %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      {% else %}
+                        <div class="status-readonly {% if slot.status %}status-{{ slot.status }}{% endif %}">{{ slot.display_label }}</div>
+                      {% endif %}
+                    </td>
+                  {% endfor %}
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr><td colspan="20">لا يوجد متكونون ضمن هذا النطاق.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+  {% endif %}
+</div>
+
+<script>
+function setSlotsShow(value){var el=document.getElementById('show_table_input');if(el)el.value=value?'1':'0';}
+function resetSlotsShowOnly(){var el=document.getElementById('show_table_input');if(el)el.value='0';}
+function resetSlotsShowAndSubmit(resetSpecialty){resetSlotsShowOnly();if(resetSpecialty){var sp=document.getElementById('specialty_select');if(sp)sp.value='';}document.getElementById('slots-filter-form').submit();}
+function getSlotsWrap(el){return el ? el.closest('.table-wrap.slots-grid') : null;}
+function rememberSlotsScroll(el){
+  var wrap=getSlotsWrap(el);
+  if(!wrap)return;
+  el.dataset.slotsScrollLeft=String(wrap.scrollLeft);
+  el.dataset.slotsScrollTop=String(wrap.scrollTop);
+}
+function restoreSlotsScroll(el){
+  var wrap=getSlotsWrap(el);
+  if(!wrap)return;
+  var left=el.dataset.slotsScrollLeft;
+  var top=el.dataset.slotsScrollTop;
+  if(left===undefined || left==='')left=String(wrap.scrollLeft);
+  if(top===undefined || top==='')top=String(wrap.scrollTop);
+  function apply(){wrap.scrollLeft=parseFloat(left)||0;wrap.scrollTop=parseFloat(top)||0;}
+  apply();
+  requestAnimationFrame(apply);
+  setTimeout(apply,0);
+  setTimeout(apply,60);
+}
+function applySlotColor(selectEl){
+  selectEl.classList.remove('status-present','status-absent');
+  if(selectEl.value==='present')selectEl.classList.add('status-present');
+  else if(selectEl.value==='absent')selectEl.classList.add('status-absent');
+}
+function cycleSlotStatus(selectEl){
+  rememberSlotsScroll(selectEl);
+  const states=['','present','absent'];
+  let idx=states.indexOf(selectEl.value||'');
+  if(idx<0)idx=0;
+  selectEl.value=states[(idx+1)%states.length];
+  applySlotColor(selectEl);
+  restoreSlotsScroll(selectEl);
+}
+function setAllSlotsStatus(status){
+  if(!confirm(status==='present'?'تعيين الجميع حاضر؟':'تعيين الجميع غائب؟'))return;
+  document.querySelectorAll('select[name^="status__"]').forEach(function(s){s.value=status;applySlotColor(s);});
+}
+function clearAllSlots(){
+  if(!confirm('هل تريد مسح كل الخانات الظاهرة؟'))return;
+  document.querySelectorAll('select[name^="status__"]').forEach(function(s){s.value='';applySlotColor(s);});
+}
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('select[name^="status__"]').forEach(function(s){
+    applySlotColor(s);
+    ['pointerdown','mousedown','touchstart','keydown','focus'].forEach(function(evt){
+      s.addEventListener(evt,function(){rememberSlotsScroll(this);},{passive:true});
+    });
+    ['click','change','blur'].forEach(function(evt){
+      s.addEventListener(evt,function(){restoreSlotsScroll(this);});
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ program_label }} - معاينة العقوبات</title>
+  <style>
+    :root{--ink:#000;--accent:#000;--gold:#000;--paper:#fff;--screen:#fff7ed}
+     *{box-sizing:border-box;color:#000!important;-webkit-text-fill-color:#000!important;text-decoration-color:#000!important}
+    html,body{margin:0;padding:0;direction:rtl;background:#f7f3ea;color:#000;font-family:"Times New Roman","Traditional Arabic",Arial,sans-serif}
+    body{padding:18px 0;overflow-x:hidden}
+    .preview-toolbar{direction:rtl;width:190mm;margin:0 auto 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #e7d3ad;border-radius:14px;padding:12px 14px;box-shadow:0 8px 22px rgba(15,23,42,.08)}
+    .preview-toolbar h1{margin:0;color:#7c2d12!important;-webkit-text-fill-color:#7c2d12!important;font-family:Arial,sans-serif;font-size:22px}.preview-toolbar .meta{color:#64748b!important;-webkit-text-fill-color:#64748b!important;font-weight:700;font-family:Arial,sans-serif}.preview-toolbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;background:#0b5a3d!important;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:10px 16px;font-weight:700;text-decoration:none;cursor:pointer;font-family:Arial,sans-serif}.btn.secondary{background:#b4892b!important;color:#fff!important;-webkit-text-fill-color:#fff!important}.btn:hover{filter:brightness(.96)}
+
+    /* صفحة A4 مقسمة إلى نسختين كاملتين: نسخة للمتكون ونسخة للأرشيف */
+    .sanction-page{direction:rtl;background:#fff;width:210mm;min-height:297mm;margin:0 auto 18px;padding:5mm 10mm;box-shadow:0 8px 22px rgba(15,23,42,.12);page-break-after:always;overflow:hidden}
+    .sanction-page:last-child{page-break-after:auto}
+    .sanction-copy{height:140mm;min-height:140mm;max-height:140mm;overflow:hidden;padding:0 0 1.7mm;font-size:14.2px;line-height:2.2;font-weight:900}
+    .sanction-copy + .sanction-copy{border-top:1px dashed #000;padding-top:2.5mm;margin-top:2.5mm}
+
+    .official-header{line-height:1.12;margin-bottom:.8mm}.official-main{text-align:center;line-height:1.12;margin-bottom:.55mm}.right-block{text-align:right;line-height:1.12}.number-line{margin-top:.45mm;white-space:nowrap}
+    .director-to{width:43%;margin-top:.7mm;margin-right:auto;margin-left:0;line-height:1.14;text-align:right;transform: translateX(-6mm)}
+    .from-line{text-align:center;font-weight:800;line-height:1.1}
+    .to-line{text-align:center;font-weight:800;margin:.35mm 0;line-height:1.1}
+    .to-trainee,.director-to div:not(.from-line):not(.to-line){text-align:right}
+    .subject-line{margin:.7mm 0;text-align:right;font-weight:800}.director-line{margin:0 0 .55mm;text-align:right;line-height:1.12}.legal-text p{margin:0 0 .45mm;text-align:justify;text-align-last:right;line-height:1.11}
+    .sanction-line{margin:.7mm 0 .45mm;text-align:right;font-weight:800;line-height:1.14}
+    .sanction-gap{display:inline-block;width:18mm}
+    .body-text{margin:0 0 .7mm;text-align:justify;text-align-last:right;line-height:1.15}.note-text{margin:0 0 .55mm;text-align:right;line-height:1.12}
+    .bottom-lines{display:block;margin-top:.65mm}
+    .bottom-lines div{text-align:right;line-height:1.12;margin-bottom:.38mm}
+    .issue-date{text-align:left!important;margin-top:.75mm}
+    .copy-label{margin-top:.55mm;text-align:left;font-size:8.6px;font-weight:700;line-height:1.05}
+
+
+
+    /* FORCE LAYOUT FIX - لا تحذف هذا الجزء */
+    .sanction-copy .director-to{
+      width:34%!important;
+      margin-right:auto!important;
+      margin-left:0!important;
+      transform:none!important;
+      text-align:right!important;
+    }
+    .sanction-copy .from-line,
+    .sanction-copy .to-line{
+      text-align:center!important;
+    }
+    .sanction-copy .to-trainee,
+    .sanction-copy .director-to div:not(.from-line):not(.to-line){
+      text-align:right!important;
+    }
+    .sanction-copy .bottom-lines{
+      display:grid!important;
+      direction:ltr!important;
+      grid-template-columns:1fr 1fr!important;
+      column-gap:4mm!important;
+      margin-top:.65mm!important;
+      align-items:start!important;
+    }
+    .sanction-copy .bottom-lines > div{
+      direction:rtl!important;
+      line-height:1.12!important;
+      margin-bottom:.38mm!important;
+    }
+    .sanction-copy .bottom-lines > div:nth-child(1),
+    .sanction-copy .bottom-lines > div:nth-child(2){
+      grid-column:2!important;
+      text-align:right!important;
+    }
+    .sanction-copy .bottom-lines > .issue-date{
+      grid-column:1!important;
+      grid-row:1 / span 2!important;
+      text-align:left!important;
+      justify-self:stretch!important;
+      align-self:end!important;
+      margin-top:0!important;
+    }
+
+    @media print{
+      @page{size:A4 portrait;margin:0}
+      html,body{background:#fff!important;margin:0!important;padding:0!important;width:210mm!important;min-width:210mm!important;height:auto!important;overflow:visible!important;scrollbar-width:none!important;-ms-overflow-style:none!important;color:#000!important;-webkit-text-fill-color:#000!important}
+      html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
+      body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      .preview-toolbar,.no-print{display:none!important}
+      *{box-shadow:none!important;text-shadow:none!important;color:#000!important;-webkit-text-fill-color:#000!important;text-decoration-color:#000!important}
+      .sanction-page{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:5mm 10mm!important;border:0!important;box-shadow:none!important;page-break-after:always;break-after:page;overflow:hidden!important;background:#fff!important}
+      .sanction-page:last-child{page-break-after:auto;break-after:auto}
+      .sanction-copy{height:140mm!important;min-height:140mm!important;max-height:140mm!important;font-size:14px!important;line-height:1.90!important;padding-bottom:2.1mm!important;overflow:hidden!important}
+      .sanction-copy + .sanction-copy{padding-top:2.4mm!important;margin-top:2.4mm!important;border-top:1px dashed #000!important}
+      .official-header{line-height:1.05!important;margin-bottom:.45mm!important}.official-main{line-height:1.1!important;margin-bottom:.45mm!important}.right-block{line-height:1.1!important}.number-line{margin-top:.35mm!important}
+      .director-to{width:43%!important;margin-top:.55mm!important;margin-right:auto!important;margin-left:0!important;line-height:1.12!important;text-align:right!important;transform:none!important}
+      .from-line,.to-line{line-height:1.08!important}.to-line{margin:.25mm 0!important}.to-trainee,.director-to div:not(.from-line):not(.to-line){text-align:right!important}
+      .subject-line{margin:.55mm 0!important}.director-line{margin-bottom:.4mm!important;line-height:1.1!important}.legal-text p{line-height:1.08!important;margin-bottom:.32mm!important}
+      .sanction-line{margin:.55mm 0 .35mm!important;line-height:1.1!important}.sanction-gap{display:inline-block!important;width:18mm!important}
+      .body-text{line-height:1.12!important;margin-bottom:.5mm!important}.note-text{line-height:1.1!important;margin-bottom:.4mm!important}
+.bottom-lines{
+  display:grid!important;
+  direction:ltr!important;
+  grid-template-columns:1fr 1fr!important;
+  column-gap:4mm!important;
+  row-gap:.25mm!important;
+  margin-top:.45mm!important;
+  align-items:start!important;
+}
+
+.bottom-lines div{
+  direction:rtl!important;
+  line-height:1.1!important;
+  margin-bottom:0!important;
+}
+
+.bottom-lines div:nth-child(1){
+  grid-column:2!important;
+  grid-row:1!important;
+  text-align:right!important;
+}
+
+.bottom-lines div:nth-child(2){
+  grid-column:2!important;
+  grid-row:2!important;
+  text-align:right!important;
+}
+
+.bottom-lines .issue-date{
+  grid-column:1!important;
+  grid-row:2!important;
+  justify-self:start!important;
+  width:max-content!important;
+  text-align:right!important;
+  margin-top:0!important;
+}
+      .copy-label{font-size:8px!important;margin-top:.35mm!important;line-height:1!important}
+      .sanction-copy .director-to{width:42%!important;margin-right:auto!important;margin-left:0!important;text-align:right!important;transform:translateX(-8mm)!important;}
+
+
+      /* FORCE PRINT LAYOUT FIX - لا تحذف هذا الجزء */
+      .sanction-copy .director-to{
+        width:34%!important;
+        margin-right:auto!important;
+        margin-left:0!important;
+        transform:none!important;
+        text-align:right!important;
+      }
+      .sanction-copy .from-line,
+      .sanction-copy .to-line{
+        text-align:center!important;
+      }
+      .sanction-copy .to-trainee,
+      .sanction-copy .director-to div:not(.from-line):not(.to-line){
+        text-align:right!important;
+      }
+      .sanction-copy .bottom-lines{
+        display:grid!important;
+        direction:ltr!important;
+        grid-template-columns:1fr 1fr!important;
+        column-gap:4mm!important;
+        margin-top:.45mm!important;
+        align-items:start!important;
+      }
+      .sanction-copy .bottom-lines > div{
+        direction:rtl!important;
+        line-height:1.1!important;
+        margin-bottom:.3mm!important;
+      }
+      .sanction-copy .bottom-lines > div:nth-child(1),
+      .sanction-copy .bottom-lines > div:nth-child(2){
+        grid-column:2!important;
+        text-align:right!important;
+      }
+      .sanction-copy .bottom-lines > .issue-date{
+        grid-column:1!important;
+        grid-row:1 / span 2!important;
+        text-align:left!important;
+        justify-self:stretch!important;
+        align-self:end!important;
+        margin-top:0!important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-toolbar no-print">
+    <div><h1>{{ program_label }} - معاينة العقوبات</h1><div class="meta">عدد العقوبات: {{ records|length }}</div></div>
+    <div class="actions">
+      <button class="btn" onclick="window.print()">طباعة</button>
+      {% if records %}<a class="btn secondary" href="{% url 'sanction_records_bulk_edit' program %}?{% for item in records %}ids={{ item.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}{% if return_query %}&return_query={{ return_query|urlencode }}{% endif %}">تعديل</a>{% endif %}
+      <a class="btn secondary" href="{% url 'sanction_records' program %}{% if return_query %}?{{ return_query }}{% endif %}">العودة للقائمة</a>
+    </div>
+  </div>
+
+  {% for item in records %}
+    <section class="sanction-page">
+      {% with copy_label='' %}{% include "trainees/sanction_document_block.html" with item=item copy_label=copy_label %}{% endwith %}
+      {% with copy_label='' %}{% include "trainees/sanction_document_block.html" with item=item copy_label=copy_label %}{% endwith %}
+    </section>
+  {% endfor %}
+
+  {% if auto_print %}
+  <script>
+    window.addEventListener('load', function(){ window.print(); });
+  </script>
+  {% endif %}
+</body>
+</html>

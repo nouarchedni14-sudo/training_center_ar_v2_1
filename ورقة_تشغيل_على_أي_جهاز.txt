@@ -1,0 +1,30 @@
+ورقة تشغيل سريعة على أي جهاز
+============================
+
+1) ثبّت Python 3.12 و PostgreSQL 16.
+2) فك المشروع في مجلد ثابت مثل:
+   C:\TrainingCenterApp
+3) انسخ مجلد البيانات إلى:
+   C:\TrainingCenterData
+   ويجب أن يحتوي على:
+   - .env
+   - media
+   - staticfiles
+4) افتح PowerShell داخل مجلد المشروع ثم نفّذ:
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+5) نفّذ:
+   python manage.py migrate --settings=training_center.settings_lan
+   python manage.py collectstatic --noinput --settings=training_center.settings_lan
+   python launcher/lan_server.py
+
+العنوان المحلي:
+http://127.0.0.1:8000
+
+عند تغيير الجهاز انقل:
+- مجلد المشروع
+- C:\TrainingCenterData كاملاً
+- نسخة قاعدة PostgreSQL أو backup منها
+- كلمة مرور postgres
+- ملف C:\TrainingCenterData\.env

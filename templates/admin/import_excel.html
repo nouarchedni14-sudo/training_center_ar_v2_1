@@ -1,0 +1,604 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<style>
+  :root{
+    --gov-green:#0f6b50;
+    --gov-green-2:#0c5d45;
+    --gov-gold:#b9953b;
+    --gov-gold-2:#d7bb6a;
+    --gov-bg:#f4f7f6;
+    --gov-card:#ffffff;
+    --gov-border:#d7e2dd;
+    --gov-text:#133128;
+    --gov-muted:#5c7269;
+    --gov-shadow:0 14px 34px rgba(15, 107, 80, .12);
+    --gov-shadow-soft:0 8px 20px rgba(15, 107, 80, .08);
+    --gov-radius:22px;
+  }
+
+  .excel-import-shell{
+    max-width: 980px;
+    margin: 24px auto;
+    direction: rtl;
+    color: var(--gov-text);
+    font-family: inherit;
+  }
+
+  .excel-import-card{
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top right, rgba(215,187,106,.18), transparent 32%),
+      linear-gradient(135deg, #ffffff 0%, #fbfdfc 100%);
+    border: 1px solid var(--gov-border);
+    border-radius: 28px;
+    box-shadow: var(--gov-shadow);
+    padding: 34px 30px 28px;
+  }
+
+  .excel-import-card::before{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:8px;
+    background: linear-gradient(180deg, var(--gov-gold), var(--gov-green));
+    border-radius: 28px 0 0 28px;
+  }
+
+  .excel-hero{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .excel-hero-main{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    flex:1 1 560px;
+    min-width: 0;
+  }
+
+  .excel-icon-badge{
+    width:72px;
+    height:72px;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg, var(--gov-green), var(--gov-green-2));
+    color:#fff;
+    box-shadow: 0 14px 26px rgba(15, 107, 80, .24);
+    flex:0 0 auto;
+    animation: floatBadge 3.5s ease-in-out infinite;
+  }
+
+  .excel-icon-badge svg{
+    width:38px;
+    height:38px;
+  }
+
+  @keyframes floatBadge{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-4px); }
+  }
+
+  .excel-title{
+    margin:0;
+    font-size: 32px;
+    line-height:1.35;
+    font-weight:800;
+    color: var(--gov-text);
+  }
+
+  .excel-title .accent{
+    color: var(--gov-green);
+  }
+
+  .excel-subtitle{
+    margin:8px 0 0;
+    color: var(--gov-muted);
+    line-height:1.9;
+    font-size:15px;
+  }
+
+  .gov-chip{
+    align-self:flex-start;
+    background: rgba(15, 107, 80, .08);
+    color: var(--gov-green);
+    border: 1px solid rgba(15, 107, 80, .15);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .excel-panel{
+    background: linear-gradient(180deg, #ffffff 0%, #f9fcfb 100%);
+    border: 1px solid #e6efeb;
+    border-radius: var(--gov-radius);
+    box-shadow: var(--gov-shadow-soft);
+    padding: 22px;
+    margin-top: 16px;
+  }
+
+  .excel-panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom: 18px;
+    flex-wrap:wrap;
+  }
+
+  .excel-panel-title{
+    margin:0;
+    font-size:20px;
+    font-weight:800;
+    color: var(--gov-text);
+  }
+
+  .excel-panel-note{
+    margin:0;
+    font-size:14px;
+    color: var(--gov-muted);
+  }
+
+  .import-form-row{
+    display:grid;
+    grid-template-columns: 1fr auto auto;
+    gap:12px;
+    align-items:center;
+  }
+
+  .import-form-row.step-one{
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .field-stack{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-width: 0;
+  }
+
+  .field-label{
+    font-size:14px;
+    font-weight:700;
+    color: var(--gov-text);
+  }
+
+  .field-help{
+    margin-top:14px;
+    padding:12px 14px;
+    background:#f6fbf8;
+    border: 1px dashed #bfd4cb;
+    border-radius:16px;
+    color: var(--gov-muted);
+    line-height:1.9;
+    font-size:14px;
+  }
+
+  .gov-input,
+  .gov-file{
+    width:100%;
+    min-height: 48px;
+    border-radius:16px;
+    border:1px solid #c7d7d0;
+    background:#fff;
+    color:#122b23;
+    padding: 10px 14px;
+    box-sizing:border-box;
+    transition: .25s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.02);
+  }
+
+  .gov-input:focus,
+  .gov-file:focus{
+    outline:none;
+    border-color: var(--gov-green);
+    box-shadow: 0 0 0 4px rgba(15, 107, 80, .10);
+  }
+
+  .gov-file{
+    padding: 10px 12px;
+  }
+
+  /* إخفاء input الأصلي لأن نصوصه تأتي من لغة المتصفح/النظام،
+     واستبداله بواجهة عربية واضحة داخل الصفحة. */
+  .gov-file-native{
+    position:absolute;
+    width:1px;
+    height:1px;
+    opacity:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+
+  .arabic-file-picker{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .arabic-file-button{
+    min-height:48px;
+    border-radius:16px;
+    border:1px solid #c7d7d0;
+    background:linear-gradient(135deg, #ffffff, #f7fbf9);
+    color:var(--gov-green);
+    padding:0 16px;
+    font-weight:900;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.02);
+    transition:.2s ease;
+  }
+
+  .arabic-file-button:hover{
+    border-color:var(--gov-green);
+    box-shadow:0 0 0 4px rgba(15,107,80,.08);
+  }
+
+  .arabic-file-name{
+    flex:1 1 260px;
+    min-height:48px;
+    border-radius:16px;
+    border:1px dashed #c7d7d0;
+    background:#fff;
+    color:#122b23;
+    padding:12px 14px;
+    box-sizing:border-box;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+
+  .arabic-file-formats{
+    width:100%;
+    color:#6c7c75;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  .gov-btn{
+    min-height:48px;
+    border:none;
+    border-radius:16px;
+    padding: 0 18px;
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+
+  .gov-btn:hover{
+    transform: translateY(-1px);
+  }
+
+  .gov-btn:active{
+    transform: translateY(0);
+  }
+
+  .gov-btn-primary{
+    color:#fff;
+    background: linear-gradient(135deg, var(--gov-green), var(--gov-green-2));
+    box-shadow: 0 12px 24px rgba(15, 107, 80, .22);
+  }
+
+  .gov-btn-secondary{
+    color:#6c561c;
+    background: linear-gradient(135deg, #f4e4b2, var(--gov-gold-2));
+    box-shadow: 0 10px 18px rgba(185, 149, 59, .18);
+  }
+
+  .gov-btn svg{
+    width:18px;
+    height:18px;
+    flex:0 0 auto;
+  }
+
+  .select2-container{
+    width:100% !important;
+    direction: rtl;
+  }
+
+  .select2-container .select2-selection--single{
+    height: 52px !important;
+    border-radius: 16px !important;
+    border: 1px solid #c7d7d0 !important;
+    background: #fff !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.02);
+    transition: .25s ease;
+  }
+
+  .select2-container--default.select2-container--focus .select2-selection--single,
+  .select2-container--default.select2-container--open .select2-selection--single{
+    border-color: var(--gov-green) !important;
+    box-shadow: 0 0 0 4px rgba(15, 107, 80, .10) !important;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered{
+    line-height: 50px !important;
+    color: #122b23 !important;
+    padding-right: 16px !important;
+    padding-left: 42px !important;
+    text-align: right;
+    font-weight: 700;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__placeholder{
+    color:#7c9189 !important;
+    font-weight:600;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__arrow{
+    height: 50px !important;
+    left: 10px !important;
+    right: auto !important;
+  }
+
+  .select2-dropdown{
+    border:1px solid #c7d7d0 !important;
+    border-radius: 16px !important;
+    overflow:hidden;
+    box-shadow: 0 16px 36px rgba(15, 107, 80, .16);
+  }
+
+  .select2-search--dropdown{
+    padding:10px;
+    background:#f7fbf9;
+  }
+
+  .select2-search--dropdown .select2-search__field{
+    border:1px solid #d1ddd7 !important;
+    border-radius: 12px !important;
+    min-height: 40px;
+    padding: 8px 12px !important;
+    direction: rtl;
+  }
+
+  .select2-results__option{
+    padding: 12px 14px !important;
+    font-weight: 700;
+    text-align:right;
+  }
+
+  .select2-results__option--highlighted.select2-results__option--selectable{
+    background: var(--gov-green) !important;
+  }
+
+  .excel-meta{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top: 18px;
+  }
+
+  .excel-meta-item{
+    background:#f7fbf9;
+    border:1px solid #dce8e2;
+    color: var(--gov-muted);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  @media (max-width: 900px){
+    .import-form-row,
+    .import-form-row.step-one{
+      grid-template-columns: 1fr;
+    }
+
+    .gov-btn{
+      width:100%;
+    }
+
+    .excel-import-card{
+      padding: 26px 18px 22px;
+    }
+
+    .excel-title{
+      font-size: 26px;
+    }
+
+    .excel-icon-badge{
+      width:60px;
+      height:60px;
+      border-radius:18px;
+    }
+  }
+</style>
+
+<div class="excel-import-shell">
+  <div class="excel-import-card">
+    <div class="excel-hero">
+      <div class="excel-hero-main">
+        <div class="excel-icon-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z" fill="currentColor" opacity=".22"/>
+            <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 10l6 6M15 10l-6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div>
+          <h1 class="excel-title">
+            <span class="accent">استيراد من Excel</span> — {{ model_verbose }}
+          </h1>
+          <p class="excel-subtitle">
+
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    {% if step == 1 %}
+      <div class="excel-panel">
+        <div class="excel-panel-head">
+          <div>
+            <h2 class="excel-panel-title">رفع ملف Excel</h2>
+            <p class="excel-panel-note">ابدأ برفع الملف، ثم سيتم عرض أوراق العمل المتاحة للاختيار.</p>
+          </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="import-form-row step-one">
+            <div class="field-stack">
+              <label class="field-label" for="excel_file">ملف Excel</label>
+          <input
+              class="gov-file-native"
+              id="excel_file"
+              type="file"
+              name="excel_file"
+              accept=".xlsx,.xlsm,.xltx,.xltm"
+              required
+              oninvalid="this.setCustomValidity('يرجى اختيار ملف Excel أولاً')"
+              oninput="this.setCustomValidity('')"
+            >
+            <div class="arabic-file-picker" aria-live="polite">
+              <label class="arabic-file-button" for="excel_file">📁 اختيار ملف Excel</label>
+              <div id="excel_file_name" class="arabic-file-name">لم يتم اختيار أي ملف</div>
+              <div class="arabic-file-formats">الصيغ المدعومة: XLSX, XLSM, XLTX, XLTM</div>
+            </div>
+            </div>
+
+            <button class="gov-btn gov-btn-primary" type="submit">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              التالي
+            </button>
+
+            <button class="gov-btn gov-btn-secondary" type="submit" name="action" value="download_template">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              تصدير قالب الأعمدة
+            </button>
+          </div>
+
+          <div class="field-help">
+            ملاحظة: يتم الاستيراد <strong>ورقة واحدة فقط</strong> في كل مرة. يدعم البرنامج ملفات Excel الحديثة: <strong>XLSX / XLSM / XLTX / XLTM</strong>. إذا لم تكن أعمدة ملفك مطابقة للبرنامج، يمكنك تنزيل قالب الأعمدة وضبط الملف عليه قبل المتابعة.
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    {% if step == 2 %}
+      <div class="excel-panel">
+        <div class="excel-panel-head">
+          <div>
+            <h2 class="excel-panel-title">اختيار ورقة العمل</h2>
+            <p class="excel-panel-note"> </p>
+          </div>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="temp_id" value="{{ temp_id }}">
+
+          <div class="import-form-row">
+            <div class="field-stack">
+              <label class="field-label" for="sheet_select">اختر الورقة</label>
+              <select class="gov-input" id="sheet_select" name="sheet_name" required>
+                <option value=""></option>
+                {% for s in sheets %}
+                  <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <button class="gov-btn gov-btn-primary" type="submit">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              استيراد هذه الورقة
+            </button>
+
+            <button class="gov-btn gov-btn-secondary" type="submit" name="action" value="download_template">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              تصدير قالب الأعمدة
+            </button>
+          </div>
+
+          <div class="field-help">
+            إن ظهرت رسالة عدم تطابق الأعمدة، عدّل رؤوس الأعمدة لتطابق قالب البرنامج ثم أعد المحاولة.
+          </div>
+        </form>
+
+        <div class="excel-meta">
+          <div class="excel-meta-item"></div>
+          <div class="excel-meta-item"></div>
+          <div class="excel-meta-item"></div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  (function() {
+    function initArabicFilePicker() {
+      const fileInput = document.getElementById('excel_file');
+      const fileNameBox = document.getElementById('excel_file_name');
+      if (!fileInput || !fileNameBox) return;
+      fileInput.addEventListener('change', function() {
+        const name = this.files && this.files.length ? this.files[0].name : 'لم يتم اختيار أي ملف';
+        fileNameBox.textContent = name;
+        fileNameBox.title = name;
+      });
+    }
+
+    function initSelect2() {
+      if (window.jQuery && jQuery.fn.select2 && document.getElementById('sheet_select')) {
+        $('#sheet_select').select2({
+          placeholder: 'ابحث عن الورقة أو اخترها',
+          dir: 'rtl',
+          width: '100%',
+          language: {
+            noResults: function () { return 'لا توجد نتائج'; },
+            searching: function () { return 'جارٍ البحث...'; }
+          }
+        });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { initSelect2(); initArabicFilePicker(); });
+    } else {
+      initSelect2();
+      initArabicFilePicker();
+    }
+  })();
+</script>
+{% endblock %}

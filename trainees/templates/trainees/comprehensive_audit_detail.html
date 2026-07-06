@@ -1,0 +1,48 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div>
+      <h2 style="margin:0">تفاصيل سجل العملية</h2>
+      <div class="muted">عرض كامل للسجل مع قبل/بعد بدون اختصار.</div>
+    </div>
+    <a class="btn" href="{% url 'comprehensive_audit_dashboard' %}">العودة إلى السجل</a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px;">
+    <div><strong>التاريخ:</strong><div>{{ item.created_at|date:"Y-m-d H:i:s" }}</div></div>
+    <div><strong>المستخدم:</strong><div>{{ item.username_snapshot|default:'—' }}</div></div>
+    <div><strong>النوع:</strong><div>{{ item.get_action_display }}</div></div>
+    <div><strong>الطريقة:</strong><div>{{ item.method|default:'—' }}</div></div>
+    <div><strong>النتيجة:</strong><div>{% if item.success %}ناجحة{% else %}فاشلة{% endif %}</div></div>
+    <div><strong>الحساسية:</strong><div>{% if is_sensitive %}حساسة{% else %}عادية{% endif %}</div></div>
+    <div><strong>الشاشة:</strong><div>{{ item.screen_name|default:'—' }}</div></div>
+    <div><strong>العرض:</strong><div>{{ item.view_name|default:'—' }}</div></div>
+    <div><strong>الكيان:</strong><div>{{ item.model_label|default:'—' }}</div></div>
+    <div><strong>المعرف:</strong><div>{{ item.object_pk|default:'—' }}</div></div>
+    <div><strong>الوصف:</strong><div>{{ item.object_repr|default:'—' }}</div></div>
+    <div><strong>IP:</strong><div>{{ item.ip_address|default:'—' }}</div></div>
+  </div>
+
+  <div style="margin-top:16px;">
+    <strong>المسار</strong>
+    <pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;">{{ item.path }}{% if item.query_string %}?{{ item.query_string }}{% endif %}</pre>
+  </div>
+
+  <div style="margin-top:16px;">
+    <strong>التفاصيل</strong>
+    <pre style="white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;">{{ item.details|default:'—' }}</pre>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+    <div>
+      <strong>القيم قبل التعديل</strong>
+      <pre style="white-space:pre-wrap;background:#fff7ed;padding:12px;border-radius:10px;border:1px solid #fed7aa;">{{ before_json }}</pre>
+    </div>
+    <div>
+      <strong>القيم بعد التعديل</strong>
+      <pre style="white-space:pre-wrap;background:#f0fdf4;padding:12px;border-radius:10px;border:1px solid #bbf7d0;">{{ after_json }}</pre>
+    </div>
+  </div>
+</div>
+{% endblock %}

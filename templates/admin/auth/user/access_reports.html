@@ -1,0 +1,138 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="max-width:1200px;margin:0 auto;direction:rtl;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+    <div>
+      <p style="margin:0;color:#475467;">شاشة مختصرة لمتابعة الحسابات النشطة والمنتهية والقريبة من الانتهاء داخل لوحة الإدارة.</p>
+    </div>
+ <div style="display:flex;gap:10px;flex-wrap:wrap;">
+  <a href="{% url 'admin:auth_user_changelist' %}" class="button" style="padding:10px 14px;border-radius:10px;">
+    العودة إلى المستخدمين
+  </a>
+
+  <a href="{{ export_access_report_url }}" class="button" style="padding:10px 14px;border-radius:10px;background:#0b5ed7;color:#fff;">
+    تصدير التقرير CSV
+  </a>
+  </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px;">
+    {% for card in summary_cards %}
+      <div style="background:#fff;border:1px solid #d0d5dd;border-top:4px solid {{ card.color }};border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(16,24,40,.06);">
+        <div style="font-size:14px;color:#475467;margin-bottom:8px;">{{ card.label }}</div>
+        <div style="font-size:32px;font-weight:700;color:#101828;">{{ card.value }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:start;">
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h2 style="margin-top:0;">حسابات تنتهي قريبًا</h2>
+      <p style="color:#475467;">هذه القائمة تعرض المستخدمين الذين تبقى على صلاحياتهم {{ warning_days }} أيام أو أقل.</p>
+      {% if expiring_soon_users %}
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="padding:10px;border-bottom:1px solid #eaecf0;text-align:right;">المستخدم</th>
+              <th style="padding:10px;border-bottom:1px solid #eaecf0;text-align:right;">الحالة</th>
+              <th style="padding:10px;border-bottom:1px solid #eaecf0;text-align:right;">النهاية</th>
+              <th style="padding:10px;border-bottom:1px solid #eaecf0;text-align:right;">مؤشر المتابعة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in expiring_soon_users %}
+              <tr>
+                <td style="padding:10px;border-bottom:1px solid #f2f4f7;">
+                  <a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a>
+                </td>
+                <td style="padding:10px;border-bottom:1px solid #f2f4f7;">{{ user.access_profile.access_state_label }}</td>
+                <td style="padding:10px;border-bottom:1px solid #f2f4f7;">{{ user.access_profile.access_end_date|date:'Y-m-d' }}</td>
+                <td style="padding:10px;border-bottom:1px solid #f2f4f7;">{{ user.access_profile.expiry_urgency_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="padding:14px;border:1px dashed #d0d5dd;border-radius:12px;background:#fcfcfd;">لا توجد حسابات تحتاج تمديدًا خلال المدة المحددة حاليًا.</div>
+      {% endif %}
+    </section>
+
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h2 style="margin-top:0;">ملاحظات سريعة</h2>
+      <ul style="margin:0;padding-right:18px;line-height:1.9;">
+        <li>المستخدم المعطّل لا يستفيد من أي صلاحية حتى لو كانت بقية الخيارات مفعلة.</li>
+        <li>المستخدم الذي لا يملك أنماطًا مفعلة قد يدخل اللوحة فقط إذا كان لديه صلاحية إدارية صريحة.</li>
+        <li>المستخدم الذي عليه إجبار تغيير كلمة المرور يحتاج متابعة بعد أول دخول قادم.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px;">
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h3 style="margin-top:0;color:#b42318;">صلاحيات منتهية</h3>
+      {% if expired_users %}
+        <ul style="margin:0;padding-right:18px;line-height:1.9;">
+          {% for user in expired_users %}
+            <li><a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a> — {{ user.access_profile.access_end_date|date:'Y-m-d' }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>لا توجد حسابات منتهية حاليًا.</div>
+      {% endif %}
+    </section>
+
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h3 style="margin-top:0;color:#475467;">صلاحيات معطلة</h3>
+      {% if disabled_users %}
+        <ul style="margin:0;padding-right:18px;line-height:1.9;">
+          {% for user in disabled_users %}
+            <li><a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>لا توجد حسابات معطلة.</div>
+      {% endif %}
+    </section>
+
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h3 style="margin-top:0;color:#b54708;">لم تبدأ بعد</h3>
+      {% if pending_users %}
+        <ul style="margin:0;padding-right:18px;line-height:1.9;">
+          {% for user in pending_users %}
+            <li><a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a> — تبدأ {{ user.access_profile.access_start_date|date:'Y-m-d' }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>لا توجد صلاحيات مؤجلة حاليًا.</div>
+      {% endif %}
+    </section>
+
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;">
+      <h3 style="margin-top:0;color:#175cd3;">بدون أنماط مفعلة</h3>
+      {% if no_programs_users %}
+        <ul style="margin:0;padding-right:18px;line-height:1.9;">
+          {% for user in no_programs_users %}
+            <li><a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>كل المستخدمين لديهم أنماط أو صلاحيات مناسبة.</div>
+      {% endif %}
+    </section>
+
+    <section style="background:#fff;border:1px solid #d0d5dd;border-radius:16px;padding:18px;grid-column:1/-1;">
+      <h3 style="margin-top:0;color:#7a5af8;">إجبار تغيير كلمة المرور</h3>
+      {% if force_password_change_users %}
+        <ul style="margin:0;padding-right:18px;line-height:1.9;columns:2;">
+          {% for user in force_password_change_users %}
+            <li><a href="{% url 'admin:auth_user_change' user.pk %}">{{ user.username }}</a></li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>لا توجد حسابات معلّمة لتغيير كلمة المرور الآن.</div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

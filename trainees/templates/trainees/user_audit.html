@@ -1,0 +1,22 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+    <div>
+      <h2 style="margin:0">سجل المستخدم: {{ target_user.username }}</h2>
+      <div class="muted">مراجعة تغييرات الدور والإعدادات الحساسة.</div>
+    </div>
+    <a class="btn" href="{% url 'user_edit' target_user.pk %}">تعديل المستخدم</a>
+  </div>
+</div>
+{% for audit in audits %}
+<div class="card" style="margin-top:14px;">
+  <strong>{{ audit.get_action_display }}</strong>
+  <div class="muted" style="margin-top:4px;">{{ audit.created_at|date:"Y-m-d H:i" }}</div>
+  {% if audit.notes %}<p style="margin-top:10px;">{{ audit.notes }}</p>{% endif %}
+  {% if audit.changed_fields %}<div class="muted">الحقول: {{ audit.changed_fields|join:", " }}</div>{% endif %}
+</div>
+{% empty %}
+<div class="card" style="margin-top:14px;">لا توجد سجلات بعد.</div>
+{% endfor %}
+{% endblock %}

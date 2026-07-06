@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# Build
+build/
+dist/
+*.spec.bak
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.central.example
+!.env.lan.example
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Git
+.git/
+
+# Archives
+*.zip
+*.7z
+*.rar
+
+# PostgreSQL installer
+third_party/postgresql/*.exe
+
+# Generated installers
+*.msi
+*.exe
+third_party/postgresql/postgresql-16.12-1-windows-x64.exe

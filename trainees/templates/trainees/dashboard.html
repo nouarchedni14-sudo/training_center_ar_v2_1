@@ -1,0 +1,184 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide">
+  <div class="row">
+    <div>
+      <h1>مرحباً، {{ request.user.username }} 👋</h1>
+      <p class="muted">إحصائيات سريعة بتاريخ {{ today|date:"Y-m-d" }}</p>
+    </div>
+  </div>
+
+  <div class="tc-banner-note" style="margin-top:16px;">
+    <div class="tc-banner-note__icon">✦</div>
+    <div>
+      <strong class="tc-banner-note__title">لوحة متابعة أسرع وأوضح</strong>
+      <p class="tc-banner-note__text">تم تحسين بطاقات الإشعارات داخل النظام لتظهر بشكل أكثر وضوحًا مع عناوين مختصرة وألوان أدق بحسب نوع الحالة.</p>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:1.15fr .85fr">
+    <div class="card" style="margin:0;background:rgba(14,116,144,.08);border:1px solid rgba(14,116,144,.20)">
+      <div class="row" style="align-items:flex-start">
+        <div>
+          <h3 style="margin:0 0 8px 0">ملخص الصلاحية الحالية</h3>
+          <p class="muted" style="margin:0">{{ access_summary.message }}</p>
+        </div>
+        <div class="flash {{ access_ui.badge_class|default:'' }}" style="margin:0">{{ access_summary.state_label }}</div>
+      </div>
+      <div class="stats-grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+        <div class="stat-card" style="padding:14px">
+          <div class="muted">نافذة الصلاحية</div>
+          <div style="font-weight:800;margin-top:10px">{{ access_summary.window_label }}</div>
+        </div>
+        <div class="stat-card" style="padding:14px">
+          <div class="muted">الأيام المتبقية</div>
+          <div class="stat-num" style="font-size:22px">{{ access_summary.days_until_expiry|default:'—' }}</div>
+        </div>
+        <div class="stat-card" style="padding:14px">
+          <div class="muted">البرامج المتاحة</div>
+          <div class="stat-num" style="font-size:22px">{{ allowed_programs_verbose|length }}</div>
+        </div>
+      </div>
+      {% if quick_links %}
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        {% for item in quick_links %}
+          <a href="{{ item.url }}" class="btn" style="text-decoration:none">{{ item.label }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="card" style="margin:0">
+      <h3 style="margin-top:0">برامجك المسموح بها</h3>
+      {% if allowed_programs_verbose %}
+        {% for program in allowed_programs_verbose %}
+          <div class="stat-line"><span>{{ program }}</span><strong>نشط</strong></div>
+        {% endfor %}
+      {% else %}
+        <div class="muted">لم تُمنح لك أي برامج بعد.</div>
+      {% endif %}
+      <div class="hint" style="margin-top:12px">يمكنك رؤية كل التفاصيل من صفحة <a href="{% url 'account_overview' %}">حالة الحساب</a>.</div>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px">
+    {% for card in cards %}
+      <div class="stat-card">
+        <div class="muted">{{ card.label }}</div>
+        <div class="stat-num">{{ card.total_count }}</div>
+        <div class="muted">الإجمالي</div>
+        <div class="stat-split">
+          <span>الحاليون: {{ card.current_count }}</span>
+          <span>المتخرجون: {{ card.graduate_count }}</span>
+        </div>
+      </div>
+    {% endfor %}
+    <div class="stat-card">
+      <div class="muted">الدفعات</div>
+      <div class="stat-num">{{ promotion_count }}</div>
+      <div class="muted">عدد الدفعات المسجلة</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;background:rgba(14,116,144,.09);border:1px solid rgba(14,116,144,.22)">
+    <div class="row">
+      <div>
+        <h3 style="margin:0 0 8px 0">جداول الغيابات</h3>
+        <p class="muted" style="margin:0">افتح واجهة شبكية شبيهة بـ Excel لاختيار النمط وتسجيل الحضور والغياب حسب الشهر.</p>
+      </div>
+      {% if allowed_programs %}<a href="{% url 'attendance_home' %}" class="btn" style="text-decoration:none">فتح صفحة الغيابات</a>{% endif %}
+    </div>
+    {% if cards %}
+    <div class="stats-grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+      {% for card in cards %}
+      <div class="stat-card" style="padding:16px">
+        <div class="muted">{{ card.label }}</div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <a href="{{ card.attendance_url }}" class="btn" style="text-decoration:none">جدول الغيابات</a>
+          <a href="{{ card.actions_url }}" class="btn" style="text-decoration:none;background:#0f766e;color:#fff">إدارة الأعذار</a>
+          {% if card.code == "apprentice" %}<a href="{% url 'user_attendance_summary' %}" class="btn" style="text-decoration:none;background:#1d4ed8;color:#fff;font-weight:800;">متابعة الحضور والغيابات لدى المستخدم</a>{% endif %}
+          {% if card.dismissal_url %}<a href="{{ card.dismissal_url }}" class="btn" style="text-decoration:none;background:#7c2d12;color:#fff;font-weight:800;">مقرر الفصل</a>{% endif %}
+          {% if card.sanctions_url %}<a href="{{ card.sanctions_url }}" class="btn" style="text-decoration:none;background:#111827;color:#fff;font-weight:800;">العقوبات</a>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if request.user.is_staff %}
+    <div class="card" style="margin-top:16px;background:rgba(11,87,208,.07);border:1px solid rgba(11,87,208,.22)">
+      <div class="row">
+        <div>
+          <h3 style="margin:0 0 8px 0">أدوات الإدارة</h3>
+          <p class="muted" style="margin:0">ربط البيانات القديمة بالدفعات الصحيحة وحساب السداسي وفق رزنامة الدورات الفعلية.</p>
+        </div>
+        <a href="/admin/trainees/دفعة/relink/" class="btn" style="text-decoration:none">إعادة ربط المتكوّنين بالدفعات</a>
+      </div>
+    </div>
+  {% endif %}
+
+
+  {% if can_open_management %}
+  <div class="card" style="margin-top:16px;background:rgba(180,83,9,.07);border:1px solid rgba(180,83,9,.18)">
+    <div class="row" style="align-items:flex-start">
+      <div>
+        <h3 style="margin:0 0 8px 0">متابعة إدارية سريعة</h3>
+        <p class="muted" style="margin:0">ملخص لحالات الحسابات والتنبيهات التي تحتاج متابعة خلال الأيام القادمة.</p>
+      </div>
+      <a href="{% url 'management_overview' %}" class="btn" style="text-decoration:none">فتح اللوحة الكاملة</a>
+    </div>
+    <div class="stats-grid" style="margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+      <div class="stat-card" style="padding:14px"><div class="muted">نشطة</div><div class="stat-num" style="font-size:22px">{{ status_counts.active|default:0 }}</div></div>
+      <div class="stat-card" style="padding:14px"><div class="muted">معلقة</div><div class="stat-num" style="font-size:22px">{{ status_counts.pending|default:0 }}</div></div>
+      <div class="stat-card" style="padding:14px"><div class="muted">منتهية</div><div class="stat-num" style="font-size:22px">{{ status_counts.expired|default:0 }}</div></div>
+      <div class="stat-card" style="padding:14px"><div class="muted">معطلة</div><div class="stat-num" style="font-size:22px">{{ status_counts.disabled|default:0 }}</div></div>
+    </div>
+    <div class="stats-grid" style="margin-top:14px;grid-template-columns:1fr 1fr">
+      <div class="stat-card">
+        <h3 style="margin-top:0">حسابات تنتهي قريبًا</h3>
+        {% for profile in expiring_profiles %}
+          <div class="stat-line"><span>{{ profile.user.username }}</span><strong>{{ profile.access_end_date|date:"Y-m-d" }}</strong></div>
+        {% empty %}
+          <div class="muted">لا توجد حسابات تنتهي خلال 7 أيام.</div>
+        {% endfor %}
+      </div>
+      <div class="stat-card">
+        <h3 style="margin-top:0">محاولات دخول فاشلة حديثة</h3>
+        {% for item in recent_failed_logins %}
+          <div class="stat-line"><span>{{ item.object_repr|default:"محاولة دخول" }}</span><strong>{{ item.created_at|date:"Y-m-d H:i" }}</strong></div>
+        {% empty %}
+          <div class="muted">لا توجد محاولات فاشلة حديثة.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    {% for block in semester_stats %}
+      <div class="stat-card">
+        <h3 style="margin-top:0">حسب السداسي - {{ block.label }}</h3>
+        {% for item in block.items %}
+          <div class="stat-line"><span>{{ item.السداسي|default:"غير محدد" }}</span><strong>{{ item.total }}</strong></div>
+        {% empty %}
+          <div class="muted">لا توجد بيانات حالية.</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    {% for block in promotion_stats %}
+      <div class="stat-card">
+        <h3 style="margin-top:0">حسب الدفعة - {{ block.label }}</h3>
+        {% for item in block.items %}
+          <div class="stat-line"><span>{{ item.الدفعة__اسم_الدفعة|default:"بدون دفعة" }} {{ item.الدفعة__السنة|default:"" }}</span><strong>{{ item.total }}</strong></div>
+        {% empty %}
+          <div class="muted">لا توجد بيانات حالية.</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+

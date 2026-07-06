@@ -1,0 +1,209 @@
+{% extends 'trainees/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" dir="rtl" style="margin-top:16px">
+  <style>
+    .stats-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .stats-toolbar h1{margin:0;font-size:1.5rem}
+    .stats-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .stats-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0}
+    .stats-box{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:14px}
+    .stats-box .label{font-size:.9rem;color:#475569;margin-bottom:6px}
+    .stats-box .value{font-size:1.4rem;font-weight:800;color:#0f172a}
+    .table-wrap{overflow:auto}
+    .rtl-table{width:100%;border-collapse:collapse}
+    .rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:middle}
+    .rtl-table th{background:#1d4ed8;color:#fff;white-space:nowrap}
+    .rtl-table tbody tr:nth-child(even){background:#f8fafc}
+    .name-cell{text-align:right;font-weight:700;white-space:nowrap}
+    .muted{color:#475569}
+    .rate-high{color:#b91c1c;font-weight:800}
+    .rate-medium{color:#b45309;font-weight:800}
+    .rate-low{color:#15803d;font-weight:800}
+    .management-panel{margin:18px 0;padding:16px;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc}
+    .management-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .management-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px}
+    .management-card h3{margin:0 0 10px 0;font-size:1.05rem}
+    .management-card form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .management-card select{
+  padding:8px 10px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  background:#fff;
+  color:#000 !important;
+}
+
+.management-card select option{
+  color:#000 !important;
+}
+
+    .year-input{padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;min-width:140px;width:140px;text-align:center;font-size:1rem}
+    .danger-btn{background:#b91c1c;color:#fff;border:none}
+    .success-btn{background:#15803d;color:#fff;border:none}
+    @media print{
+      .no-print{display:none !important}
+      .card{box-shadow:none !important;border:none !important}
+      body{background:#fff !important}
+    }
+  </style>
+
+  <div class="stats-toolbar">
+    <div>
+      <h1>{{ program_label }} - إحصائيات الغيابات</h1>
+      <p class="muted" style="margin:6px 0 0 0; font-weight:500;">{{ program_description }}</p>
+      {% if sheet %}<p class="muted" style="margin:6px 0 0 0;">الجدول: {{ sheet }}</p>{% endif %}
+    </div>
+    <div class="stats-actions no-print">
+      <a href="{% url 'attendance_program' program %}?{{ current_query }}" class="btn">العودة إلى الجدول</a>
+      <a href="{% url 'attendance_export' program 'excel' %}?type=stats&{{ current_query }}" class="btn">تصدير Excel</a>
+      <a href="{% url 'attendance_export' program 'pdf' %}?type=stats&{{ current_query }}" class="btn">تصدير PDF</a>
+      <a href="{% url 'attendance_home' %}" class="btn">اختيار نمط آخر</a>
+      <a href="{% url 'attendance_saved_stats' %}?program={{ program }}&month={{ scope.month }}&year={{ scope.year }}&batch_id={{ scope.promotion_id }}&specialty={{ scope.specialty|urlencode }}" class="btn">الإحصائيات المحفوظة السابقة</a>
+      <a href="{% url 'attendance_actions' program %}?{{ current_query }}" class="btn">إدارة الأعذار</a>
+      {% if not show_stats_table %}<a href="{{ show_stats_table_url }}#stats-table" class="btn">عرض جدول الإحصائيات</a>{% endif %}
+      <button type="button" class="btn" onclick="window.print()">طباعة</button>
+    </div>
+  </div>
+
+  <div class="stats-summary">
+    <div class="stats-box">
+      <div class="label">عدد المتكونين</div>
+      <div class="value">{{ trainee_count }}</div>
+    </div>
+    <div class="stats-box">
+      <div class="label">عدد الأيام المعروضة</div>
+      <div class="value">{{ displayed_days_count }}</div>
+    </div>
+    <div class="stats-box">
+      <div class="label">متوسط نسبة الغياب</div>
+      <div class="value">{{ average_absence_rate }}%</div>
+    </div>
+    <div class="stats-box">
+      <div class="label">طريقة الحساب</div>
+      <div class="value" style="font-size:1rem;line-height:1.6;">
+        {% if slot_count > 1 %}
+          بالتفصيل حسب الخانات
+        {% else %}
+          حسب الأيام المسجلة
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="management-panel no-print">
+    <div class="management-grid">
+      <div class="management-card">
+        <h3>إدارة الإحصائيات الحالية</h3>
+        <p class="muted" style="margin:0 0 10px 0;">
+          {% if saved_stats_summary.row_count %}
+            يوجد {{ saved_stats_summary.row_count }} سجل محفوظ لهذه الفلاتر.
+            {% if saved_stats_summary.latest_saved_at %}
+              آخر تحديث: {{ saved_stats_summary.latest_saved_at|date:"Y-m-d H:i" }}
+            {% endif %}
+          {% else %}
+            لا توجد إحصائيات محفوظة لهذه الفلاتر حاليًا.
+          {% endif %}
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          {% if can_change %}
+            <button type="submit" class="btn success-btn" name="post_action" value="save_stats">حفظ الإحصائيات الحالية</button>
+          {% endif %}
+          {% if can_delete %}
+            <button type="submit" class="btn danger-btn" name="post_action" value="delete_saved_stats" onclick="return confirm('سيتم حذف الإحصائيات المحفوظة لهذه الفلاتر الحالية فقط. هل تريد المتابعة؟');">حذف الإحصائيات الحالية</button>
+          {% endif %}
+        </form>
+      </div>
+
+      <div class="management-card">
+        <h3>حذف الإحصائيات القديمة</h3>
+        <p class="muted" style="margin:0 0 10px 0;">سيتم حذف جميع الإحصائيات المحفوظة الخاصة بالشهر/السنة المحددين داخل هذا النمط فقط.</p>
+        {% if can_delete %}
+        <form method="post">
+          {% csrf_token %}
+          <select name="cutoff_month" required>
+            {% for month in month_choices %}
+              <option value="{{ month.value }}" {% if month.value == scope.month %}selected{% endif %}>{{ month.label }}</option>
+            {% endfor %}
+          </select>
+          <input type="number" name="cutoff_year" min="2000" value="{{ scope.year }}" required class="year-input">
+          <button type="submit" class="btn danger-btn" name="post_action" value="delete_old_stats" onclick="return confirm('سيتم حذف كل الإحصائيات المحفوظة الخاصة بالشهر والسنة المحددين داخل هذا النمط نهائيًا. لا يمكن التراجع. هل تريد المتابعة؟');">حذف الإحصائيات القديمة</button>
+        </form>
+        {% else %}
+          <p class="muted">لا تملك صلاحية حذف الإحصائيات.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if show_stats_table %}
+  <div id="stats-table" class="table-wrap">
+    <table class="rtl-table">
+      <thead>
+        <tr>
+          <th>الترتيب</th>
+          <th>الاسم واللقب</th>
+          {% if show_all_specialties %}<th>التخصص</th>{% endif %}
+          <th>عدد الحضور</th>
+          <th>عدد الغيابات</th>
+          <th>غياب بعذر</th>
+          <th>عدد التأخرات</th>
+          <th>المجموع المسجل</th>
+          <th>نسبة الغياب</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in stats_rows %}
+          <tr>
+            <td>{{ row.display_index }}</td>
+            <td class="name-cell">{{ row.trainee.اللقب }} {{ row.trainee.الاسم }}</td>
+            {% if show_all_specialties %}<td>{{ row.trainee.التخصص|default:"—" }}</td>{% endif %}
+            <td>{{ row.present_count }}</td>
+            <td>{{ row.absent_count }}</td>
+            <td>{{ row.excused_count }}</td>
+            <td>{{ row.late_count }}</td>
+            <td>{{ row.total_recorded }}</td>
+            <td>
+              <span class="{% if row.absence_rate >= 50 %}rate-high{% elif row.absence_rate >= 20 %}rate-medium{% else %}rate-low{% endif %}">
+                {{ row.absence_rate }}%
+              </span>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="{% if show_all_specialties %}9{% else %}8{% endif %}">لا توجد بيانات مسجلة لهذه الفلاتر.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      {% if stats_rows %}
+      <tfoot>
+        <tr style="font-weight:800;background:#e2e8f0;">
+          <td colspan="{% if show_all_specialties %}3{% else %}2{% endif %}">الإجمالي</td>
+          <td>{{ stats_totals.present_count }}</td>
+          <td>{{ stats_totals.absent_count }}</td>
+          <td>{{ stats_totals.excused_count }}</td>
+          <td>{{ stats_totals.late_count }}</td>
+          <td>{{ stats_totals.total_recorded }}</td>
+          <td>{{ average_absence_rate }}%</td>
+        </tr>
+      </tfoot>
+      {% endif %}
+    </table>
+  </div>
+  {% else %}
+    <div class="management-panel" style="margin-top:18px;">
+      <p class="muted" style="margin:0;">تم إخفاء جدول الإحصائيات من الواجهة. اضغط على زر "عرض جدول الإحصائيات" لإظهاره مع بقاء بقية العناصر كما هي.</p>
+    </div>
+  {% endif %}
+
+  <p class="muted" style="margin-top:12px;">
+    {% if slot_count > 1 %}
+      في التمهين يتم الحساب بالخانات: إذا كان اليوم يحتوي 4 خانات والطالب حضر 3 وغاب 1، فالنتيجة تكون حضور = 3 وغياب = 1.
+    {% else %}
+      يتم الحساب انطلاقًا من الحالات المسجلة داخل الجدول الحالي فقط، والخلايا الفارغة لا تدخل في النسبة.
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

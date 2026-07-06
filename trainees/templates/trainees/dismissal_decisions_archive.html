@@ -1,0 +1,116 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <style>
+    .dismissal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .dismissal-head h1{margin:0;color:#7c2d12;font-size:1.65rem}.muted{color:#64748b}.tiny{font-size:.82rem;color:#64748b}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.tab{padding:10px 14px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;text-decoration:none;font-weight:800;color:#334155}.tab.active{background:#7c2d12;color:#fff;border-color:#7c2d12}
+    .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px}.filters label{font-weight:800;color:#334155;display:block;margin-bottom:5px}.filters input,.filters select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .selection-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px 14px;margin-bottom:14px}.selection-toolbar .buttons{display:flex;gap:8px;flex-wrap:wrap}.hint{font-weight:800;color:#7c2d12}
+    .btn-danger{background:#b91c1c !important;color:#fff !important}.btn-warn{background:#7c2d12 !important;color:#fff !important}.btn-soft{background:#475569 !important;color:#fff !important}
+    .table-wrap{overflow:auto}.rtl-table{width:100%;border-collapse:collapse;min-width:1250px}.rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:middle;white-space:nowrap}.rtl-table th{background:#7c2d12;color:#fff}.rtl-table tbody tr:nth-child(even){background:#f8fafc}.rtl-table tbody tr.row-selected{background:#ffedd5 !important}.name-cell{text-align:right;white-space:normal}.checkbox-col{width:54px}
+    .status-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.88rem}.status-draft{background:#fef3c7;color:#92400e}.status-ready{background:#dcfce7;color:#166534}.status-issued{background:#dbeafe;color:#1d4ed8}.status-cancelled{background:#fee2e2;color:#b91c1c}.status-archived{background:#e2e8f0;color:#334155}
+  </style>
+
+  <div class="dismissal-head">
+    <div>
+      <h1>{{ program_label }} - أرشيف مقررات الفصل</h1>
+      <p class="muted" style="margin:6px 0 0 0;">هذه الصفحة تعرض مقررات الفصل المؤرشفة فقط، ولا تحذف الوثائق الإدارية.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="{{ active_current_url }}" class="btn">مقررات الحاليين النشطة</a>
+      <a href="{{ active_graduated_url }}" class="btn">مقررات المتخرجين النشطة</a>
+      <a href="{% url 'management_overview' %}" class="btn btn-soft">العودة للمتابعة الإدارية</a>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <a href="{{ archive_all_url }}" class="tab {% if not scope %}active{% endif %}">كل الأرشيف</a>
+    <a href="{{ archive_current_url }}" class="tab {% if scope == 'current' %}active{% endif %}">أرشيف الحاليين</a>
+    <a href="{{ archive_graduated_url }}" class="tab {% if scope == 'graduated' %}active{% endif %}">أرشيف المتخرجين</a>
+  </div>
+
+  <form method="get" class="filters" id="filtersForm">
+    {% if scope %}<input type="hidden" name="scope" value="{{ scope }}">{% endif %}
+    <div><label>بحث</label><input type="text" name="q" value="{{ filters.q }}" placeholder="الاسم / رقم التسجيل / رقم المقرر / رقم المحضر"></div>
+    <div><label>التخصص</label><select name="specialty"><option value="">كل التخصصات</option>{% for s in specialty_options %}<option value="{{ s }}" {% if filters.specialty == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div><label>حالة المقرر</label><select name="decision_status"><option value="">الكل</option>{% for value,label in decision_status_choices %}<option value="{{ value }}" {% if selected_decision_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div style="display:flex;align-items:end;"><button type="submit" class="btn btn-warn">تحديث العرض</button></div>
+  </form>
+
+  <div class="selection-toolbar">
+    <div class="buttons">
+      <button type="button" class="btn btn-soft" onclick="bulkSubmit('preview')">معاينة</button>
+      <button type="button" class="btn" onclick="bulkSubmit('print')">طباعة</button>
+      <button type="button" class="btn btn-warn" onclick="bulkSubmit('restore')">استرجاع من الأرشيف</button>
+    </div>
+    <div class="hint">اختر مقررًا واحدًا أو أكثر. <span id="selectedCount">0</span> محدد.</div>
+  </div>
+
+  <form method="post" action="{% url 'dismissal_decisions_archive_bulk' program %}" id="bulkForm">
+    {% csrf_token %}
+    <input type="hidden" name="bulk_action" id="bulkActionInput" value="">
+    <input type="hidden" name="return_query" value="{{ current_query }}">
+    <div class="table-wrap">
+      <table class="rtl-table">
+        <thead><tr><th class="checkbox-col"><input type="checkbox" id="selectAll"></th><th>#</th><th>المتكون</th><th>القسم</th><th>رقم التسجيل</th><th>التخصص</th><th>تاريخ الشطب</th><th>رقم المحضر</th><th>رقم المقرر</th><th>حالة المقرر</th><th>تاريخ الأرشفة</th></tr></thead>
+        <tbody>
+          {% for item in decisions %}
+          <tr>
+            <td><input type="checkbox" class="row-check" name="ids" value="{{ item.pk }}"></td>
+            <td>{{ forloop.counter }}</td>
+            <td class="name-cell"><strong>{{ item.trainee_name }}</strong></td>
+            <td>{{ item.scope_label }}</td>
+            <td>{{ item.registration_number|default:'—' }}</td>
+            <td class="name-cell">{{ item.specialty|default:'—' }}</td>
+            <td>{% if item.disciplinary_record_date %}{{ item.disciplinary_record_date|date:'d-m-Y' }}{% elif item.removal_date %}{{ item.removal_date|date:'d-m-Y' }}{% else %}—{% endif %}</td>
+            <td>{% if item.disciplinary_record_number %}{{ item.disciplinary_record_number }}{% elif item.removal_number %}{{ item.removal_number }}{% else %}—{% endif %}</td>
+            <td>{{ item.decision_number|default:'—' }}</td>
+            <td><span class="status-badge status-{{ item.status }}">{{ item.get_status_display }}</span></td>
+            <td>{{ item.archived_at|date:'d-m-Y H:i'|default:'—' }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="11" class="muted">لا توجد مقررات فصل مؤرشفة مطابقة للفلاتر الحالية.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px;">
+    {% if page_obj.has_previous %}<a class="btn" href="?{{ current_query }}&page={{ page_obj.previous_page_number }}">السابق</a>{% endif %}
+    <span class="btn btn-soft">صفحة {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn" href="?{{ current_query }}&page={{ page_obj.next_page_number }}">التالي</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  const selectAll = document.getElementById('selectAll');
+  const checks = Array.from(document.querySelectorAll('.row-check'));
+  const counter = document.getElementById('selectedCount');
+  function updateSelection(){
+    const selected = checks.filter(c => c.checked);
+    if (counter) counter.textContent = selected.length;
+    checks.forEach(c => c.closest('tr').classList.toggle('row-selected', c.checked));
+    if (selectAll){
+      selectAll.checked = checks.length && selected.length === checks.length;
+      selectAll.indeterminate = selected.length > 0 && selected.length < checks.length;
+    }
+    return selected;
+  }
+  if (selectAll){ selectAll.addEventListener('change', () => { checks.forEach(c => c.checked = selectAll.checked); updateSelection(); }); }
+  checks.forEach(c => c.addEventListener('change', updateSelection));
+  updateSelection();
+  window.bulkSubmit = function(action){
+    const selected = updateSelection();
+    if (!selected.length){ alert('اختر مقررًا واحدًا على الأقل.'); return; }
+    if (action === 'restore' && !confirm('سيتم استرجاع المقرر المحدد كوثيقة نشطة، وأرشفة أي مقرر نشط آخر لنفس المتكون. هل أنت متأكد؟')) return;
+    document.getElementById('bulkActionInput').value = action;
+    document.getElementById('bulkForm').submit();
+  }
+})();
+</script>
+{% endblock %}

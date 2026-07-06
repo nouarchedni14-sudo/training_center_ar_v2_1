@@ -1,0 +1,103 @@
+{% extends "trainees/base.html" %}
+
+{% block content %}
+<div class="card glass" style="padding:20px; border-radius:18px;">
+  <h2 style="margin-top:0;">إعدادات النظام والتحديثات</h2>
+  <p>هذه الصفحة مخصصة للمسؤول أو المطور لمراجعة وضع تشغيل البرنامج، ومعرفة حالة التحديثات، وفحصها يدويًا عند الحاجة.</p>
+
+  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+    <div class="card" style="padding:16px; border-radius:16px;">
+      <h3>هوية النسخة</h3>
+      <p><strong>اسم المؤسسة:</strong> {{ config.organization_name|default:"غير محدد بعد" }}</p>
+      <p><strong>معرّف التثبيت:</strong> {{ config.installation_id }}</p>
+      <p><strong>وضع التشغيل:</strong> {{ config.get_app_mode_display }}</p>
+    </div>
+
+    <div class="card" style="padding:16px; border-radius:16px;">
+      <h3>حالة البرنامج</h3>
+      <p><strong>الإصدار الحالي:</strong> {{ display_current_version|default:config.current_version|default:"1.0.0" }}</p>
+      <p><strong>آخر إصدار معروف:</strong> {{ config.latest_version|default:"—" }}</p>
+      <p><strong>يوجد تحديث:</strong> {% if config.update_available %}نعم{% else %}لا{% endif %}</p>
+      <p><strong>آخر فحص:</strong> {{ config.last_update_check_at|date:"Y-m-d H:i"|default:"لم يتم بعد" }}</p>
+    </div>
+
+    <div class="card" style="padding:16px; border-radius:16px;">
+      <h3>التحديث والمزامنة عبر الشبكة/الإنترنت</h3>
+      <p><strong>التحديث المركزي:</strong> {{ update_connectivity.central_label }}</p>
+      <p><strong>رابط الخادم المركزي:</strong> <span dir="ltr" style="unicode-bidi:embed;">{{ update_connectivity.central_url|default:"غير مضبوط" }}</span></p>
+      <p><strong>عامل المزامنة:</strong> {% if update_connectivity.sync_enabled and update_connectivity.worker_enabled %}مفعّل{% elif update_connectivity.sync_enabled %}المزامنة مفعّلة والعامل غير مفعّل{% else %}غير مفعّل{% endif %}</p>
+      <p><strong>الفحص البعيد للتحديثات:</strong> {% if update_connectivity.remote_enabled %}مفعّل{% else %}غير مهيأ{% endif %}</p>
+      <p><strong>خادم تحديث خارجي بديل:</strong> <span dir="ltr" style="unicode-bidi:embed;">{{ update_connectivity.external_update_url|default:"غير مضبوط" }}</span></p>
+      <p><strong>الدعم الفني عن بعد:</strong> {% if update_connectivity.support_enabled %}مفعّل{% else %}معطّل{% endif %}</p>
+      <p class="muted" style="margin-bottom:0;line-height:1.8;">
+        إذا كان رابط الخادم المركزي يبدأ بـ <span dir="ltr">https://</span> فهو مناسب للمكاتب الخارجية عبر الإنترنت.
+        وإذا كان مثل <span dir="ltr">http://ADEM:9000</span> فهو مخصص للشبكة المحلية أو VPN.
+      </p>
+    </div>
+  </div>
+
+  {% if config.update_message %}
+    <div class="flash {% if config.update_available %}warning{% else %}success{% endif %}" style="margin-top:16px;">
+      <div>
+        <span class="notice-title">ملخص حالة التحديث</span>
+        <span class="notice-text">{{ config.update_message }}</span>
+        {% if config.update_download_url %}
+          <div style="margin-top:8px;">
+            <a href="{{ config.update_download_url }}" target="_blank" rel="noopener">رابط التحديث</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;">
+    <a href="{% url 'system_dashboard' %}" class="btn btn-secondary" style="padding:10px 18px; border-radius:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">فتح مركز النظام</a>
+    <a href="{% url 'system_updates' %}" class="btn btn-secondary" style="padding:10px 18px; border-radius:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">مركز التحديثات</a>
+    <a href="{% url 'system_backup' %}" class="btn btn-secondary" style="padding:10px 18px; border-radius:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">النسخ الاحتياطي</a>
+    <a href="{% url 'system_license' %}" class="btn btn-secondary" style="padding:10px 18px; border-radius:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">الترخيص</a>
+    <form method="post" style="margin:0;">{% csrf_token %}<input type="hidden" name="action" value="check_updates"><button type="submit" class="btn btn-primary" style="padding:10px 18px; border-radius:12px; cursor:pointer;">فحص التحديثات الآن</button></form>
+    <a href="{% url 'system_local_update' %}" class="btn btn-primary" style="padding:10px 18px; border-radius:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">فتح صفحة التحديث المحلي</a>
+  </div>
+
+    <p style="line-height:1.9;">
+      للتشغيل داخل مؤسسة واحدة استعمل رابطًا محليًا مثل <span dir="ltr">http://ADEM:9000</span>.
+      وللمكاتب الخارجية استعمل رابطًا عامًا أو VPN مثل <span dir="ltr">https://updates.example.com</span>.
+      وفي كل الحالات يبقى التحديث المحلي ZIP متاحًا كحل احتياطي بدون إنترنت.
+    </p>
+
+  </div>
+
+  <div class="card" style="margin-top:18px; padding:16px; border-radius:16px;">
+    <h3>آخر عمليات فحص التحديثات</h3>
+    <div style="overflow:auto;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:right; padding:8px;">الوقت</th>
+            <th style="text-align:right; padding:8px;">النتيجة</th>
+            <th style="text-align:right; padding:8px;">الإصدار الحالي</th>
+            <th style="text-align:right; padding:8px;">الإصدار المستلم</th>
+            <th style="text-align:right; padding:8px;">الرسالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td style="padding:8px; border-top:1px solid rgba(255,255,255,.1);">{{ log.checked_at|date:"Y-m-d H:i" }}</td>
+            <td style="padding:8px; border-top:1px solid rgba(255,255,255,.1);">{% if log.success %}ناجح{% else %}فشل{% endif %}</td>
+            <td style="padding:8px; border-top:1px solid rgba(255,255,255,.1);">{{ log.requested_version|default:"—" }}</td>
+            <td style="padding:8px; border-top:1px solid rgba(255,255,255,.1);">{{ log.received_version|default:"—" }}</td>
+            <td style="padding:8px; border-top:1px solid rgba(255,255,255,.1);">{{ log.message|default:"—" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" style="padding:10px; border-top:1px solid rgba(255,255,255,.1);">لا يوجد سجل فحص بعد.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

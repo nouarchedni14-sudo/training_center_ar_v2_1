@@ -1,0 +1,13 @@
+/* Fix: dropdown text becomes invisible in some admin themes */
+select, option { /* بداية قواعد CSS للمحدد: select, option */
+    color: #000 !important; /* لون النص */
+    background-color: #fff !important; /* لون الخلفية */
+} /* نهاية قواعد: select, option */
+/* Fix: admin buttons text color */
+input[type="submit"],
+input[type="button"],
+button,
+a.button,
+.button { /* بداية قواعد CSS للمحدد: .button */
+    color: #000 !important; /* لون النص */
+} /* نهاية قواعد: .button */

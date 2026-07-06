@@ -1,0 +1,24 @@
+ورقة تسليم نهائية مختصرة
+========================
+
+ما الذي يجب حفظه:
+- مجلد المشروع الكامل.
+- مجلد C:\TrainingCenterData كاملاً.
+- ملف C:\TrainingCenterData\.env.
+- كلمة مرور PostgreSQL.
+- نسخة احتياطية من قاعدة البيانات.
+- ملف trainees\excel_import.py النهائي.
+
+ما الذي تنقله عند تغيير الجهاز:
+- مجلد المشروع.
+- C:\TrainingCenterData
+- نسخة قاعدة البيانات أو backup.
+- ملف .env.
+- مجلد media.
+
+كيف تشغله لاحقًا في 5 خطوات:
+1) ثبّت PostgreSQL وتأكد من كلمة مرور postgres.
+2) ضع المشروع في مجلد ثابت.
+3) انسخ C:\TrainingCenterData وملف .env.
+4) نفّذ migrate و collectstatic.
+5) شغّل python launcher/lan_server.py

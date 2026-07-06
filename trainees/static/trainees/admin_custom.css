@@ -1,0 +1,244 @@
+/*
+  تحسين مظهر Django Admin حسب طلبك:
+  - توسيط الجدول
+  - شريط فلاتر علوي (بدل الشريط الجانبي)
+  - تقسيم صفحة الإضافة/التعديل إلى عمودين
+*/
+
+/* =============================
+   1) توسيط بيانات الجدول
+============================= */
+
+table#result_list th,
+table#result_list td { /* بداية قواعد CSS للمحدد: table#result_list td */
+  text-align: center; /* محاذاة النص */
+  vertical-align: middle; /* محاذاة داخل الخلية */
+} /* نهاية قواعد: table#result_list td */
+
+/* توسيط عناوين الأعمدة أيضاً */
+table#result_list th a { /* بداية قواعد CSS للمحدد: table#result_list th a */
+  display: inline-block; /* طريقة عرض العنصر (block/flex/grid..) */
+  width: 100%; /* عرض العنصر */
+} /* نهاية قواعد: table#result_list th a */
+
+/* =============================
+   2) الفلاتر كشريط علوي
+============================= */
+
+/* نخفي الشريط الجانبي */
+#changelist-filter { /* بداية قواعد CSS للمحدد: #changelist-filter */
+  display: none; /* طريقة عرض العنصر (block/flex/grid..) */
+} /* نهاية قواعد: #changelist-filter */
+
+/* شريط الفلاتر العلوي الذي نُضيفه في القالب */
+.top-filters { /* بداية قواعد CSS للمحدد: .top-filters */
+  margin: 12px 0 10px; /* هامش خارجي */
+  padding: 10px 12px; /* حشوة داخلية */
+  border: 1px solid var(--hairline-color, #e5e7eb); /* إطار العنصر */
+  border-radius: 14px; /* تدوير الزوايا */
+  background: var(--body-bg, #fff); /* الخلفية */
+} /* نهاية قواعد: .top-filters */
+
+.top-filters .filters-wrap { /* بداية قواعد CSS للمحدد: .top-filters .filters-wrap */
+  display: flex; /* طريقة عرض العنصر (block/flex/grid..) */
+  flex-wrap: wrap; /* هل العناصر تلتف لسطر جديد */
+  gap: 10px; /* المسافة بين العناصر */
+  align-items: flex-start; /* محاذاة عناصر flex عمودياً */
+} /* نهاية قواعد: .top-filters .filters-wrap */
+
+.top-filters details { /* بداية قواعد CSS للمحدد: .top-filters details */
+  border: 1px solid var(--hairline-color, #e5e7eb); /* إطار العنصر */
+  border-radius: 12px; /* تدوير الزوايا */
+  padding: 6px 10px; /* حشوة داخلية */
+  background: var(--body-bg, #fff); /* الخلفية */
+  min-width: 200px; /* أقل عرض */
+} /* نهاية قواعد: .top-filters details */
+
+.top-filters details[open] { /* بداية قواعد CSS للمحدد: .top-filters details[open] */
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08); /* ظل */
+} /* نهاية قواعد: .top-filters details[open] */
+
+.top-filters summary { /* بداية قواعد CSS للمحدد: .top-filters summary */
+  cursor: pointer; /* شكل مؤشر الماوس */
+  list-style: none; /* خاصية CSS لتنسيق العنصر */
+  font-weight: 700; /* سماكة الخط */
+} /* نهاية قواعد: .top-filters summary */
+
+.top-filters summary::-webkit-details-marker { /* بداية قواعد CSS للمحدد: .top-filters summary::-webkit-details-marker */
+  display: none; /* طريقة عرض العنصر (block/flex/grid..) */
+} /* نهاية قواعد: .top-filters summary::-webkit-details-marker */
+
+.top-filters .filter-choices { /* بداية قواعد CSS للمحدد: .top-filters .filter-choices */
+  margin-top: 8px; /* هامش علوي */
+} /* نهاية قواعد: .top-filters .filter-choices */
+
+.top-filters .filter-choices ul { /* بداية قواعد CSS للمحدد: .top-filters .filter-choices ul */
+  margin: 0; /* هامش خارجي */
+  padding: 0; /* حشوة داخلية */
+  list-style: none; /* خاصية CSS لتنسيق العنصر */
+  max-height: 240px; /* أقصى ارتفاع */
+  overflow: auto; /* التمرير/القص */
+} /* نهاية قواعد: .top-filters .filter-choices ul */
+
+.top-filters .filter-choices li { /* بداية قواعد CSS للمحدد: .top-filters .filter-choices li */
+  padding: 4px 0; /* حشوة داخلية */
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.08); /* إطار سفلي */
+} /* نهاية قواعد: .top-filters .filter-choices li */
+
+.top-filters .filter-choices li:last-child { /* بداية قواعد CSS للمحدد: .top-filters .filter-choices li:last-child */
+  border-bottom: 0; /* إطار سفلي */
+} /* نهاية قواعد: .top-filters .filter-choices li:last-child */
+
+/* زر إزالة الفلاتر */
+.top-filters .clear-filters { /* بداية قواعد CSS للمحدد: .top-filters .clear-filters */
+  margin-inline-start: auto; /* خاصية CSS لتنسيق العنصر */
+  padding: 6px 10px; /* حشوة داخلية */
+  border-radius: 12px; /* تدوير الزوايا */
+  background: #f3f4f6; /* الخلفية */
+  border: 1px solid var(--hairline-color, #e5e7eb); /* إطار العنصر */
+  font-weight: 700; /* سماكة الخط */
+} /* نهاية قواعد: .top-filters .clear-filters */
+
+/* =============================
+   3) نموذج الإضافة/التعديل عمودين
+============================= */
+
+/* نجعل صفوف الحقول شبكية (Grid) على الشاشات المتوسطة والكبيرة */
+@media (min-width: 960px) { /* بداية قواعد CSS للمحدد: @media (min-width: 960px) */
+  .aligned .form-row { /* بداية قواعد CSS للمحدد: .aligned .form-row */
+    width: calc(50% - 10px); /* عرض العنصر */
+    display: inline-block; /* طريقة عرض العنصر (block/flex/grid..) */
+    vertical-align: top; /* محاذاة داخل الخلية */
+    margin-inline-end: 10px; /* خاصية CSS لتنسيق العنصر */
+    box-sizing: border-box; /* خاصية CSS لتنسيق العنصر */
+  } /* نهاية قواعد: .aligned .form-row */
+
+  /* كل صف ثاني بدون margin نهاية */
+  .aligned .form-row:nth-child(2n) { /* بداية قواعد CSS للمحدد: .aligned .form-row:nth-child(2n) */
+    margin-inline-end: 0; /* خاصية CSS لتنسيق العنصر */
+  } /* نهاية قواعد: .aligned .form-row:nth-child(2n) */
+
+  /* الحقول الطويلة تأخذ العرض الكامل */
+  .aligned .form-row.field-العنوان_بالعربية,
+  .aligned .form-row.field-العنوان_بالأجنبية { /* بداية قواعد CSS للمحدد: .aligned .form-row.field-العنوان_بالأجنبية */
+    width: 100%; /* عرض العنصر */
+    margin-inline-end: 0; /* خاصية CSS لتنسيق العنصر */
+  } /* نهاية قواعد: .aligned .form-row.field-العنوان_بالأجنبية */
+} /* نهاية قواعد: @media (min-width: 960px) */
+
+/* =========================================
+   Access audit inline - final layout tuning
+   ========================================= */
+
+/* نجعل جدول سجل التدقيق يستخدم عرضاً ثابتاً للأعمدة */
+.inline-group .tabular table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* عمود التاريخ */
+.inline-group .tabular td.field-created_at_display,
+.inline-group .tabular th.column-created_at_display {
+  width: 118px !important;
+  min-width: 118px !important;
+  max-width: 118px !important;
+  white-space: normal !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+/* التاريخ والوقت داخل عمود التاريخ */
+.tc-audit-datetime {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.tc-audit-datetime__date {
+  font-weight: 900;
+  font-size: 14px;
+  direction: ltr;
+}
+
+.tc-audit-datetime__time {
+  font-size: 12px;
+  color: #5f6b66;
+  direction: ltr;
+}
+
+/* عمود تم بواسطة */
+.inline-group .tabular td.field-actor_display,
+.inline-group .tabular th.column-actor_display {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+/* عمود نوع العملية */
+.inline-group .tabular td.field-action,
+.inline-group .tabular th.column-action {
+  width: 110px !important;
+  min-width: 110px !important;
+  max-width: 110px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+/* عمود الحقول المتغيرة */
+.inline-group .tabular td.field-changed_fields_display,
+.inline-group .tabular th.column-changed_fields_display {
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  vertical-align: top !important;
+}
+
+/* عمود الملاحظات - نص أصغر قليلاً حتى لا يبتلع الأعمدة */
+.inline-group .tabular td.field-notes_display,
+.inline-group .tabular th.column-notes_display {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  vertical-align: top !important;
+}
+
+.tc-audit-notes {
+  white-space: normal;
+  line-height: 1.8;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+/* عمود قبل / بعد */
+.inline-group .tabular td.field-before_after_preview,
+.inline-group .tabular th.column-before_after_preview {
+  width: 210px !important;
+  min-width: 210px !important;
+  max-width: 210px !important;
+  vertical-align: top !important;
+}
+
+.tc-audit-before-after {
+  background: #f8faf8;
+  border: 1px solid #d8e6dd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  white-space: pre-line;
+  line-height: 1.8;
+  font-size: 13px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+  word-break: break-word;
+}
+
+/* تحسين رؤوس أعمدة سجل التدقيق */
+.inline-group .tabular thead th {
+  white-space: normal !important;
+  line-height: 1.5 !important;
+}

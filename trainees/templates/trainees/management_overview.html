@@ -1,0 +1,24 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:28px;border-radius:22px;">
+  <h1 style="margin-top:0;">المتابعة الإدارية</h1>
+  <p>نقطة دخول سريعة إلى القوائم والغيابات والإجراءات الإدارية لكل نمط.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:22px;">
+    {% for card in program_cards %}
+    <div class="card" style="padding:20px;border-radius:18px;">
+      <h2 style="margin-top:0;">{{ card.label }}</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <a href="{{ card.list_url }}" class="btn btn-primary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">القائمة</a>
+        <a href="{{ card.attendance_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">الغيابات</a>
+        <a href="{{ card.actions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">الإعذارات</a>
+        <a href="{{ card.slots_actions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#15803d;color:#fff;font-weight:900;">إعذارات الحصص</a>
+        <a href="{{ card.intermittent_summons_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#854d0e;color:#fff;font-weight:900;">استدعاءات الغيابات المتذبذبة</a>
+        <a href="{{ card.dismissal_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#7c2d12;color:#fff;font-weight:800;">مقرر الفصل</a>
+        <a href="{{ card.sanctions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#111827;color:#fff;font-weight:800;">العقوبات</a>
+        <a href="{{ card.summons_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#0f766e;color:#fff;font-weight:800;">الاستدعاءات</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

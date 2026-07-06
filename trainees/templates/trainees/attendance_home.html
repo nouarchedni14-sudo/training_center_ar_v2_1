@@ -1,0 +1,33 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <h2 style="margin-top:0;">اختيار نمط الغيابات</h2>
+  <p>اختر النمط الذي تريد العمل عليه للوصول إلى الجدول أو الإحصائيات أو الإعذارات.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+    {% for card in cards %}
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <h3 style="margin-top:0;">{{ card.label }}</h3>
+      <p>{{ card.description }}</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="{{ card.table_url }}" class="btn btn-primary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">الجدول</a>
+        <a href="{{ card.stats_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">الإحصائيات</a>
+        {% if card.slots_table_url %}
+          <a href="{{ card.slots_table_url }}" class="btn btn-primary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#0f766e;color:#fff;font-weight:900;">الجدول بالحـصص الجديد</a>
+          <a href="{{ card.slots_stats_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#0369a1;color:#fff;font-weight:900;">النسبة الرسمية بالحـصص</a>
+          <a href="{{ card.slots_actions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#15803d;color:#fff;font-weight:900;">إعذارات الحصص</a>
+          <a href="{{ card.intermittent_summons_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#854d0e;color:#fff;font-weight:900;">استدعاءات الغيابات المتذبذبة</a>
+        {% endif %}
+        <a href="{{ card.actions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;">الإعذارات</a>
+        {% if card.code == "apprentice" %}
+          <a href="{% url 'user_attendance_summary' %}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#1d4ed8;color:#fff;font-weight:900;">متابعة الحضور والغيابات لدى المستخدم</a>
+        {% endif %}
+        <a href="{{ card.dismissal_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#7c2d12;color:#fff;font-weight:800;display:inline-block;line-height:1.2;">مقرر الفصل</a>
+        <a href="{{ card.sanctions_url }}" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#111827;color:#fff;font-weight:800;display:inline-block;line-height:1.2;">العقوبات</a>
+        <a href="{{ card.summons_url }}?scope=current" class="btn btn-secondary" style="text-decoration:none;padding:10px 14px;border-radius:12px;background:#0f766e;color:#fff;font-weight:800;display:inline-block;line-height:1.2;">الاستدعاءات</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,187 @@
+<!-- شرط داخل القالب -->
+{% if report %}
+  <div class="admin-home__apps" style="margin-top: 1.5rem;">
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <h3 class="admin-home__section">تقرير التخصصات — {{ report.label }}</h3>
+
+    {# ✅ أزرار اختيار نوع التقرير (تظهر دائمًا حتى لو كان الجدول فارغًا) #}
+    <div class="admin-home__actions" style="margin-bottom: .75rem;">
+      <a class="admin-home__action {% if report.selected == 'initial' %}is-active{% endif %}" href="?report=initial&cohort={{ report.cohort|default:'all' }}">تقرير الحضوري أولي</a>
+      <a class="admin-home__action {% if report.selected == 'apprentice' %}is-active{% endif %}" href="?report=apprentice&cohort={{ report.cohort|default:'all' }}">تقرير التمهين</a>
+      <a class="admin-home__action {% if report.selected == 'evening' %}is-active{% endif %}" href="?report=evening&cohort={{ report.cohort|default:'all' }}">تقرير الدروس المسائية</a>
+      <a class="admin-home__action {% if report.selected == 'crossing' %}is-active{% endif %}" href="?report=crossing&cohort={{ report.cohort|default:'all' }}">تقرير المعابر</a>
+    </div>
+    <div class="admin-home__actions" style="margin-bottom: .75rem;">
+      <a class="admin-home__action {% if report.cohort == 'all' %}is-active{% endif %}" href="?report={{ report.selected }}&cohort=all">الكل</a>
+      <a class="admin-home__action {% if report.cohort == 'current' %}is-active{% endif %}" href="?report={{ report.selected }}&cohort=current">الحاليون</a>
+      <a class="admin-home__action {% if report.cohort == 'graduates' %}is-active{% endif %}" href="?report={{ report.selected }}&cohort=graduates">المتخرجون</a>
+    </div>
+
+    <!-- شرط داخل القالب -->
+    {% if report.rows %}
+      <div class="admin-home__tablewrap">
+        <table class="admin-home__table">
+
+          {# ✅ للتحكم بعرض كل عمود من CSS (custom_admin.css) #}
+          <colgroup>
+            <!-- 3 أعمدة أولى -->
+            <col class="c-code">
+            <col class="c-specialty">
+            <col class="c-semester">
+
+            <!-- المدمجين -->
+            <col class="c-merged-total">
+            <col class="c-sex">
+            <col class="c-sex">
+
+            <!-- الحالي -->
+            <col class="c-current-total">
+            <col class="c-sex">
+            <col class="c-sex">
+
+            <!-- المشطوبين -->
+            <col class="c-removed-total">
+            <col class="c-sex">
+            <col class="c-sex">
+
+            <!-- النِّسب (الحالي) -->
+            <col class="c-pct-current-all">
+            <col class="c-pct-current-male">
+            <col class="c-pct-current-female">
+
+            <!-- النِّسَب (المشطوبين) -->
+            <col class="c-pct-removed-all">
+            <col class="c-pct-removed-male">
+            <col class="c-pct-removed-female">
+          </colgroup>
+
+          <thead>
+            <tr>
+              <th>رمز التخصص</th>
+              <th>التخصص</th>
+              <th>السداسي</th>
+
+              <th>عدد المدمجين</th>
+              <th>ذكور</th>
+              <th>إناث</th>
+
+              <th>التعداد الحالي</th>
+              <th>ذكور</th>
+              <th>إناث</th>
+
+              <th>تعداد المشطوبين</th>
+              <th>ذكور</th>
+              <th>إناث</th>
+
+              <th>الحالي %</th>
+              <th>ذكور الحالي %</th>
+              <th>إناث الحالي %</th>
+
+              <th>المشطوبين %</th>
+              <th>ذكور المشطوبين %</th>
+              <th>إناث المشطوبين %</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- حلقة تكرار داخل القالب -->
+            {% for r in report.rows %}
+              <tr>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.code }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.specialty }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.semester }}</td>
+
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.total|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.total_m|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.total_f|stringformat:"02d" }}</td>
+
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.active|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.active_m|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.active_f|stringformat:"02d" }}</td>
+
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.removed|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.removed_m|stringformat:"02d" }}</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td>{{ r.removed_f|stringformat:"02d" }}</td>
+
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.active_pct }}%</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.active_m_pct }}%</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.active_f_pct }}%</td>
+
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.removed_pct }}%</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.removed_m_pct }}%</td>
+                <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+                <td class="pct">{{ r.removed_f_pct }}%</td>
+              </tr>
+            <!-- نهاية الحلقة -->
+            {% endfor %}
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <th colspan="3">المجموع</th>
+
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.total|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.total_m|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.total_f|stringformat:"02d" }}</th>
+
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.active|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.active_m|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.active_f|stringformat:"02d" }}</th>
+
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.removed|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.removed_m|stringformat:"02d" }}</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th>{{ report.totals.removed_f|stringformat:"02d" }}</th>
+
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.active_pct }}%</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.active_m_pct }}%</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.active_f_pct }}%</th>
+
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.removed_pct }}%</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.removed_m_pct }}%</th>
+              <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+              <th class="pct">{{ report.totals.removed_f_pct }}%</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    <!-- وسم Template في Django -->
+    {% else %}
+      <div class="admin-home__note" style="padding:.75rem 1rem;border:1px dashed rgba(0,0,0,.25);border-radius:10px;">
+        لا توجد بيانات لعرضها في هذا التقرير حاليًا.
+      </div>
+    <!-- نهاية الشرط -->
+    {% endif %}
+  </div>
+<!-- نهاية الشرط -->
+{% endif %}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>{{ action_obj.document_title }} - {{ action_obj.trainee_name }}</title>
+  <style>
+    @page { size: A4 portrait; margin: 0; }
+    * { box-sizing: border-box; }
+    body { font-family: "Times New Roman", serif; margin: 0; direction: rtl; color: #000; }
+    .page { width: 210mm; min-height: 297mm; display: flex; flex-direction: column; overflow:hidden; }
+    .document-copy { height: 140.5mm; min-height: 140.5mm; max-height:140.5mm; padding: 4.8mm 10mm 0; overflow: hidden; }
+    .document-copy + .document-copy { border-top: 1px dashed #8b8b8b; }
+    .doc-header-stack { margin-top: 13.5pt; text-align: right; }
+    .state-line { font-size: 16px; line-height: 1.45; font-weight: 700; text-align: right; }
+    .state-centered { text-align: center; }
+    .doc-number-line { font-size: 16px; line-height: 1.45; font-weight: 700; text-align: right; margin-top: 2px; }
+    .doc-title { text-align: center; font-size: 27px; font-weight: 800; margin: 7px 0 6px; letter-spacing: .2px; line-height: 1.35; }
+    .doc-meta-block { width:max-content!important; max-width:48%!important; margin-top:1.6mm!important; margin-right:auto!important; margin-left:0!important; text-align:right!important; direction:rtl!important; }
+    .doc-meta { font-size: 16px; line-height: 1.8; font-weight: 700; text-align: right; margin: 0 0 2px; }
+    .doc-body-block { margin: 8px 0 0; }
+    .doc-paragraph { font-size: 14px; line-height: 1.7; font-weight: 700; margin: 4px 0; }
+    .doc-paragraph-center { text-align: center; }
+    .doc-bottom-row { margin: 18px 0 0; display:grid; direction:ltr; grid-template-columns:1fr 1fr; column-gap:6mm; align-items:start; width:100%; }
+    .issue-date { grid-column:1; justify-self:start; width:max-content; max-width:100%; text-align:right!important; font-size: 13.5px; font-weight: 700; white-space:nowrap; color:#000!important; }
+    .stamp-box { grid-column:2; justify-self:end; text-align:right; font-size: 13.5px; font-weight: 700; min-width: 34%; }
+    .date-ltr { direction:ltr!important; unicode-bidi:embed!important; display:inline-block; color:#000!important; -webkit-text-fill-color:#000!important; }
+    .copy-label { margin: 8px 0 0; color: #000!important; font-size: 10px; text-align: right; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    {% with copy_label='نسخة للإرسال' %}{% include 'trainees/attendance_action_document_block.html' %}{% endwith %}
+    {% with copy_label='نسخة للأرشفة' %}{% include 'trainees/attendance_action_document_block.html' %}{% endwith %}
+  </div>
+</body>
+</html>

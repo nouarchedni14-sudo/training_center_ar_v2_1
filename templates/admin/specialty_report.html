@@ -1,0 +1,223 @@
+<div class="admin-report">
+
+  <style>
+    /* Specialty report table – enforced styling */
+    .specialty-report-table, .specialty-report-table * { box-sizing: border-box; }
+    .specialty-report-table { background: #fff; color:#000; }
+    .specialty-report-table th, .specialty-report-table td {
+      text-align: center !important;
+      vertical-align: middle !important;
+      font-weight: 700 !important;
+      color: #000 !important;
+    }
+    .specialty-report-table th { font-size: 16px !important; overflow-wrap: normal; word-break: normal; }
+    .specialty-report-table td { font-size: 15px !important; }
+      .specialty-report-table .is-pct{background: rgba(94,234,212,.10) !important;}
+    .specialty-report-table thead .is-pct{background: rgba(94,234,212,.18) !important;}
+
+
+    /* Percentage columns: give them room so headers don't stick together */
+    .specialty-report-table th.is-pct,
+    .specialty-report-table td.is-pct{
+      width: 96px !important;
+      min-width: 96px !important;
+      max-width: 96px !important;
+      padding-left: .7rem !important;
+      padding-right: .7rem !important;
+    }
+    .specialty-report-table th.is-pct{
+      white-space: normal !important;
+      line-height: 1.2;
+    }
+/* Wrap text + compact widths (requested) */
+    .table-wrap{
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 10px;
+      padding: 0 8px; /* avoid last column under scrollbar */
+      scrollbar-gutter: stable both-edges;
+    }
+    .specialty-report-table{
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;        /* enforce column widths */
+      width: max-content;
+      min-width: 100%;
+    }
+    .specialty-report-table th, .specialty-report-table td{
+      border:1px solid #e5e7eb;
+      padding:.45rem .5rem;
+      white-space: nowrap;        /* default: keep numbers one line */
+      font-variant-numeric: tabular-nums;
+    }
+    /* Wrap text for columns 4..15 (headers + body) */
+    .specialty-report-table th:nth-child(n+4):nth-child(-n+15),
+    .specialty-report-table td:nth-child(n+4):nth-child(-n+15){
+      white-space: normal !important;
+      overflow-wrap: normal;      /* لا تقسّم الكلمات العربية وسطها */
+      word-break: normal;
+      hyphens: none;
+      line-height: 1.15;
+      max-width: 78px;
+    }
+    /* Compact widths: columns 4..15 */
+    .specialty-report-table th:nth-child(n+4):nth-child(-n+15),
+    .specialty-report-table td:nth-child(n+4):nth-child(-n+15){
+      width: 68px !important;
+      min-width: 68px !important;
+      max-width: 68px !important;
+    }
+    /* Column 4 a bit smaller */
+    .specialty-report-table th:nth-child(4),
+    .specialty-report-table td:nth-child(4){
+      width: 64px !important;
+      min-width: 64px !important;
+      max-width: 64px !important;
+    }
+    /* Percent columns: force LTR so % doesn't jump to the beginning in RTL */
+    .specialty-report-table .is-pct{
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+    .specialty-report-table .pct-sign{
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-block;
+    }
+
+
+    /* أعمدة ذكور/إناث أصغر */
+    .specialty-report-table th:nth-child(5), .specialty-report-table td:nth-child(5),
+    .specialty-report-table th:nth-child(6), .specialty-report-table td:nth-child(6),
+    .specialty-report-table th:nth-child(8), .specialty-report-table td:nth-child(8),
+    .specialty-report-table th:nth-child(9), .specialty-report-table td:nth-child(9),
+    .specialty-report-table th:nth-child(11), .specialty-report-table td:nth-child(11),
+    .specialty-report-table th:nth-child(10), .specialty-report-table td:nth-child(10){
+      width: 54px !important;
+      min-width: 54px !important;
+      max-width: 54px !important;
+      padding-left: .35rem !important;
+      padding-right: .35rem !important;
+    }
+
+
+    /* تعداد المشطوبين: اعرض قليلًا لتفادي تقطيع الكلمة */
+    .specialty-report-table th:nth-child(10), .specialty-report-table td:nth-child(10){
+      width: 92px !important;
+      min-width: 92px !important;
+      max-width: 92px !important;
+    }
+
+    /* أعمدة النسب %: لفّ النص + مسافة داخلية حتى لا تكون متلاصقة */
+    .specialty-report-table th.is-pct, .specialty-report-table td.is-pct{
+      white-space: normal !important;
+      line-height: 1.1;
+      width: 96px !important;
+      min-width: 96px !important;
+      max-width: 96px !important;
+      padding-left: .6rem !important;
+      padding-right: .6rem !important;
+    }
+
+    /* Excel paste helpers: keep leading zeros as text */
+    .specialty-report-table td.as-text {
+      direction: ltr;
+      unicode-bidi: isolate;
+      mso-number-format:"\@"; /* treat as text in Excel */
+    }
+    .specialty-report-table th .no-break, .specialty-report-table .no-break { white-space: nowrap !important; }
+</style>
+<div class="admin-report__head">
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <h3 class="admin-report__title">تقرير حسب التخصص / السداسي — {{ report_program_label }}</h3>
+    <div class="admin-report__tabs">
+      <!-- حلقة تكرار داخل القالب -->
+      {% for p in programs %}
+        <a class="admin-report__tab {% if p.code == report_program %}is-active{% endif %}"
+           <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+           href="?rp={{ p.code }}">
+          <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+          {{ p.label }}
+        </a>
+      <!-- نهاية الحلقة -->
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="rtl-table specialty-report-table" style="color:black;">
+      <thead>
+        <tr>
+          <th>رمز التخصص</th>
+          <th>التخصص</th>
+          <th>السداسي</th>
+          <th>عدد المدمجين</th>
+          <th>ذكور</th>
+          <th>إناث</th>
+          <th>التعداد الحالي</th>
+          <th>ذكور</th>
+          <th>إناث</th>
+          <th><span class="no-break">تعداد المشطوبين</span></th>
+          <th>ذكور</th>
+          <th>إناث</th>
+          <th class="is-pct">الحالي <span class="pct-sign" dir="ltr">%</span></th>
+          <th class="is-pct">ذكور الحالي <span class="pct-sign" dir="ltr">%</span></th>
+          <th class="is-pct">إناث الحالي <span class="pct-sign" dir="ltr">%</span></th>
+          <th class="is-pct">المشطوب <span class="pct-sign" dir="ltr">%</span></th>
+          <th class="is-pct">ذكور المشطوب <span class="pct-sign" dir="ltr">%</span></th>
+          <th class="is-pct">إناث المشطوب <span class="pct-sign" dir="ltr">%</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- حلقة تكرار داخل القالب -->
+        {% for r in rows %}
+          <tr>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td>{{ r.code }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td>{{ r.specialty }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td>{{ r.semester }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text"><b>&#8203;{{ r.total|add:0|stringformat:"02d" }}</b></td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.total_m|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.total_f|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text"><b>&#8203;{{ r.active|add:0|stringformat:"02d" }}</b></td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.active_m|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.active_f|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text"><b>&#8203;{{ r.removed|add:0|stringformat:"02d" }}</b></td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.removed_m|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="as-text">&#8203;{{ r.removed_f|add:0|stringformat:"02d" }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.active_pct }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.active_m_pct }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.active_f_pct }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.removed_pct }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.removed_m_pct }}</td>
+            <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+            <td class="is-pct">{{ r.removed_f_pct }}</td>
+          </tr>
+        <!-- وسم Template في Django -->
+        {% empty %}
+          <tr>
+            <td colspan="18" style="text-align:center" class="muted">لا توجد بيانات.</td>
+          </tr>
+        <!-- نهاية الحلقة -->
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

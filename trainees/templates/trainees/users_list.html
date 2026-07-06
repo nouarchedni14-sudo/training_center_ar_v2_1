@@ -1,0 +1,91 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div>
+      <h2 style="margin:0">إدارة المستخدمين</h2>
+      <div class="muted">قائمة مع فلاتر وتنبيهات انتهاء الصلاحية وإجراءات سريعة.</div>
+    </div>
+    <a class="btn" href="{% url 'user_create' %}">إضافة مستخدم</a>
+  </div>
+
+  <form method="get" style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+    <input type="text" name="q" value="{{ filters.q }}" placeholder="بحث بالاسم أو البريد أو اسم المستخدم">
+    <select name="role">
+      <option value="">كل الأدوار</option>
+      {% for value,label in role_choices %}
+      <option value="{{ value }}" {% if filters.role == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="state">
+      <option value="">كل الحالات</option>
+      <option value="active" {% if filters.state == 'active' %}selected{% endif %}>نشطة</option>
+      <option value="expired" {% if filters.state == 'expired' %}selected{% endif %}>منتهية</option>
+      <option value="disabled" {% if filters.state == 'disabled' %}selected{% endif %}>معطلة</option>
+    </select>
+    <select name="customized">
+      <option value="">كل أنواع الصلاحيات</option>
+      <option value="yes" {% if filters.customized == 'yes' %}selected{% endif %}>مخصص يدويًا</option>
+      <option value="no" {% if filters.customized == 'no' %}selected{% endif %}>مطابق للدور</option>
+    </select>
+    <select name="expiring">
+      <option value="">كل تواريخ الانتهاء</option>
+      <option value="7" {% if filters.expiring == '7' %}selected{% endif %}>تنتهي خلال 7 أيام</option>
+      <option value="30" {% if filters.expiring == '30' %}selected{% endif %}>تنتهي خلال 30 يومًا</option>
+    </select>
+    <button type="submit">تطبيق</button>
+  </form>
+</div>
+
+<div class="card" style="margin-top:16px;overflow:auto;">
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:right;padding:10px;">المستخدم</th>
+        <th style="text-align:right;padding:10px;">الدور</th>
+        <th style="text-align:right;padding:10px;">الحالة</th>
+        <th style="text-align:right;padding:10px;">نهاية الصلاحية</th>
+        <th style="text-align:right;padding:10px;">التخصيص</th>
+        <th style="text-align:right;padding:10px;">إجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr style="border-top:1px solid #e5e7eb;vertical-align:top;">
+        <td style="padding:10px;">
+          <strong>{{ item.user.get_full_name|default:item.user.username }}</strong>
+          <div class="muted">{{ item.user.username }}{% if item.user.email %} — {{ item.user.email }}{% endif %}</div>
+        </td>
+        <td style="padding:10px;">{% if item.profile %}{{ item.profile.get_role_label }}{% else %}—{% endif %}</td>
+        <td style="padding:10px;">
+          {{ item.state_label }}
+          {% if item.expiry_warning %}<div class="muted" style="margin-top:4px;">{{ item.expiry_warning }}</div>{% endif %}
+        </td>
+        <td style="padding:10px;">{% if item.profile and item.profile.access_end_date %}{{ item.profile.access_end_date|date:"Y-m-d" }}{% else %}غير محدد{% endif %}</td>
+        <td style="padding:10px;">{% if item.profile and item.profile.is_customized %}مخصص يدويًا{% else %}مطابق للدور{% endif %}</td>
+        <td style="padding:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <a class="btn" href="{% url 'user_edit' item.user.pk %}">تعديل</a>
+          <a class="btn" href="{% url 'user_audit' item.user.pk %}">السجل</a>
+          {% if item.profile %}
+          <form method="post" action="{% url 'user_toggle_access' item.user.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit">{% if item.profile.access_enabled %}تعطيل{% else %}تفعيل{% endif %}</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="padding:14px;">لا توجد نتائج مطابقة.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="muted">الصفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</div>
+    <div style="display:flex;gap:8px;">
+      {% if page_obj.has_previous %}<a class="btn" href="?page={{ page_obj.previous_page_number }}&q={{ filters.q }}&role={{ filters.role }}&state={{ filters.state }}&customized={{ filters.customized }}&expiring={{ filters.expiring }}">السابق</a>{% endif %}
+      {% if page_obj.has_next %}<a class="btn" href="?page={{ page_obj.next_page_number }}&q={{ filters.q }}&role={{ filters.role }}&state={{ filters.state }}&customized={{ filters.customized }}&expiring={{ filters.expiring }}">التالي</a>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

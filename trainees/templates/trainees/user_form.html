@@ -1,0 +1,27 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <h2 style="margin-top:0">{{ title }}</h2>
+  {% if target_user %}
+  <div class="muted" style="margin-bottom:12px;">آخر السجلات الحساسة: {{ audit_count|default:0 }}</div>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;">
+      <div>
+        <h3>بيانات المستخدم</h3>
+        {{ user_form.as_p }}
+      </div>
+      <div>
+        <h3>الصلاحيات</h3>
+        {{ profile_form.as_p }}
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+      <button type="submit">حفظ</button>
+      <a class="btn" href="{% url 'users_list' %}">رجوع</a>
+      {% if target_user %}<a class="btn" href="{% url 'user_audit' target_user.pk %}">فتح السجل</a>{% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

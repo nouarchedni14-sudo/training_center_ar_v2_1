@@ -1,0 +1,106 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;max-width:760px;margin:0 auto;">
+  <h2 style="margin-top:0;">تم تشغيل أداة التحديث</h2>
+  <div class="flash success" style="margin-top:16px;">
+    <div>
+      <span class="notice-title">نجاح العملية</span>
+      <span class="notice-text">تم تشغيل أداة التحديث بنجاح. سيبدأ إغلاق البرنامج تلقائيًا خلال <strong id="shutdown-count">5</strong> ثوانٍ لإكمال العملية.</span>
+    </div>
+  </div>
+  <ol style="line-height:1.9;padding-right:20px;">
+    <li>اترك هذه النافذة كما هي لثوانٍ قليلة.</li>
+    <li>سيتم إرسال أمر إغلاق البرنامج الحالي تلقائيًا لإفساح المجال لأداة التحديث.</li>
+    <li>بعد اكتمال التثبيت سيُعاد تشغيل البرنامج تلقائيًا إن أمكن.</li>
+  </ol>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+    <button type="button" id="shutdown-now-btn" class="btn btn-warning" style="padding:10px 18px;border-radius:12px;cursor:pointer;">إغلاق البرنامج الآن لإكمال التحديث</button>
+    <a href="{% url 'system_updates' %}" class="btn btn-secondary" style="padding:10px 18px;border-radius:12px;text-decoration:none;">العودة إلى مركز التحديثات</a>
+  </div>
+  <p id="shutdown-status" style="margin-top:14px;color:#5f6f68;">جارٍ انتظار الإغلاق التلقائي...</p>
+</div>
+
+<script>
+(function () {
+  const shutdownUrl = "{% url 'system_finalize_update_shutdown' %}";
+  const countEl = document.getElementById('shutdown-count');
+  const statusEl = document.getElementById('shutdown-status');
+  const button = document.getElementById('shutdown-now-btn');
+  let seconds = 5;
+  let sent = false;
+
+  function setStatus(message, type) {
+    if (statusEl) {
+      statusEl.textContent = message;
+      statusEl.style.color = type === 'error' ? '#c62828' : '#5f6f68';
+    }
+  }
+
+  async function sendShutdown() {
+    if (sent) return;
+    sent = true;
+    if (button) {
+      button.disabled = true;
+      button.style.opacity = '0.7';
+      button.style.cursor = 'not-allowed';
+    }
+    setStatus('جارٍ إرسال أمر إغلاق البرنامج...', 'info');
+    try {
+      const response = await fetch(shutdownUrl, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || getCookie('csrftoken') || ''
+        }
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || 'تعذر إغلاق البرنامج تلقائيًا.');
+      }
+      if (window.showToast) {
+        window.showToast({message: data.message || 'تمت جدولة إغلاق البرنامج.', type: 'success'});
+      }
+      setStatus('تم إرسال أمر الإغلاق. سيختفي البرنامج بعد لحظات.', 'info');
+      window.setTimeout(function () {
+        try { window.close(); } catch (e) {}
+      }, 1500);
+    } catch (error) {
+      if (window.showToast) {
+        window.showToast({message: error.message || 'تعذر إغلاق البرنامج تلقائيًا.', type: 'error'});
+      }
+      setStatus(error.message || 'تعذر إغلاق البرنامج تلقائيًا. اضغط الزر للمحاولة مرة أخرى.', 'error');
+      sent = false;
+      if (button) {
+        button.disabled = false;
+        button.style.opacity = '1';
+        button.style.cursor = 'pointer';
+      }
+    }
+  }
+
+  function tick() {
+    if (sent) return;
+    seconds -= 1;
+    if (countEl) countEl.textContent = String(Math.max(seconds, 0));
+    if (seconds <= 0) {
+      sendShutdown();
+      return;
+    }
+    window.setTimeout(tick, 1000);
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+  }
+
+  if (button) {
+    button.addEventListener('click', sendShutdown);
+  }
+  window.setTimeout(tick, 1000);
+})();
+</script>
+{% csrf_token %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <h2>تقرير المستخدمين المخصصين يدويًا</h2>
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:end;">
+    <div>
+      <label>الدور</label><br>
+      <select name="role_code">
+        <option value="">كل الأدوار</option>
+        {% for value, label in role_choices %}
+          <option value="{{ value }}" {% if selected_role_code == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>الحالة</label><br>
+      <select name="state">
+        <option value="">الكل</option>
+        <option value="enabled" {% if selected_state == 'enabled' %}selected{% endif %}>نشطة</option>
+        <option value="disabled" {% if selected_state == 'disabled' %}selected{% endif %}>معطلة</option>
+      </select>
+    </div>
+    <div><label>بحث</label><br><input type="text" name="q" value="{{ search_query }}" placeholder="اسم المستخدم أو البريد"></div>
+    <button type="submit">تطبيق</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>المستخدم</th>
+        <th>الدور الأساسي</th>
+        <th>الحالة</th>
+        <th>نافذة الصلاحية</th>
+        <th>البرامج المتاحة</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.user.get_full_name|default:row.user.username }}</td>
+        <td>{{ row.get_role_label }}</td>
+        <td>{{ row.access_state_label }}</td>
+        <td>{{ row.access_window_label }}</td>
+        <td>{{ row.granted_program_labels|join:"، "|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">لا توجد حسابات مخصصة يدويًا ضمن هذا الفلتر.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

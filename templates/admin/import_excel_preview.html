@@ -1,0 +1,100 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="admin-pro-card" style="max-width:1180px; margin:20px auto; direction:rtl;">
+  <h1 style="margin-top:0;">معاينة قبل الاستيراد — {{ model_verbose }}</h1>
+  <p>
+    <strong>الورقة:</strong> {{ sheet_name }}
+    &nbsp;|&nbsp;
+    <strong>إجمالي الصفوف:</strong> {{ preview.total_rows }}
+    &nbsp;|&nbsp;
+    <strong>صالحة مبدئيًا:</strong> {{ preview.valid_rows }}
+    &nbsp;|&nbsp;
+    <strong>فيها ملاحظات:</strong> {{ preview.invalid_rows }}
+  </p>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin:18px 0;">
+    <div style="background:#f8fbf9; border:1px solid #dbe8e1; border-radius:14px; padding:16px;">
+      <div style="color:#5b7268; font-size:13px;">إجمالي الصفوف</div>
+      <div style="font-size:28px; font-weight:800; color:#123127;">{{ preview.total_rows }}</div>
+    </div>
+    <div style="background:#f5fcf7; border:1px solid #cfe7d7; border-radius:14px; padding:16px;">
+      <div style="color:#4e6a5a; font-size:13px;">صالحة مبدئيًا</div>
+      <div style="font-size:28px; font-weight:800; color:#0f6b50;">{{ preview.valid_rows }}</div>
+    </div>
+    <div style="background:#fffaf2; border:1px solid #ead8a6; border-radius:14px; padding:16px;">
+      <div style="color:#7b6631; font-size:13px;">صفوف مكررة داخل الملف</div>
+      <div style="font-size:28px; font-weight:800; color:#b28216;">{{ preview.duplicate_rows }}</div>
+    </div>
+    <div style="background:#fff6f6; border:1px solid #e8c8c8; border-radius:14px; padding:16px;">
+      <div style="color:#7a4d4d; font-size:13px;">عدد الملاحظات</div>
+      <div style="font-size:28px; font-weight:800; color:#a33a3a;">{{ preview.error_count }}</div>
+    </div>
+  </div>
+
+  <div style="margin:18px 0; display:flex; gap:10px; flex-wrap:wrap;">
+    <form method="post" style="display:inline;">
+      {% csrf_token %}
+      <input type="hidden" name="temp_id" value="{{ temp_id }}">
+      <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
+      <button class="button default" type="submit" name="action" value="confirm_import">تأكيد الاستيراد</button>
+    </form>
+
+    <form method="post" style="display:inline;">
+      {% csrf_token %}
+      <input type="hidden" name="temp_id" value="{{ temp_id }}">
+      <button class="button" type="submit">العودة لاختيار الورقة</button>
+    </form>
+  </div>
+
+  <div style="display:grid; grid-template-columns: minmax(0, 1.3fr) minmax(320px, .9fr); gap:18px; align-items:start;">
+    <div style="background:#fff; border:1px solid #ddd; border-radius:14px; padding:16px; overflow:auto;">
+      <h2 style="margin-top:0;">أول {{ preview.preview_rows|length }} صفوف للمعاينة</h2>
+      {% if preview.preview_rows %}
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f7f7f7;">
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">السطر</th>
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">الاسم</th>
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">رقم التسجيل</th>
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">التخصص</th>
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">البداية</th>
+              <th style="padding:10px; border-bottom:1px solid #e5e5e5;">النهاية</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in preview.preview_rows %}
+              <tr>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.row_index }}</td>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.display_name|default:"—" }}</td>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.registration_number|default:"—" }}</td>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.specialty|default:"—" }}</td>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.start_date|default:"—" }}</td>
+                <td style="padding:10px; border-bottom:1px solid #f0f0f0;">{{ row.end_date|default:"—" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>لا توجد صفوف قابلة للمعاينة.</p>
+      {% endif %}
+    </div>
+
+    <div style="background:#fff; border:1px solid #ddd; border-radius:14px; padding:16px; max-height:70vh; overflow:auto;">
+      <h2 style="margin-top:0;">الملاحظات الأولية</h2>
+      {% if preview.errors %}
+        <ol style="margin:0; padding-right:20px; line-height:1.9;">
+          {% for item in preview.errors|slice:":20" %}
+            <li style="margin-bottom:10px;">{{ item }}</li>
+          {% endfor %}
+        </ol>
+        {% if preview.error_count > 20 %}
+          <p style="margin-top:12px; color:#666;">تم عرض أول 20 ملاحظة فقط. التقرير النهائي سيعرض كل الرسائل بعد التنفيذ.</p>
+        {% endif %}
+      {% else %}
+        <p>لا توجد ملاحظات أولية. يمكنك المتابعة بثقة أكبر.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <h2 style="margin-top:0;">الترخيص والنسخة</h2>
+  <p>من هنا يمكنك مراجعة حالة الترخيص وتعديل بيانات العميل وتاريخ الانتهاء، مع معرفة ما إذا كان النظام يسمح بالاستمرار في العمل.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:18px 0;">
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <div style="font-size:13px;opacity:.7;">الحالة الحالية</div>
+      <div style="font-size:24px;font-weight:800;margin-top:8px;">{{ license_status.status_label }}</div>
+      <div style="margin-top:8px;">{{ license_status.message }}</div>
+    </div>
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <div style="font-size:13px;opacity:.7;">العميل أو المؤسسة</div>
+      <div style="font-size:18px;font-weight:700;margin-top:8px;">{{ form.instance.customer_name|default:"غير محدد" }}</div>
+      <div style="margin-top:8px;"><strong>الإصدار الحالي:</strong> {{ config.current_version|default:"1.0.0" }}</div>
+    </div>
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <div style="font-size:13px;opacity:.7;">انتهاء الترخيص/الدعم</div>
+      <div style="font-size:18px;font-weight:700;margin-top:8px;">{{ license_status.support_expires_at|date:"Y-m-d"|default:"غير محدد" }}</div>
+      <div style="margin-top:8px;"><strong>الأيام المتبقية:</strong> {{ license_status.days_left|default:"—" }}</div>
+    </div>
+  </div>
+
+  <div class="flash {% if license_status.level == 'error' %}warning{% else %}success{% endif %}" style="margin-bottom:16px;">
+    <div>
+      <span class="notice-title">ملخص حالة الترخيص</span>
+      <span class="notice-text">{{ license_status.message }}</span>
+      {% if license_status.enforcement_required %}
+        <div style="margin-top:8px;">فرض التحقق من الترخيص: <strong>مفعّل</strong></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="post" class="card" style="padding:18px;border-radius:18px;">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+      {% for field in form %}
+      <div>
+        <label style="display:block;font-weight:700;margin-bottom:6px;">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<div style="font-size:12px;opacity:.75;margin-top:4px;">{{ field.help_text }}</div>{% endif %}
+        {% for error in field.errors %}<div style="color:#b3261e;font-size:13px;margin-top:4px;">{{ error }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+      <button type="submit" class="btn btn-primary" style="padding:10px 18px;border-radius:12px;cursor:pointer;">حفظ بيانات الترخيص</button>
+      <a href="{% url 'system_dashboard' %}" class="btn btn-secondary" style="padding:10px 18px;border-radius:12px;text-decoration:none;">العودة إلى مركز النظام</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

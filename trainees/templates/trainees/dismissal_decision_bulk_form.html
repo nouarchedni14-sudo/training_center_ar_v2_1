@@ -1,0 +1,44 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <style>
+    h1{margin:0 0 8px;color:#7c2d12}.muted{color:#64748b}.bulk-card{border:1px solid #fed7aa;background:#fffaf0;border-radius:16px;padding:16px;margin:14px 0}.bulk-card h3{margin:0 0 10px;color:#7c2d12}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.field label{font-weight:800;color:#334155;display:block;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px}.meta div{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn-warn{background:#7c2d12!important;color:#fff!important}
+  </style>
+  <h1>{{ program_label }} - تحرير مقرر الفصل</h1>
+  <p class="muted">يمكن تحرير مقرر واحد أو عدة مقررات دفعة واحدة، ثم حفظها وطباعتها متتالية.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="return_query" value="{{ return_query }}">
+    {% for item in decisions %}<input type="hidden" name="ids" value="{{ item.pk }}">{% endfor %}
+    {% for item in decisions %}
+    <div class="bulk-card">
+      <h3>{{ forloop.counter }} - {{ item.trainee_name }}</h3>
+      <div class="meta">
+        <div><strong>القسم:</strong><br>{{ item.scope_label }}</div>
+        <div><strong>رقم التسجيل:</strong><br>{{ item.registration_number|default:'—' }}</div>
+        <div><strong>التخصص:</strong><br>{{ item.specialty|default:'—' }}</div>
+        <div><strong>السداسي:</strong><br>{{ item.semester|default:'—' }}</div>
+        <div><strong>تاريخ الشطب:</strong><br>{{ item.removal_date|date:'Y-m-d'|default:'—' }}</div>
+        <div><strong>رقم الشطب:</strong><br>{{ item.removal_number|default:'—' }}</div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>رقم مقرر الفصل</label><input type="text" name="row_{{ item.pk }}_decision_number" value="{{ item.decision_number }}"></div>
+        <div class="field"><label>رقم محضر اللجنة التأديبية</label><input type="text" name="row_{{ item.pk }}_disciplinary_record_number" value="{{ item.disciplinary_record_number }}"></div>
+        <div class="field"><label>تاريخ محضر اللجنة التأديبية</label><input type="text" name="row_{{ item.pk }}_disciplinary_record_date" dir="ltr" placeholder="2026-05-22" value="{{ item.disciplinary_record_date|date:'Y-m-d' }}"></div>
+        <div class="field"><label>تاريخ بداية الفصل</label><input type="text" name="row_{{ item.pk }}_dismissal_start_date" dir="ltr" placeholder="2026-05-22" value="{{ item.dismissal_start_date|date:'Y-m-d' }}"></div>
+        <div class="field"><label>تاريخ تحرير المقرر</label><input type="text" name="row_{{ item.pk }}_decision_date" dir="ltr" placeholder="2026-05-22" value="{{ item.decision_date|date:'Y-m-d' }}"></div>
+        <div class="field"><label>رمز الفرع / الفوج</label><input type="text" name="row_{{ item.pk }}_group_code" value="{{ item.group_code }}"></div>
+        <div class="field"><label>الحالة</label><select name="row_{{ item.pk }}_status">{% for value,label in status_choices %}<option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="field" style="grid-column:1/-1"><label>ملاحظات</label><textarea name="row_{{ item.pk }}_notes">{{ item.notes }}</textarea></div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="toolbar">
+      <button type="submit" class="btn btn-warn">حفظ التعديلات</button>
+      <a class="btn" href="{% url 'dismissal_decisions_preview' program %}?{{ query_string }}">معاينة</a>
+      <a class="btn" href="{% url 'dismissal_decisions_preview' program %}?{{ query_string }}&print=1">طباعة</a>
+      <a class="btn" href="{{ back_url }}">العودة للقائمة</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

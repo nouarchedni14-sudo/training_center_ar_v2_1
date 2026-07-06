@@ -1,0 +1,64 @@
+{% extends "trainees/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  .dev-login{max-width:980px;margin:28px auto;display:grid;grid-template-columns:1fr .8fr;gap:22px}.dev-card{background:linear-gradient(180deg,#fff,#f8fffd);border:1px solid rgba(180,137,43,.24);border-radius:30px;box-shadow:0 24px 70px rgba(51,65,85,.14);padding:34px}.dev-logo{width:128px;height:128px;object-fit:contain;display:block;margin:0 auto 14px;filter:drop-shadow(0 12px 24px rgba(0,0,0,.14))}.dev-title{text-align:center;font-size:34px;color:#122b25;font-weight:900;margin:0 0 8px}.dev-sub{text-align:center;color:#66756f;margin:0 0 24px}.dev-card label{display:block;font-weight:900;color:#122b25;margin:12px 0 7px}.dev-card input.dev-input{width:100%!important;min-width:100%!important;max-width:100%!important;height:54px!important;border-radius:15px;border:1px solid #d8c58f;background:#fffdf8;padding:0 16px;font-size:18px;font-weight:700;box-sizing:border-box;display:block!important}.dev-card input.dev-input:focus{outline:3px solid rgba(180,137,43,.16);border-color:#b4892b}.dev-password-wrap{position:relative;width:100%;display:block}.dev-password-wrap input.dev-input{padding-left:64px!important}.dev-show-password-box{position:absolute!important;left:16px!important;top:50%!important;transform:translateY(-50%)!important;width:24px!important;height:24px!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;border:2px solid #0f766e!important;border-radius:7px!important;background:#fff!important;cursor:pointer!important;box-sizing:border-box!important;z-index:3!important;box-shadow:0 3px 8px rgba(15,118,110,.12)!important}.dev-show-password-box:hover{background:#f0fdfa!important}.dev-show-password-box input{appearance:none!important;-webkit-appearance:none!important;width:100%!important;min-width:0!important;max-width:none!important;height:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:5px!important;background:transparent!important;cursor:pointer!important;display:block!important}.dev-show-password-box input:checked::after{content:'✓';display:block;width:100%;height:100%;line-height:20px;text-align:center;font-size:18px;font-weight:900;color:#0f766e}.dev-actions{margin-top:18px;text-align:center}.dev-actions button{border:0;border-radius:14px;background:#0f766e;color:#fff;padding:13px 28px;font-weight:900;box-shadow:0 12px 26px rgba(15,118,110,.25);cursor:pointer}.dev-side{background:#0f3b31;color:#fff;border-radius:30px;padding:30px;box-shadow:0 24px 70px rgba(15,59,49,.18)}.dev-side h3{margin:0 0 18px;font-size:26px}.dev-side li{margin:12px 0}.alert{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:16px;padding:12px 14px;margin:0 0 16px;text-align:center;font-weight:800}@media(max-width:850px){.dev-login{grid-template-columns:1fr}.dev-card,.dev-side{padding:22px}.dev-title{font-size:28px}}
+</style>
+<div class="dev-login">
+  <section class="dev-card">
+    <img src="{% static 'branding/mfep.ico' %}" alt="MFEP" class="dev-logo">
+    <h1 class="dev-title">دخول المطور</h1>
+    <p class="dev-sub">هذه الصفحة خاصة بالمدير الأعلى فقط للوصول الكامل إلى برنامج تسيير المتكوّنين.</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label for="dev-username">اسم المستخدم</label>
+      <input id="dev-username" class="dev-input no-autowidth" data-fixed-width="1" name="username" value="{{ username|default:'' }}" required autocomplete="username">
+      <label for="dev-password">كلمة المرور</label>
+      <div class="dev-password-wrap">
+        <input id="dev-password" class="dev-input no-autowidth" data-fixed-width="1" name="password" type="password" required autocomplete="current-password">
+        <label id="dev-show-password-label" class="dev-show-password-box" for="dev-show-password" title="إظهار كلمة المرور">
+          <input id="dev-show-password" class="no-autowidth" data-fixed-width="1" type="checkbox" aria-controls="dev-password" aria-label="إظهار كلمة المرور">
+        </label>
+      </div>
+      <div class="dev-actions"><button type="submit">دخول المطور</button></div>
+    </form>
+  </section>
+  <aside class="dev-side">
+    <h3>صلاحيات المطور</h3>
+    <ul>
+      <li>الدخول إلى كل البرامج والصفحات.</li>
+      <li>إضافة وتعديل وحذف المتكوّنين.</li>
+      <li>الدخول إلى الإدارة والمستخدمين.</li>
+      <li>إدارة الصلاحيات والمتابعة والتحديثات.</li>
+    </ul>
+    <p>المستخدمون العاديون يدخلون من صفحة الدخول العادية ولا يرون زر المطور.</p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function(){
+  function ready(fn){
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', fn, {once:true});
+    } else {
+      fn();
+    }
+  }
+  ready(function(){
+    var password = document.getElementById('dev-password');
+    var toggle = document.getElementById('dev-show-password');
+    var label = document.getElementById('dev-show-password-label');
+    if(!password || !toggle) return;
+    toggle.addEventListener('change', function(){
+      var show = !!toggle.checked;
+      password.type = show ? 'text' : 'password';
+      toggle.setAttribute('aria-label', show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+      if(label){ label.title = show ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'; }
+    });
+  });
+})();
+</script>
+{% endblock %}

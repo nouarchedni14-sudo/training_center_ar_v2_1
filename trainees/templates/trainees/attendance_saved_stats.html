@@ -1,0 +1,189 @@
+{% extends 'trainees/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" dir="rtl" style="margin-top:16px">
+  <style>
+    .archive-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .archive-toolbar h1{margin:0;font-size:1.5rem}
+    .archive-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .archive-filter{margin:18px 0;padding:16px;border:1px solid #cbd5e1;border-radius:14px;background:#f8fafc}
+    .archive-filter form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;align-items:end}
+    .archive-filter label{display:block;font-weight:700;margin-bottom:6px}
+    .archive-filter select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .archive-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+    .archive-box{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:14px}
+    .archive-box .label{font-size:.92rem;color:#475569;margin-bottom:6px}
+    .archive-box .value{font-size:1.3rem;font-weight:800;color:#0f172a}
+    .scope-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:18px 0}
+    .scope-card{background:#fff;border:1px solid #cbd5e1;border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    .scope-card h3{margin:0 0 8px 0;font-size:1.08rem}
+    .scope-meta{color:#475569;font-size:.95rem;line-height:1.8}
+    .scope-card .btn{margin-top:10px}
+    .table-wrap{overflow:auto;margin-top:18px}
+    .rtl-table{width:100%;border-collapse:collapse}
+    .rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:middle}
+    .rtl-table th{background:#1d4ed8;color:#fff;white-space:nowrap}
+    .rtl-table tbody tr:nth-child(even){background:#f8fafc}
+    .name-cell{text-align:right;font-weight:700;white-space:nowrap}
+    .muted{color:#475569}
+    .rate-high{color:#b91c1c;font-weight:800}
+    .rate-medium{color:#b45309;font-weight:800}
+    .rate-low{color:#15803d;font-weight:800}
+    .section-title{margin:24px 0 12px 0;font-size:1.2rem}
+  </style>
+
+  <div class="archive-toolbar">
+    <div>
+      <h1>{{ title }}</h1>
+      <p class="muted" style="margin:6px 0 0 0;">صفحة مستقلة لعرض الإحصائيات المحفوظة سابقًا مع فلترة حسب النمط والشهر والسنة.</p>
+    </div>
+    <div class="archive-actions">
+      <a href="{% url 'attendance_home' %}" class="btn">صفحة الغيابات</a>
+      {% if detail_scope %}
+        <a href="{% url 'attendance_saved_stats_export' 'excel' %}?{{ current_query }}" class="btn">تصدير Excel</a>
+        <a href="{% url 'attendance_saved_stats_export' 'pdf' %}?{{ current_query }}" class="btn">تصدير PDF</a>
+      {% endif %}
+      {% if can_view_live_stats %}
+        <a href="{% url 'attendance_stats' detail_scope.program %}?month={{ detail_scope.month }}&year={{ detail_scope.year }}{% if detail_scope.batch %}&promotion={{ detail_scope.batch.pk }}{% endif %}{% if detail_scope.specialty %}&specialty={{ detail_scope.specialty|urlencode }}{% endif %}&show_table=1" class="btn">فتح الإحصائيات الحالية</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="archive-filter">
+    <form method="get">
+      <div>
+        <label>النمط</label>
+        <select name="program">
+          <option value="">كل الأنماط</option>
+          {% for item in program_options %}
+            <option value="{{ item.code }}" {% if item.code == selected_program %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>الشهر</label>
+        <select name="month">
+          <option value="">كل الأشهر</option>
+          {% for item in month_choices %}
+            <option value="{{ item.value }}" {% if item.value == selected_month %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>السنة</label>
+        <select name="year">
+          <option value="">كل السنوات</option>
+          {% for year in year_choices %}
+            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>الدفعة</label>
+        <select name="batch_id">
+          <option value="">كل الدفعات</option>
+          {% for batch in batch_options %}
+            <option value="{{ batch.batch_id }}" {% if batch.batch_id|stringformat:'s' == selected_batch_id|stringformat:'s' %}selected{% endif %}>دفعة {{ batch.batch__السنة }} / {{ batch.batch__رقم_الدورة }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>التخصص</label>
+        <select name="specialty">
+          <option value="">كل التخصصات</option>
+          {% for specialty in specialty_options %}
+            <option value="{{ specialty }}" {% if specialty == selected_specialty %}selected{% endif %}>{{ specialty }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <button type="submit" class="btn">عرض النتائج</button>
+        <a href="{% url 'attendance_saved_stats' %}" class="btn">إعادة التهيئة</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="archive-summary">
+    <div class="archive-box">
+      <div class="label">عدد النطاقات المحفوظة</div>
+      <div class="value">{{ scope_count }}</div>
+    </div>
+    <div class="archive-box">
+      <div class="label">النمط المحدد</div>
+      <div class="value" style="font-size:1rem;line-height:1.6;">{% if selected_program %}{% for item in program_options %}{% if item.code == selected_program %}{{ item.label }}{% endif %}{% endfor %}{% else %}كل الأنماط{% endif %}</div>
+    </div>
+    <div class="archive-box">
+      <div class="label">الشهر/السنة</div>
+      <div class="value" style="font-size:1rem;line-height:1.6;">{% if selected_month %}{{ selected_month_display }}{% else %}كل الأشهر{% endif %} / {% if selected_year %}{{ selected_year }}{% else %}كل السنوات{% endif %}</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">النطاقات المحفوظة</h2>
+  <div class="scope-grid">
+    {% for item in scope_summaries %}
+      <div class="scope-card">
+        <h3>{{ item.program_label }} - {{ item.month_display }} / {{ item.year }}</h3>
+        <div class="scope-meta">
+          <div><strong>الدفعة:</strong> {{ item.batch_display }}</div>
+          <div><strong>التخصص:</strong> {{ item.specialty_display }}</div>
+          <div><strong>عدد المتكونين:</strong> {{ item.trainee_count }}</div>
+          <div><strong>متوسط نسبة الغياب:</strong> {{ item.average_absence_rate }}%</div>
+          <div><strong>آخر حفظ:</strong> {{ item.latest_saved_at|date:"Y-m-d H:i" }}</div>
+        </div>
+        <a class="btn" href="{% url 'attendance_saved_stats' %}?program={{ item.program }}&month={{ item.month }}&year={{ item.year }}{% if item.batch_id %}&batch_id={{ item.batch_id }}{% endif %}{% if item.specialty %}&specialty={{ item.specialty|urlencode }}{% endif %}">عرض التفاصيل</a>
+      </div>
+    {% empty %}
+      <div class="scope-card">
+        <div class="scope-meta">لا توجد إحصائيات محفوظة مطابقة للفلاتر الحالية.</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if detail_scope %}
+    <h2 class="section-title">تفاصيل الإحصائيات المحفوظة</h2>
+    <p class="muted" style="margin:0 0 12px 0;">
+      {{ detail_scope.program_label }} - {{ detail_scope.month_display }} / {{ detail_scope.year }}
+      {% if detail_scope.batch %} / دفعة {{ detail_scope.batch.السنة }} / {{ detail_scope.batch.رقم_الدورة }}{% endif %}
+      / {{ detail_scope.specialty_display }}
+    </p>
+    <div class="table-wrap">
+      <table class="rtl-table">
+        <thead>
+          <tr>
+            <th>الاسم واللقب</th>
+            <th>التخصص</th>
+            <th>عدد الحضور</th>
+            <th>عدد الغيابات</th>
+            <th>غياب بعذر</th>
+            <th>عدد التأخرات</th>
+            <th>المجموع المسجل</th>
+            <th>نسبة الغياب</th>
+            <th>تاريخ الحفظ</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in detail_rows %}
+            <tr>
+              <td class="name-cell">{{ row.trainee_name }}</td>
+              <td>{{ row.trainee_specialty|default:'—' }}</td>
+              <td>{{ row.present_count }}</td>
+              <td>{{ row.absent_count }}</td>
+              <td>{{ row.excused_count }}</td>
+              <td>{{ row.late_count }}</td>
+              <td>{{ row.total_recorded }}</td>
+              <td><span class="{% if row.absence_rate >= 50 %}rate-high{% elif row.absence_rate >= 20 %}rate-medium{% else %}rate-low{% endif %}">{{ row.absence_rate }}%</span></td>
+              <td>{{ row.updated_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9">لا توجد تفاصيل محفوظة لهذا النطاق.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

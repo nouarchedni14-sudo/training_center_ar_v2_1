@@ -1,0 +1,140 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <style>
+    .sanction-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .sanction-head h1{margin:0;color:#7c2d12;font-size:1.65rem}
+    .muted{color:#64748b}.tiny{font-size:.82rem;color:#64748b}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
+    .tab{padding:10px 14px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;text-decoration:none;font-weight:800;color:#334155}
+    .tab.active{background:#7c2d12;color:#fff;border-color:#7c2d12}
+    .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px}
+    .filters label{font-weight:800;color:#334155;display:block;margin-bottom:5px}
+    .filters input,.filters select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .selection-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px 14px;margin-bottom:14px}
+    .selection-toolbar .buttons{display:flex;gap:8px;flex-wrap:wrap}.hint{font-weight:800;color:#7c2d12}
+    .btn-danger{background:#b91c1c !important;color:#fff !important}.btn-warn{background:#7c2d12 !important;color:#fff !important}.btn-soft{background:#475569 !important;color:#fff !important}.btn-green{background:#166534 !important;color:#fff !important}
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 14px}
+    .summary-box{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px}.summary-box .label{color:#64748b;font-weight:700}.summary-box .value{font-size:1.35rem;font-weight:900;color:#111827}
+    .table-wrap{overflow:auto}.rtl-table{width:100%;border-collapse:collapse;min-width:1280px}.rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:middle;white-space:nowrap}.rtl-table th{background:#7c2d12;color:#fff}.rtl-table tbody tr:nth-child(even){background:#f8fafc}.rtl-table tbody tr.row-selected{background:#ffedd5 !important}.name-cell{text-align:right;white-space:normal}.checkbox-col{width:54px}
+    .status-badge,.archive-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.88rem}.status-draft{background:#fef3c7;color:#92400e}.status-ready{background:#dcfce7;color:#166534}.status-issued{background:#dbeafe;color:#1d4ed8}.status-delivered{background:#ede9fe;color:#6d28d9}.status-cancelled{background:#fee2e2;color:#b91c1c}.status-missing{background:#e2e8f0;color:#334155}.archive-active{background:#dcfce7;color:#166534}.archive-archived{background:#e2e8f0;color:#334155}
+  </style>
+
+  <div class="sanction-head">
+    <div>
+      <h1>{{ program_label }} - العقوبات</h1>
+      <p class="muted" style="margin:6px 0 0 0;">اختر المتكونين، ثم أنشئ أو عدّل العقوبة. صفحة الطباعة تقسم كل عقوبة إلى نسخة تسلم للمتكون ونسخة للأرشفة.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="{% url 'management_overview' %}" class="btn">العودة للمتابعة الإدارية</a>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <a href="{{ base_current_url }}&archive_state={{ selected_archive_state|default:'active' }}" class="tab {% if scope == 'current' %}active{% endif %}">العقوبات للحاليين</a>
+    <a href="{{ base_graduated_url }}&archive_state={{ selected_archive_state|default:'active' }}" class="tab {% if scope == 'graduated' %}active{% endif %}">العقوبات للمتخرجين</a>
+  </div>
+
+  <form method="get" class="filters" id="filtersForm">
+    <input type="hidden" name="scope" value="{{ scope }}">
+    <div><label>بحث</label><input type="text" name="q" value="{{ filters.q }}" placeholder="الاسم / رقم التسجيل / التخصص"></div>
+    <div><label>الدفعة</label><select name="promotion"><option value="">كل الدفعات</option>{% for p in promotion_options %}<option value="{{ p.id }}" {% if filters.promotion == p.id|stringformat:'s' %}selected{% endif %}>{{ p.اسم_الدفعة }} {{ p.السنة }}</option>{% endfor %}</select></div>
+    <div><label>السنة</label><select name="year"><option value="">كل السنوات</option>{% for y in year_options %}<option value="{{ y }}" {% if filters.year == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></div>
+    <div><label>التخصص</label><select name="specialty"><option value="">كل التخصصات</option>{% for s in specialty_options %}<option value="{{ s }}" {% if filters.specialty == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div><label>السداسي</label><select name="semester"><option value="">كل السداسيات</option>{% for s in semester_options %}<option value="{{ s }}" {% if filters.semester == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+    <div><label>حالة العقوبة</label><select name="status"><option value="">الكل</option>{% for value,label in status_choices %}<option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div><label>الأرشفة</label><select name="archive_state"><option value="active" {% if selected_archive_state == 'active' %}selected{% endif %}>نشطة / غير مؤرشفة</option><option value="archived" {% if selected_archive_state == 'archived' %}selected{% endif %}>مؤرشفة</option><option value="" {% if not selected_archive_state %}selected{% endif %}>الكل</option></select></div>
+    <div style="display:flex;align-items:end;"><button type="submit" class="btn btn-warn">تحديث العرض</button></div>
+  </form>
+
+  <div class="selection-toolbar">
+    <div class="buttons">
+      <button type="button" class="btn btn-warn" onclick="bulkSubmit('create')">إنشاء عقوبة</button>
+      <button type="button" class="btn" onclick="bulkSubmit('edit')">تعديل</button>
+      <button type="button" class="btn btn-soft" onclick="bulkSubmit('preview')">معاينة</button>
+      <button type="button" class="btn" onclick="bulkSubmit('print')">طباعة</button>
+      <button type="button" class="btn btn-green" onclick="bulkSubmit('archive')">حفظ في الأرشيف</button>
+      <button type="button" class="btn btn-soft" onclick="bulkSubmit('restore')">استرجاع</button>
+      <button type="button" class="btn btn-danger" onclick="bulkSubmit('delete')">حذف</button>
+    </div>
+    <div class="hint">اختر متكونًا واحدًا أو أكثر. <span id="selectedCount">0</span> محدد.</div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-box"><div class="label">المعروض</div><div class="value">{{ summary.total }}</div></div>
+    <div class="summary-box"><div class="label">غير منشأة</div><div class="value">{{ summary.missing }}</div></div>
+    <div class="summary-box"><div class="label">جاهزة</div><div class="value">{{ summary.ready }}</div></div>
+    <div class="summary-box"><div class="label">تم الإصدار</div><div class="value">{{ summary.issued }}</div></div>
+    <div class="summary-box"><div class="label">تم التسليم</div><div class="value">{{ summary.delivered }}</div></div>
+  </div>
+
+  <form method="post" action="{% url 'sanction_records_bulk' program %}" id="bulkForm">
+    {% csrf_token %}
+    <input type="hidden" name="scope" value="{{ scope }}">
+    <input type="hidden" name="bulk_action" id="bulkActionInput" value="">
+    <input type="hidden" name="return_query" value="{{ current_query }}">
+    <div class="table-wrap">
+      <table class="rtl-table">
+        <thead><tr><th class="checkbox-col"><input type="checkbox" id="selectAll"></th><th>#</th><th>المتكون</th><th>رقم التسجيل</th><th>التخصص</th><th>الدفعة</th><th>السداسي</th><th>العقوبة</th><th>رقم المحضر</th><th>تاريخ المحضر</th><th>حالة العقوبة</th><th>الأرشفة</th><th>رقم العقوبة</th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td><input type="checkbox" class="row-check" name="ids" value="{{ row.pk }}"></td>
+            <td>{{ forloop.counter }}</td>
+            <td class="name-cell"><strong>{{ row.اللقب_والاسم }}</strong><div class="tiny">{{ scope_label }}</div></td>
+            <td>{{ row.رقم_التسجيل|default:'—' }}</td>
+            <td class="name-cell">{{ row.التخصص|default:'—' }}</td>
+            <td>{{ row.الدفعة|default:'—' }}</td>
+            <td>{{ row.السداسي|default:'—' }}</td>
+            <td>{% if row.sanction_record %}{{ row.sanction_record.sanction_text|default:'—' }}{% else %}—{% endif %}</td>
+            <td>{% if row.sanction_record %}{{ row.sanction_record.disciplinary_record_number|default:'—' }}{% else %}—{% endif %}</td>
+            <td>{% if row.sanction_record %}{{ row.sanction_record.disciplinary_record_date|date:'Y-m-d'|default:'—' }}{% else %}—{% endif %}</td>
+            <td>{% if row.sanction_record %}<span class="status-badge status-{{ row.sanction_record.status }}">{{ row.sanction_record.get_status_display }}</span>{% else %}<span class="status-badge status-missing">غير منشأة</span>{% endif %}</td>
+            <td>{% if row.sanction_record %}<span class="archive-badge archive-{% if row.sanction_record.is_archived %}archived{% else %}active{% endif %}">{{ row.sanction_record.archive_state_label }}</span>{% else %}—{% endif %}</td>
+            <td>{% if row.sanction_record %}{{ row.sanction_record.document_number|default:'—' }}{% else %}—{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="13" class="muted">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px;">
+    {% if page_obj.has_previous %}<a class="btn" href="?{{ current_query }}&page={{ page_obj.previous_page_number }}">السابق</a>{% endif %}
+    <span class="btn btn-soft">صفحة {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn" href="?{{ current_query }}&page={{ page_obj.next_page_number }}">التالي</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  const selectAll = document.getElementById('selectAll');
+  const checks = Array.from(document.querySelectorAll('.row-check'));
+  const counter = document.getElementById('selectedCount');
+  function updateSelection(){
+    const selected = checks.filter(c => c.checked);
+    if (counter) counter.textContent = selected.length;
+    checks.forEach(c => c.closest('tr').classList.toggle('row-selected', c.checked));
+    if (selectAll){
+      selectAll.checked = checks.length && selected.length === checks.length;
+      selectAll.indeterminate = selected.length > 0 && selected.length < checks.length;
+    }
+    return selected;
+  }
+  if (selectAll){ selectAll.addEventListener('change', () => { checks.forEach(c => c.checked = selectAll.checked); updateSelection(); }); }
+  checks.forEach(c => c.addEventListener('change', updateSelection));
+  updateSelection();
+  window.bulkSubmit = function(action){
+    const selected = updateSelection();
+    if (!selected.length){ alert('اختر متكونًا واحدًا على الأقل.'); return; }
+    if (action === 'delete' && !confirm('سيتم حذف العقوبات المحددة فقط دون حذف بيانات المتكونين. هل أنت متأكد؟')) return;
+    document.getElementById('bulkActionInput').value = action;
+    document.getElementById('bulkForm').submit();
+  }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+<!-- وراثة قالب (Template inheritance) -->
+{% extends "admin/change_list.html" %}
+<!-- تحميل مكتبات template tags -->
+{% load i18n %}
+
+<!-- بداية كتلة قابلة للاستبدال -->
+{% block object-tools-items %}
+  <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+  {{ block.super }}
+  <!-- شرط داخل القالب -->
+  {% if import_url %}
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <li><a href="{{ import_url }}" class="addlink">📥 استيراد Excel</a></li>
+  <!-- نهاية الشرط -->
+  {% endif %}
+  <!-- شرط داخل القالب -->
+  {% if delete_all_url %}
+    <li>
+      <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+      <a href="{{ delete_all_url }}" class="deletelink"
+         style="background:#b91c1c;color:#fff;border-radius:10px;padding:6px 10px;">
+        🗑 حذف كل البيانات
+      </a>
+    </li>
+  <!-- نهاية الشرط -->
+  {% endif %}
+<!-- نهاية كتلة -->
+{% endblock %}

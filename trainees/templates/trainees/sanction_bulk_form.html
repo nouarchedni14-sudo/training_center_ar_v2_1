@@ -1,0 +1,42 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <style>
+    .record-card{border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:14px;background:#fff}
+    .record-title{font-weight:900;color:#7c2d12;margin-bottom:12px;font-size:1.1rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+    .field label{display:block;font-weight:800;color:#334155;margin-bottom:5px}
+    .field input,.field select,.field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:10px;background:#fff;font-family:inherit}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  </style>
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <p class="muted">اكتب رقم العقوبة، نوع العقوبة، رقم المحضر وتاريخه، ثم احفظ. تاريخ التحرير يملأ تلقائيًا من تاريخ المحضر إذا تركته فارغًا.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="return_query" value="{{ return_query }}">
+    {% for item in records %}
+    <input type="hidden" name="ids" value="{{ item.pk }}">
+    <div class="record-card">
+      <div class="record-title">{{ forloop.counter }} - {{ item.trainee_name }} | {{ item.specialty|default:'بدون تخصص' }}</div>
+      <div class="grid">
+        <div class="field"><label>رقم العقوبة</label><input type="text" name="row_{{ item.pk }}_document_number" value="{{ item.document_number }}"></div>
+        <div class="field"><label>العقوبة</label><input type="text" name="row_{{ item.pk }}_sanction_text" value="{{ item.sanction_text }}" placeholder="مثال: توبيخ كتابي"></div>
+        <div class="field"><label>رقم محضر اللجنة التأديبية</label><input type="text" name="row_{{ item.pk }}_disciplinary_record_number" value="{{ item.disciplinary_record_number }}"></div>
+        <div class="field"><label>تاريخ المحضر</label><input type="text" name="row_{{ item.pk }}_disciplinary_record_date" dir="ltr" placeholder="2026-05-22" value="{{ item.disciplinary_record_date|date:'Y-m-d' }}"></div>
+        <div class="field"><label>تاريخ التحرير</label><input type="text" name="row_{{ item.pk }}_decision_date" dir="ltr" placeholder="2026-05-22" value="{{ item.decision_date|date:'Y-m-d' }}"></div>
+        <div class="field"><label>رمز الفرع / الفوج</label><input type="text" name="row_{{ item.pk }}_group_code" value="{{ item.group_code }}"></div>
+        <div class="field"><label>السداسي</label><input type="text" name="row_{{ item.pk }}_semester" value="{{ item.semester }}"></div>
+        <div class="field"><label>الحالة</label><select name="row_{{ item.pk }}_status">{% for value,label in status_choices %}<option value="{{ value }}" {% if item.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+        <div class="field" style="grid-column:1/-1"><label>ملاحظات</label><textarea name="row_{{ item.pk }}_notes" rows="2">{{ item.notes }}</textarea></div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">حفظ</button>
+      <a class="btn" href="{% url 'sanction_records_preview' program %}?{{ query_string }}">معاينة</a>
+      <a class="btn" href="{% url 'sanction_records_preview' program %}?{{ query_string }}&print=1">طباعة</a>
+      <a class="btn btn-secondary" href="{{ back_url }}">رجوع</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

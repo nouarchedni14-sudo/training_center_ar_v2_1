@@ -1,0 +1,108 @@
+<style>
+  /* زيادة المسافة بين كل أسطر مقرر الفصل */
+  .decision-page {
+    line-height: 1.95 !important;
+  }
+
+  .decision-page .official-header-main,
+  .decision-page .admin-header-block,
+  .decision-page .institute-lines,
+  .decision-page .decision-number {
+    line-height: 1.85 !important;
+  }
+
+  .decision-page .official-header-main div,
+  .decision-page .institute-lines div,
+  .decision-page .decision-number {
+    margin-bottom: 4px !important;
+  }
+
+  .decision-page .decision-title {
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
+    line-height: 1.8 !important;
+  }
+
+  .decision-page .director-line {
+    margin-top: 14px !important;
+    margin-bottom: 14px !important;
+    line-height: 1.9 !important;
+  }
+
+  .decision-page .legal-text p {
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    line-height: 2 !important;
+  }
+
+  .decision-page .decision-note {
+    margin-top: 8px !important;
+    margin-bottom: 12px !important;
+    line-height: 2 !important;
+  }
+
+  .decision-page .sub-title {
+    margin-top: 18px !important;
+    margin-bottom: 14px !important;
+    line-height: 1.8 !important;
+  }
+
+  .decision-page > p {
+    margin-top: 0 !important;
+    margin-bottom: 10px !important;
+    line-height: 1.95 !important;
+  }
+
+  .decision-page .footer-place {
+    margin-top: 22px !important;
+    line-height: 1.95 !important;
+  }
+</style>
+
+<div class="decision-page">
+  <div class="official-header">
+    <div class="official-header-main">
+      <div>الجمهورية الجزائرية الديمقراطية الشعبية</div>
+      <div>وزارة التكوين و التعليم المهنيين</div>
+    </div>
+    <div class="admin-header-block" style="text-align:right!important; width:100%!important; display:block!important; margin-right:0!important; margin-left:auto!important;">
+      <div class="institute-lines" style="text-align:right!important; width:100%!important; display:block!important; margin-right:0!important; margin-left:auto!important;">
+        <div>المعهد الوطني المتخصص في التكوين المهني</div>
+        <div>الشهيد تاج الدين حامد عبد الوهاب تيسمسيلت</div>
+        <div>المديرية الفرعية للإعلام والتوجيه والرقمنة والإدماج المهني</div>
+        <div>مصلحة المراقبة العامة</div>
+      </div>
+      <div class="decision-number" style="text-align:right!important; width:100%!important; display:block!important; margin-right:0!important; margin-left:auto!important;">
+        الرقم: {{ item.decision_number|default:'........' }} / م.ع / م.ف.إ.ت.ر.إ.م / م.و.م.ت.م / {{ item.decision_year|default:'....' }}
+      </div>
+    </div>
+  </div>
+
+  <h1 class="decision-title">مقرر الـــفــصــــــــــــل</h1>
+
+  <p class="director-line strong">إن مدير المعهد الوطني المتخصص في التكوين المهني تيسمسيلت</p>
+
+  <div class="legal-text">
+    <p>- بناءا على المرسوم التنفيذي رقم 456-02 مؤرخ في 17 شوال عام 1423 الموافق 2002-12-21 يتضمن إنشاء معهد وطني متخصص في التكوين المهني وتحويل مراكز التكوين المهني والتمهين إلى معاهد وطنية متخصصة في التكوين المهني.</p>
+    <p>- بناءا على المرسوم التنفيذي رقم 125-12 المؤرخ في 2012-03-19 يحدد القانون الأساسي النموذجي للمعاهد الوطنية المتخصصة في التكوين المهني.</p>
+    <p>- بناءا على القرار الوزاري المشترك المؤرخ في 07 رجب عام 1444 الموافق 29 جانفي سنة 2023 الذي يحدد التنظيم الداخلي للمعهد الوطني المتخصص في التكوين المهني.</p>
+    <p>- بناءا على القرار الوزاري رقم 123-23 المؤرخ في 02 ذوالقعدة 1444 الموافق 2023-05-22 يحدد النظام الداخلي الإطار للمؤسسات العمومية للتكوين والتعليم المهنيين.</p>
+    <p>- بناءا على محضر اللجنة التأديبية تحت رقم: <strong>{{ item.disciplinary_record_number|default:'........' }}</strong> المؤرخ في: <strong>{% if item.disciplinary_record_date %}{{ item.disciplinary_record_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong>.</p>
+    {% if item.notes %}
+    <p class="decision-note">- {{ item.notes|linebreaksbr }}</p>
+    {% endif %}
+  </div>
+
+  <h2 class="sub-title">يــقـــــــــرر</h2>
+
+  <p><strong>المادة الأولى:</strong> المتربص المتمهن المدعو(ة): <strong>{{ item.trainee_name }}</strong></p>
+  <p>تاريخ و مكان الازدياد: <strong>{% if item.birth_date %}{{ item.birth_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong> بـ <strong>{{ item.birth_place|default:'........' }}</strong></p>
+  <p>رقم التسجيل: <strong>{{ item.registration_number|default:'........' }}</strong> &nbsp;&nbsp; إختـصــاص: <strong>{{ item.specialty|default:'........' }}</strong></p>
+  <p>بداية التربص: <strong>{% if item.training_start_date %}{{ item.training_start_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong> &nbsp;&nbsp; نهاية التربص: <strong>{% if item.training_end_date %}{{ item.training_end_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong></p>
+  <p>رمز الفرع / الفوج: <strong>{{ item.group_code|default:'........' }}</strong> &nbsp;&nbsp; السداسي: <strong>{{ item.semester|default:'........' }}</strong></p>
+  <p>يفصل من تعداد متربصي متمهني المؤسسة ابتداءا من: <strong>{% if item.dismissal_start_date %}{{ item.dismissal_start_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong>.</p>
+
+  <p><strong>المادة الثانية:</strong> يكلف كل من المدير الفرعي للدراسات والتربصات والمدير الفرعي للتمهين والتكوين المهني المتواصل والمدير الفرعي للإدارة والمالية كل في حدود اختصاصه بتنفيذ هذا المقرر.</p>
+
+  <div class="footer-place">حرر بتيسمسيلت في: <strong>{% if item.decision_date %}{{ item.decision_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong></div>
+</div>

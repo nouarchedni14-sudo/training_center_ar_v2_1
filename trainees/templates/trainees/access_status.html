@@ -1,0 +1,60 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide" style="max-width:1100px;margin-inline:auto">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h1>{{ access_ui.title }}</h1>
+      <p class="muted">{{ access_ui.hint }}</p>
+    </div>
+    <div class="flash {{ access_ui.badge_class|default:'' }}" style="margin:0">{{ access_summary.state_label }}</div>
+  </div>
+
+  <div class="flash danger" style="margin-top:12px">{{ error|default:access_summary.message }}</div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="stat-card">
+      <div class="muted">الحساب</div>
+      <div class="stat-num" style="font-size:22px">{{ username|default:'المستخدم' }}</div>
+      <div class="muted">اسم الدخول الذي حاول استعماله</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">فترة الصلاحية</div>
+      <div style="font-weight:800;margin-top:10px">{{ access_summary.window_label }}</div>
+      <div class="muted">ملخص بداية ونهاية التفعيل</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">الأيام المتبقية</div>
+      <div class="stat-num" style="font-size:22px">{{ access_summary.days_until_expiry|default:'—' }}</div>
+      <div class="muted">إذا لم يوجد تاريخ نهاية يظهر الرمز —</div>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:1fr 1fr">
+    <div class="stat-card">
+      <h3 style="margin-top:0">البرامج الممنوحة لهذا الحساب</h3>
+      {% if allowed_programs_verbose %}
+        {% for program in allowed_programs_verbose %}
+          <div class="stat-line"><span>{{ program }}</span><strong>مسموح</strong></div>
+        {% endfor %}
+      {% else %}
+        <div class="muted">لا توجد برامج مرتبطة بهذا الحساب حاليًا.</div>
+      {% endif %}
+    </div>
+    <div class="stat-card">
+      <h3 style="margin-top:0">إرشاد سريع</h3>
+      <ul style="margin:0;padding-right:18px;line-height:2">
+        <li>راجع تاريخ البداية والنهاية من صفحة الصلاحيات في الإدارة.</li>
+        <li>فعّل الحساب إن كان معطلًا يدويًا.</li>
+        <li>امنع اللبس بين حالة المستخدم النشطة وحالة الصلاحية الزمنية.</li>
+        <li>أعد المحاولة بعد تصحيح الصلاحيات.</li>
+      </ul>
+    </div>
+  </div>
+
+  {% if show_login_actions %}
+  <div class="row" style="margin-top:18px">
+    <a href="{% url 'login' %}" class="btn" style="text-decoration:none">العودة إلى الدخول</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

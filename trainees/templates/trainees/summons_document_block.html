@@ -1,0 +1,39 @@
+<div class="document-copy summons-copy">
+  <div class="doc-header-stack">
+    <div class="state-line state-centered">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+    <div class="state-line state-centered">وزارة التكوين و التعليم المهنيين</div>
+    <div class="state-line">المعهد الوطني المتخصص في التكوين المهني</div>
+    <div class="state-line">الشهيد تاج الدين حامد عبد الوهاب تيسمسيلت</div>
+    <div class="state-line">المديرية الفرعية للإعلام والتوجيه والرقمنة والإدماج المهني</div>
+    <div class="state-line">مصلحة المراقبة العامة</div>
+    <div class="doc-number-line">الرقم: {{ item.document_number|default:'........' }} / م.ع / م.ف.إ.ت.ر.إ.م / م.و.م.ت.م / {{ item.document_year|default:'....' }}</div>
+  </div>
+
+  <div class="recipient-block">
+    <div class="director-line">مــــديــــر المـــعـــهـــد</div>
+    <div class="to-line">إلـــــــــــــــــى</div>
+  </div>
+
+  <div class="doc-meta-block">
+    <div class="doc-meta"><strong>المتربص(ة) المتمهن(ة):</strong> {{ item.trainee_name|default:'.........................' }}</div>
+    <div class="doc-meta"><strong>العنوان:</strong> {{ item.address|default:'.........................' }}</div>
+    <div class="doc-meta"><strong>التخصص:</strong> {{ item.specialty|default:'.........................' }}</div>
+    <div class="doc-meta"><strong>السداسي:</strong> {{ item.semester|default:'.........................' }}</div>
+  </div>
+
+  <div class="doc-title">الموضوع: إستدعاء</div>
+
+  <div class="doc-body-block">
+    <div class="doc-paragraph doc-paragraph-center">{{ item.body_text }}</div>
+    {% if item.notes %}
+      <div class="doc-paragraph notes-text">ملاحظة: {{ item.notes }}</div>
+    {% endif %}
+  </div>
+
+  <div class="doc-bottom-row">
+    <div class="issue-stack">
+      <div class="issue-date">حرر بتيسمسيلت في: <span class="date-ltr" dir="ltr">{{ item.issue_date|date:'Y-m-d'|default:'............' }}</span></div>
+      <div class="copy-label">{{ copy_label }}</div>
+    </div>
+  </div>
+</div>

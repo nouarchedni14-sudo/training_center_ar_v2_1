@@ -1,0 +1,18 @@
+<!-- وراثة قالب (Template inheritance) -->
+{% extends "admin/base.html" %}
+
+<!-- بداية كتلة قابلة للاستبدال -->
+{% block userlinks %}
+  <a href="/dashboard/" style="
+      margin: 0 10px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      text-decoration: none;">
+    ⬅ الرجوع للواجهة
+  </a>
+  <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+  {{ block.super }}
+<!-- نهاية كتلة -->
+{% endblock %}

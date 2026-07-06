@@ -1,0 +1,86 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;">
+  <h2 style="margin-top:0;">النسخ الاحتياطي والاسترجاع</h2>
+  <p>يمكنك إنشاء نسخة احتياطية جديدة، تنزيل أي نسخة محفوظة، أو استرجاع قاعدة البيانات من نسخة سابقة. عند الاسترجاع يتم إنشاء نسخة وقائية من قاعدة البيانات الحالية أولًا.</p>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin:18px 0;">
+    <form method="post" style="margin:0;">{% csrf_token %}<input type="hidden" name="action" value="create_backup"><button class="btn btn-primary" style="padding:10px 18px;border-radius:12px;cursor:pointer;">إنشاء نسخة احتياطية جديدة</button></form>
+    <a href="{% url 'system_dashboard' %}" class="btn btn-secondary" style="padding:10px 18px;border-radius:12px;text-decoration:none;">العودة إلى مركز النظام</a>
+  </div>
+
+  {% if latest_backup %}
+  <div class="flash success" style="margin-bottom:14px;"><div><span class="notice-title">آخر نسخة احتياطية جاهزة</span><span class="notice-text">آخر نسخة احتياطية: <strong>{{ latest_backup.name }}</strong></span></div></div>
+  {% endif %}
+
+  <div class="card" style="padding:18px;border-radius:18px;overflow:auto;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr><th style="text-align:right;padding:8px;">اسم الملف</th><th style="text-align:right;padding:8px;">الحجم</th><th style="text-align:right;padding:8px;">آخر تعديل</th><th style="text-align:right;padding:8px;">تنزيل</th><th style="text-align:right;padding:8px;">استرجاع</th></tr></thead>
+      <tbody>
+        {% for item in backups %}
+        <tr>
+          <td style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">{{ item.name }}</td>
+          <td style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">{{ item.size }} بايت</td>
+          <td style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">{{ item.modified_at|date:"Y-m-d H:i" }}</td>
+          <td style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">
+            <button
+              type="button"
+              class="btn btn-secondary js-backup-download"
+              data-filename="{{ item.name|escape }}"
+              data-prepare-url="{% url 'system_backup_download_prepare' item.name %}"
+              style="padding:8px 12px;border-radius:10px;cursor:pointer;"
+            >تنزيل</button>
+          </td>
+          <td style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">
+            <form method="post" onsubmit="return confirm('سيتم استبدال قاعدة البيانات الحالية بهذه النسخة مع إنشاء نسخة وقائية أولًا. هل تريد المتابعة؟');">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="restore_backup">
+              <input type="hidden" name="filename" value="{{ item.name }}">
+              <button type="submit" class="btn btn-warning" style="padding:8px 12px;border-radius:10px;cursor:pointer;">استرجاع</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="padding:8px;border-top:1px solid rgba(24,57,45,.12);">لا توجد نسخ احتياطية بعد.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function () {
+  function setBusy(button, busy) {
+    if (!button) return;
+    button.disabled = busy;
+    button.dataset.originalText = button.dataset.originalText || button.textContent;
+    button.textContent = busy ? 'جارٍ التجهيز...' : button.dataset.originalText;
+    button.style.opacity = busy ? '0.7' : '1';
+    button.style.cursor = busy ? 'not-allowed' : 'pointer';
+  }
+
+  async function prepareDownload(button) {
+    const prepareUrl = button.dataset.prepareUrl;
+    const filename = button.dataset.filename || 'النسخة الاحتياطية';
+    setBusy(button, true);
+    try {
+      const response = await fetch(prepareUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const data = await response.json();
+      if (!response.ok || !data.ok || !data.download_url) {
+        throw new Error(data.message || 'تعذر تجهيز ملف النسخة الاحتياطية للتنزيل.');
+      }
+      window.showToast({ message: data.message || ('تم تجهيز الملف ' + filename + ' للتنزيل.'), type: 'success' });
+      window.location.href = data.download_url;
+    } catch (error) {
+      window.showToast({ message: error.message || 'تعذر تجهيز ملف النسخة الاحتياطية للتنزيل.', type: 'error' });
+    } finally {
+      window.setTimeout(function () { setBusy(button, false); }, 1200);
+    }
+  }
+
+  document.querySelectorAll('.js-backup-download').forEach(function (button) {
+    button.addEventListener('click', function () { prepareDownload(button); });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+/* Make admin search input text black and bold */
+#searchbar input[type="text"]{ /* بداية قواعد CSS للمحدد: #searchbar input[type="text"] */
+  color:#000 !important; /* لون النص */
+  font-weight:900 !important; /* سماكة الخط */
+} /* نهاية قواعد: #searchbar input[type="text"] */

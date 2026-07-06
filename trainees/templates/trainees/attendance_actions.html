@@ -1,0 +1,297 @@
+{% extends 'trainees/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" dir="rtl" style="margin-top:16px">
+  <style>
+    .actions-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .actions-toolbar h1{margin:0;font-size:1.55rem}
+    .actions-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+    .summary-box{background:#f8fafc;border:1px solid #dbeafe;border-radius:14px;padding:14px}
+    .summary-box .label{font-size:.9rem;color:#475569;margin-bottom:6px}
+    .summary-box .value{font-size:1.4rem;font-weight:800;color:#0f172a}
+    .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:14px;padding:14px;margin-bottom:16px}
+    .filters label{display:block;font-weight:700;margin-bottom:6px}
+    .filters input,.filters select{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}
+    .filters input[name='year']{direction:ltr;text-align:center;min-width:140px}
+    .filters .actions{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+    .selection-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 14px;margin-bottom:14px}
+    .selection-toolbar .buttons{display:flex;gap:8px;flex-wrap:wrap}
+    .selection-toolbar .hint{color:#334155;font-weight:700}
+    .table-wrap{overflow:auto}
+    .rtl-table{width:100%;border-collapse:collapse;min-width:1280px}
+    .rtl-table th,.rtl-table td{border:1px solid #cbd5e1;padding:10px;text-align:center;vertical-align:middle;white-space:nowrap}
+    .rtl-table th{background:#1d4ed8;color:#fff}
+    .rtl-table tbody tr:nth-child(even){background:#f8fafc}
+    .rtl-table tbody tr.row-selected{background:#dbeafe !important}
+    .name-cell,.address-cell{text-align:right;white-space:normal}
+    .status-badge,.type-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.88rem}
+    .status-pending{background:#fef3c7;color:#92400e}
+    .status-ready{background:#dcfce7;color:#166534}
+    .status-issued{background:#dbeafe;color:#1d4ed8}
+    .status-delivered{background:#ede9fe;color:#6d28d9}
+    .status-cancelled{background:#fee2e2;color:#b91c1c}
+    .archive-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.88rem}
+    .archive-active{background:#dcfce7;color:#166534}
+    .archive-archived{background:#e2e8f0;color:#334155}
+    .type-excuse_1,.type-excuse_2,.type-excuse_3{background:#fef3c7;color:#92400e}
+    .type-summon{background:#fee2e2;color:#991b1b}
+    .muted{color:#475569}
+    .tiny{font-size:.82rem;color:#64748b}
+    .checkbox-col{width:54px}
+    .btn-danger{background:#b91c1c !important;color:#fff !important}
+    .btn-soft{background:#475569 !important;color:#fff !important}
+    .btn-archive{background:#0f766e !important;color:#fff !important}
+    .btn-warning{background:#b45309 !important;color:#fff !important}
+    .reason-cell{text-align:right;white-space:normal;min-width:260px;max-width:420px}
+    .reason-summary{font-weight:800;color:#0f172a;margin-bottom:6px;line-height:1.6}
+    .details-toggle{display:inline-block;background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;border-radius:999px;padding:5px 10px;font-weight:800;cursor:pointer;margin-top:4px}
+    .details-box{margin-top:8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px;line-height:1.8;color:#0f172a;max-height:230px;overflow:auto}
+    .details-box strong{color:#0f172a}
+  </style>
+
+  <div class="actions-toolbar">
+    <div>
+      <h1>{{ actions_page_heading|default:program_label }}</h1>
+      <p class="muted" style="margin:6px 0 0 0;">{{ actions_page_note|default:'تتم المزامنة تلقائيًا مع جدول الغيابات عند فتح هذه الصفحة أو تحديث العرض.' }}</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="{{ table_back_url }}" class="btn">العودة إلى جدول الغيابات</a>
+      <a href="{{ stats_back_url }}" class="btn">إحصائيات الغياب</a>
+      {% if actions %}<a href="{% url 'attendance_actions_preview' program %}?{{ current_query }}" class="btn">معاينة المجموعة</a>{% endif %}
+      {% if is_archive_view %}
+        <a href="{{ actions_list_url }}?{{ active_archive_query }}" class="btn btn-archive">العودة إلى النشط</a>
+      {% else %}
+        <a href="{{ actions_list_url }}?{{ archived_archive_query }}" class="btn btn-warning">عرض الأرشيف</a>
+      {% endif %}
+      <a href="{{ actions_list_url }}?{{ all_archive_query }}" class="btn btn-soft">عرض الكل</a>
+      {% if actions_source == 'slots' %}<a href="{% url 'attendance_actions' program %}" class="btn btn-soft">الإعذارات اليومية</a>{% else %}<a href="{% url 'attendance_slot_actions' program %}" class="btn btn-soft">إعذارات الحصص</a>{% endif %}
+    </div>
+  </div>
+
+  <form method="get" class="filters" id="filtersForm">
+    <div>
+      <label>الشهر</label>
+      <select name="month">
+        {% for item in month_choices %}
+          <option value="{{ item.value }}" {% if scope.month == item.value %}selected{% endif %}>{{ item.label }} ({{ item.value }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>السنة</label>
+      <input type="text" name="year" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" value="{{ scope.year }}">
+    </div>
+    <div>
+      <label>الدفعة</label>
+      <select name="promotion">
+        <option value="">كل الدفعات</option>
+        {% for p in promotion_options %}
+          <option value="{{ p.id }}" {% if scope.promotion_id == p.id|stringformat:'s' %}selected{% endif %}>{{ p.اسم_الدفعة }} {{ p.السنة }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>التخصص</label>
+      <select name="specialty">
+        <option value="">كل التخصصات</option>
+        {% for s in specialty_options %}
+          <option value="{{ s }}" {% if scope.specialty == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>نوع الإجراء</label>
+      <select name="action_type">
+        <option value="">الكل</option>
+        {% for value,label in action_type_choices %}
+          <option value="{{ value }}" {% if selected_action_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>الحالة</label>
+      <select name="status">
+        <option value="">الكل</option>
+        {% for value,label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>الأرشفة</label>
+      <select name="archive_state">
+        <option value="active" {% if selected_archive_state == 'active' %}selected{% endif %}>نشط</option>
+        <option value="archived" {% if selected_archive_state == 'archived' %}selected{% endif %}>مؤرشف</option>
+        <option value="" {% if not selected_archive_state %}selected{% endif %}>الكل</option>
+      </select>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit">تحديث العرض</button>
+    </div>
+  </form>
+
+  <div class="selection-toolbar">
+    <div class="buttons">
+      <button type="button" class="btn" onclick="bulkEdit()">تعديل</button>
+      <button type="button" class="btn" onclick="bulkPreview()">معاينة</button>
+      {% if is_archive_view %}
+        <button type="button" class="btn" onclick="bulkSubmit('restore')">استرجاع</button>
+        <button type="button" class="btn btn-danger" onclick="bulkSubmit('delete')">حذف الأرشيف</button>
+      {% else %}
+        <button type="button" class="btn btn-soft" onclick="bulkSubmit('archive')">حفظ في الأرشيف</button>
+        <button type="button" class="btn btn-danger" onclick="bulkSubmit('delete_direct')">حذف مباشر</button>
+      {% endif %}
+    </div>
+    <div class="hint">
+      {% if is_archive_view %}
+        أنت الآن داخل الأرشيف. إذا لم تحدد أي سجل، سيتم تطبيق الاسترجاع أو حذف الأرشيف على كل السجلات الظاهرة. <span id="selectedCount">0</span> محدد.
+      {% else %}
+        اختر متكونًا واحدًا أو أكثر من الخانات ثم نفّذ العملية المطلوبة. <span id="selectedCount">0</span> محدد.
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="actions-summary">
+    <div class="summary-box"><div class="label">إجمالي السجلات</div><div class="value">{{ summary.total }}</div></div>
+    <div class="summary-box"><div class="label">بانتظار الإكمال</div><div class="value">{{ summary.pending }}</div></div>
+    <div class="summary-box"><div class="label">جاهزة للطباعة</div><div class="value">{{ summary.ready }}</div></div>
+    <div class="summary-box"><div class="label">تم الإصدار</div><div class="value">{{ summary.issued }}</div></div>
+    <div class="summary-box"><div class="label">تم التسليم</div><div class="value">{{ summary.delivered }}</div></div>
+  </div>
+
+  <form method="post" action="{% url 'attendance_actions_bulk' %}" id="bulkForm">
+    {% csrf_token %}
+    <input type="hidden" name="program" value="{{ program }}">
+    <input type="hidden" name="bulk_action" id="bulkActionInput" value="">
+    <input type="hidden" name="return_query" id="returnQueryInput" value="{{ current_query }}">
+    <input type="hidden" name="selected_archive_state" id="selectedArchiveStateInput" value="{{ selected_archive_state }}">
+    <div class="table-wrap">
+      <table class="rtl-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col"><input type="checkbox" id="selectAll"></th>
+            <th>#</th>
+            <th>المتكوّن</th>
+            <th>التخصص</th>
+            <th>العنوان</th>
+            <th>الإجراء</th>
+            <th>الغيابات</th>
+            <th>سبب الإنشاء / تفاصيل الغيابات</th>
+            <th>رقم الوثيقة</th>
+            <th>بداية الغياب</th>
+            <th>تاريخ التحرير/الإرسال</th>
+            <th>الحالة</th>
+            <th>الأرشفة</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in actions %}
+          <tr>
+            <td><input type="checkbox" class="row-check" name="ids" value="{{ item.pk }}"></td>
+            <td>{{ forloop.counter }}</td>
+            <td class="name-cell"><strong>{{ item.trainee_name }}</strong><div class="tiny">{{ item.get_action_type_display }}</div></td>
+            <td class="name-cell">{{ item.trainee_specialty|default:'—' }}</td>
+            <td class="address-cell">{{ item.trainee_address|default:'—' }}</td>
+            <td><span class="type-badge type-{{ item.action_type }}">{{ item.get_action_type_display }}</span></td>
+            <td>{{ item.trigger_count }}</td>
+            <td class="reason-cell">
+              {% if item.notes %}
+                <div class="reason-summary">{{ item.notes|truncatechars:115 }}</div>
+                <details>
+                  <summary class="details-toggle">تفاصيل الغيابات</summary>
+                  <div class="details-box">{{ item.notes|linebreaksbr }}</div>
+                </details>
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>{{ item.document_number|default:'—' }}</td>
+            <td>{{ item.absence_start_date|date:'Y-m-d'|default:'—' }}</td>
+            <td>{{ item.send_date|date:'Y-m-d'|default:'—' }}</td>
+            <td><span class="status-badge status-{{ item.status }}">{{ item.get_status_display }}</span></td>
+            <td><span class="archive-badge archive-{% if item.is_archived %}archived{% else %}active{% endif %}">{{ item.archive_state_label }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="13" class="muted">لا توجد سجلات مطابقة للفلاتر الحالية.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  const selectAll = document.getElementById('selectAll');
+  const checks = Array.from(document.querySelectorAll('.row-check'));
+  const counter = document.getElementById('selectedCount');
+  function updateSelection(){
+    const selected = checks.filter(c => c.checked);
+    counter.textContent = selected.length;
+    checks.forEach(c => c.closest('tr').classList.toggle('row-selected', c.checked));
+    if (selectAll){
+      selectAll.checked = checks.length && selected.length === checks.length;
+      selectAll.indeterminate = selected.length > 0 && selected.length < checks.length;
+    }
+    return selected;
+  }
+  if (selectAll){
+    selectAll.addEventListener('change', () => {
+      checks.forEach(c => c.checked = selectAll.checked);
+      updateSelection();
+    });
+  }
+  checks.forEach(c => c.addEventListener('change', updateSelection));
+  updateSelection();
+
+  window.bulkEdit = function(){
+    const selected = updateSelection();
+    if (!selected.length){ alert('اختر متكونًا واحدًا على الأقل للتعديل.'); return; }
+    const baseQuery = document.getElementById('returnQueryInput')?.value || '';
+    if (selected.length === 1){
+      const suffix = baseQuery ? `?${baseQuery}` : '';
+      window.location.href = `/attendance/actions/${selected[0].value}/edit/${suffix}`;
+      return;
+    }
+    const params = new URLSearchParams();
+    selected.forEach(c => params.append('ids', c.value));
+    if (baseQuery){ params.append('return_query', baseQuery); }
+    window.location.href = `{% url 'attendance_actions_bulk_edit' program %}?${params.toString()}`;
+  }
+  window.bulkPreview = function(){
+    const selected = updateSelection();
+    let url = `{% url 'attendance_actions_preview' program %}?{{ current_query|escapejs }}`;
+    if (selected.length){
+      const params = selected.map(c => `ids=${encodeURIComponent(c.value)}`).join('&');
+      url += (url.includes('?') && url.split('?')[1] ? '&' : '') + params;
+    }
+    window.location.href = url;
+  }
+  window.bulkSubmit = function(action){
+    const archiveState = document.getElementById('selectedArchiveStateInput')?.value || '';
+    let selected = updateSelection();
+
+    // داخل صفحة الأرشيف: إذا ضغط المستخدم حذف الأرشيف أو استرجاع بدون اختيار،
+    // نطبق العملية على كل السجلات الظاهرة بدل إظهار رسالة "اختر متكونًا".
+    if (!selected.length && archiveState === 'archived' && (action === 'delete' || action === 'restore' || action === 'delete_direct')){
+      if (!checks.length){ alert('لا توجد سجلات مؤرشفة ظاهرة لتنفيذ العملية.'); return; }
+      checks.forEach(c => c.checked = true);
+      selected = updateSelection();
+    }
+
+    // إذا كان المستخدم داخل الأرشيف وضغط حذف مباشر، نتعامل معه كحذف للأرشيف.
+    if (archiveState === 'archived' && action === 'delete_direct'){
+      action = 'delete';
+    }
+
+    if (!selected.length){ alert('اختر متكونًا واحدًا على الأقل.'); return; }
+    if (action === 'delete_direct' && !confirm('سيتم حذف السجلات غير المؤرشفة المحددة نهائيًا. هل أنت متأكد؟')) return;
+    if (action === 'delete' && !confirm('سيتم حذف السجلات المؤرشفة المحددة نهائيًا. هل أنت متأكد؟')) return;
+    document.getElementById('bulkActionInput').value = action;
+    document.getElementById('bulkForm').submit();
+  }
+})();
+</script>
+{% endblock %}

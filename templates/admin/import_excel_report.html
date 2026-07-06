@@ -1,0 +1,112 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="admin-pro-card" style="max-width:1100px; margin:20px auto; direction:rtl;">
+  <style>
+    .import-message-hidden{display:none !important;}
+    .import-report-actions{margin:18px 0; display:flex; gap:10px; flex-wrap:wrap;}
+    .import-show-more{background:#0f6b50; color:#fff; border:none;}
+  </style>
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <p>
+    <strong>الورقة:</strong> {{ sheet_name }}
+    &nbsp;|&nbsp;
+    <strong>السجلات المستوردة:</strong> {{ created }}
+    &nbsp;|&nbsp;
+    <strong>عدد الرسائل:</strong> {{ messages_list|length }}
+  </p>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin:18px 0;">
+    <div style="background:#f5fcf7; border:1px solid #cfe7d7; border-radius:14px; padding:16px;">
+      <div style="color:#4e6a5a; font-size:13px;">تم إنشاؤه</div>
+      <div style="font-size:28px; font-weight:800; color:#0f6b50;">{{ summary.created|default:created }}</div>
+    </div>
+    <div style="background:#fff6f6; border:1px solid #e8c8c8; border-radius:14px; padding:16px;">
+      <div style="color:#7a4d4d; font-size:13px;">رسائل التحقق</div>
+      <div style="font-size:28px; font-weight:800; color:#a33a3a;">{{ summary.validation_count|default:0 }}</div>
+    </div>
+    <div style="background:#fffaf2; border:1px solid #ead8a6; border-radius:14px; padding:16px;">
+      <div style="color:#7b6631; font-size:13px;">تكرارات/سجلات موجودة</div>
+      <div style="font-size:28px; font-weight:800; color:#b28216;">{{ summary.duplicate_count|default:0 }}</div>
+    </div>
+    <div style="background:#f8fbf9; border:1px solid #dbe8e1; border-radius:14px; padding:16px;">
+      <div style="color:#5b7268; font-size:13px;">إجمالي الرسائل</div>
+      <div style="font-size:28px; font-weight:800; color:#123127;">{{ summary.error_count|default:messages_list|length }}</div>
+    </div>
+  </div>
+
+
+  {% if summary.by_category %}
+    <div style="background:#f8fbff; border:1px solid #d9e3f0; border-radius:12px; padding:16px; margin:18px 0;">
+      <h3 style="margin-top:0;">ملخص حسب نوع الملاحظة</h3>
+      <ul style="margin:0; padding-right:20px; line-height:1.9;">
+        {% for row in summary.by_category %}
+          <li><strong>{{ row.label }}</strong>: {{ row.count }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="import-report-actions">
+    <a class="button" href="{{ back_url|default:'javascript:history.back()' }}">الرجوع</a>
+    {% if import_again_url %}
+      <a class="button default" href="{{ import_again_url }}">استيراد ملف جديد</a>
+    {% endif %}
+    {% if messages_list|length > 8 %}
+      <button id="showMoreBtn" class="button import-show-more" type="button">
+        عرض المزيد
+      </button>
+    {% endif %}
+  </div>
+
+  <div style="background:#fff; border:1px solid #ddd; border-radius:12px; padding:16px; max-height:70vh; overflow:auto;">
+    {% if issue_groups %}
+      <div id="errorList">
+        {% for group in issue_groups %}
+          <section style="margin-bottom:18px;">
+            <h3 style="margin:0 0 8px 0; font-size:16px;">{{ group.label }} <span style="color:#667085; font-size:13px;">({{ group.count }})</span></h3>
+            <ol style="margin:0; padding-right:20px; line-height:1.9;">
+              {% for item in group.items %}
+                <li class="import-message-item" style="margin-bottom:8px;">{{ item.message }}</li>
+              {% endfor %}
+            </ol>
+          </section>
+        {% endfor %}
+      </div>
+    {% elif messages_list %}
+      <ol id="errorList" style="margin:0; padding-right:20px; line-height:1.9;">
+        {% for item in messages_list %}
+          <li class="import-message-item" style="margin-bottom:10px;">{{ item }}</li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p>لا توجد رسائل إضافية.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const limit = 8;
+  const items = Array.from(document.querySelectorAll(".import-message-item"));
+  const btn = document.getElementById("showMoreBtn");
+
+  if (!items.length || !btn) return;
+
+  items.forEach((el, index) => {
+    if (index >= limit) el.classList.add("import-message-hidden");
+  });
+
+  let shown = false;
+  btn.addEventListener("click", function () {
+    shown = !shown;
+    items.forEach((el, index) => {
+      if (index >= limit) {
+        el.classList.toggle("import-message-hidden", !shown);
+      }
+    });
+    btn.textContent = shown ? "عرض أقل" : "عرض المزيد";
+  });
+});
+</script>
+{% endblock %}

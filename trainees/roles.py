@@ -1,0 +1,156 @@
+
+ROLE_DEFINITIONS = {
+    "general_manager": {
+        "label": "مدير عام",
+        "color": "#b42318",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": True,
+            "can_view_reports": True,
+            "can_export_data": True,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": True,
+            "initial_change": True,
+            "initial_delete": True,
+            "apprentice_view": True,
+            "apprentice_add": True,
+            "apprentice_change": True,
+            "apprentice_delete": True,
+            "evening_view": True,
+            "evening_add": True,
+            "evening_change": True,
+            "evening_delete": True,
+        },
+    },
+    "branch_manager": {
+        "label": "مدير فرع",
+        "color": "#175cd3",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": False,
+            "can_view_reports": True,
+            "can_export_data": True,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": True,
+            "initial_change": True,
+            "initial_delete": False,
+            "apprentice_view": True,
+            "apprentice_add": True,
+            "apprentice_change": True,
+            "apprentice_delete": False,
+            "evening_view": True,
+            "evening_add": True,
+            "evening_change": True,
+            "evening_delete": False,
+        },
+    },
+    "registration_officer": {
+        "label": "موظف تسجيل",
+        "color": "#0f766e",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": False,
+            "can_view_reports": False,
+            "can_export_data": False,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": True,
+            "initial_change": True,
+            "initial_delete": False,
+            "apprentice_view": True,
+            "apprentice_add": True,
+            "apprentice_change": True,
+            "apprentice_delete": False,
+            "evening_view": True,
+            "evening_add": True,
+            "evening_change": True,
+            "evening_delete": False,
+        },
+    },
+    "accountant": {
+        "label": "محاسب",
+        "color": "#9b7424",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": False,
+            "can_view_reports": True,
+            "can_export_data": True,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": False,
+            "initial_change": False,
+            "initial_delete": False,
+            "apprentice_view": True,
+            "apprentice_add": False,
+            "apprentice_change": False,
+            "apprentice_delete": False,
+            "evening_view": True,
+            "evening_add": False,
+            "evening_change": False,
+            "evening_delete": False,
+        },
+    },
+    "trainer": {
+        "label": "مكون / مدرب",
+        "color": "#6b50a3",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": False,
+            "can_view_reports": False,
+            "can_export_data": False,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": False,
+            "initial_change": False,
+            "initial_delete": False,
+            "apprentice_view": True,
+            "apprentice_add": False,
+            "apprentice_change": False,
+            "apprentice_delete": False,
+            "evening_view": True,
+            "evening_add": False,
+            "evening_change": False,
+            "evening_delete": False,
+        },
+    },
+    "read_only": {
+        "label": "مراقب",
+        "color": "#475467",
+        "permissions": {
+            "can_access_admin_panel": True,
+            "can_manage_all_programs": False,
+            "can_view_reports": True,
+            "can_export_data": False,
+            "force_password_change": False,
+            "initial_view": True,
+            "initial_add": False,
+            "initial_change": False,
+            "initial_delete": False,
+            "apprentice_view": True,
+            "apprentice_add": False,
+            "apprentice_change": False,
+            "apprentice_delete": False,
+            "evening_view": True,
+            "evening_add": False,
+            "evening_change": False,
+            "evening_delete": False,
+        },
+    },
+}
+
+ROLE_CHOICES = [(code, data["label"]) for code, data in ROLE_DEFINITIONS.items()]
+DEFAULT_ROLE_CODE = "read_only"
+
+def get_role_definition(role_code):
+    return ROLE_DEFINITIONS.get(role_code or DEFAULT_ROLE_CODE, ROLE_DEFINITIONS[DEFAULT_ROLE_CODE])
+
+def get_role_label(role_code):
+    return get_role_definition(role_code)["label"]
+
+def get_role_color(role_code):
+    return get_role_definition(role_code)["color"]
+
+def get_role_permissions(role_code):
+    return dict(get_role_definition(role_code)["permissions"])

@@ -1,0 +1,365 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide trainee-edit-page">
+  <div class="row page-heading">
+    <div>
+      <h1>{{ title }}</h1>
+      <div class="muted">البرنامج: {{ program }}</div>
+    </div>
+  </div>
+
+  <div class="tabs-shell" data-tabs-shell>
+    <div class="tabs-nav" role="tablist" aria-label="تبويبات صفحة التعديل">
+      {% if mode == "edit" and obj %}
+      <button type="button" class="tab-btn active" data-tab-target="media-tab" role="tab" aria-selected="true">الوسائط</button>
+      {% endif %}
+      <button type="button" class="tab-btn {% if not obj %}active{% endif %}" data-tab-target="identity-tab" role="tab" aria-selected="{% if not obj %}true{% else %}false{% endif %}">الهوية الشخصية</button>
+      <button type="button" class="tab-btn" data-tab-target="training-tab" role="tab" aria-selected="false">التكوين والتسجيل</button>
+      <button type="button" class="tab-btn" data-tab-target="contact-tab" role="tab" aria-selected="false">الاتصال والإقامة</button>
+      <button type="button" class="tab-btn" data-tab-target="status-tab" role="tab" aria-selected="false">الحالة الإدارية</button>
+      {% if form.معيد or custom_fields %}
+      <button type="button" class="tab-btn" data-tab-target="extra-tab" role="tab" aria-selected="false">حقول إضافية</button>
+      {% endif %}
+    </div>
+
+    {% if mode == "edit" and obj %}
+    <section id="media-tab" class="tab-pane active" role="tabpanel">
+      <div class="tab-pane__header">
+        <h2>الصور والوسائط</h2>
+        <p class="muted">يمكنك تحديث الصورة الشخصية وصورة QR_Code من هنا.</p>
+      </div>
+
+      <form method="post" action="{% url 'trainee_media_upload' program obj.pk %}" enctype="multipart/form-data" class="media-form-grid">
+        {% csrf_token %}
+        <div class="media-grid">
+          <div class="media-card">
+            <div class="media-card__title">الصورة الشخصية</div>
+            <div class="media-preview media-preview--photo">
+              {% if obj.رابط_الصورة %}
+                <img src="{{ obj.رابط_الصورة }}" alt="الصورة الشخصية" class="media-thumb media-thumb--photo">
+              {% else %}
+                <span class="muted">لا توجد صورة شخصية</span>
+              {% endif %}
+            </div>
+            <input type="file" name="photo_file" accept="image/*">
+          </div>
+
+          <div class="media-card">
+            <div class="media-card__title">صورة QR_Code</div>
+            <div class="media-preview media-preview--qr">
+              {% if obj.رابط_qr_code %}
+                <img src="{{ obj.رابط_qr_code }}" alt="QR_Code" class="media-thumb media-thumb--qr">
+              {% else %}
+                <span class="muted">لا توجد صورة QR_Code</span>
+              {% endif %}
+            </div>
+            <input type="file" name="qr_file" accept="image/*">
+          </div>
+        </div>
+        <div class="tab-actions">
+          <button type="submit">رفع الصورة / QR_Code</button>
+        </div>
+      </form>
+    </section>
+    {% endif %}
+
+    <form method="post" class="form form-grid tabbed-main-form" novalidate>
+      {% csrf_token %}
+
+      <section id="identity-tab" class="tab-pane {% if not obj %}active{% endif %}" role="tabpanel">
+        <div class="tab-pane__header">
+          <h2>بيانات الهوية الشخصية</h2>
+          <p class="muted">الاسم، الحالة المدنية، ومعلومات الميلاد.</p>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg-field">{{ form.الرقم_التعريفي.label_tag }}{{ form.الرقم_التعريفي }}</div>
+          <div class="fg-field">{{ form.رقم_عقد_الميلاد.label_tag }}{{ form.رقم_عقد_الميلاد }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.اللقب.label_tag }}{{ form.اللقب }}</div>
+          <div class="fg-field">{{ form.الاسم.label_tag }}{{ form.الاسم }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.الاسم_بالأجنبية.label_tag }}{{ form.الاسم_بالأجنبية }}</div>
+          <div class="fg-field">{{ form.تاريخ_الميلاد.label_tag }}{{ form.تاريخ_الميلاد }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.اسم_الأب.label_tag }}{{ form.اسم_الأب }}</div>
+          <div class="fg-field">{{ form.اسم_الأب_بالأجنبية.label_tag }}{{ form.اسم_الأب_بالأجنبية }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.اسم_الأم.label_tag }}{{ form.اسم_الأم }}</div>
+          <div class="fg-field">{{ form.اسم_الأم_بالأجنبية.label_tag }}{{ form.اسم_الأم_بالأجنبية }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.لقب_الأم.label_tag }}{{ form.لقب_الأم }}</div>
+          <div class="fg-field">{{ form.لقب_الأم_بالأجنبية.label_tag }}{{ form.لقب_الأم_بالأجنبية }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.الجنس.label_tag }}{{ form.الجنس }}</div>
+          <div class="fg-field">{{ form.زمرة_الدم.label_tag }}{{ form.زمرة_الدم }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.مفترض.label_tag }}{{ form.مفترض }}</div>
+          <div class="fg-field"></div>
+        </div>
+      </section>
+
+      <section id="training-tab" class="tab-pane" role="tabpanel">
+        <div class="tab-pane__header">
+          <h2>بيانات التكوين والتسجيل</h2>
+          <p class="muted">المسار الدراسي، التسجيل، والتخصص.</p>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg-field">{{ form.التخصص.label_tag }}{{ form.التخصص }}</div>
+          <div class="fg-field">{{ form.رمز_التخصص.label_tag }}{{ form.رمز_التخصص }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.رقم_التسجيل.label_tag }}{{ form.رقم_التسجيل }}</div>
+          <div class="fg-field">{{ form.النظام.label_tag }}{{ form.النظام }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.تاريخ_بداية_التكوين.label_tag }}{{ form.تاريخ_بداية_التكوين }}</div>
+          <div class="fg-field">{{ form.تاريخ_نهاية_التكوين.label_tag }}{{ form.تاريخ_نهاية_التكوين }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.السداسي.label_tag }}{{ form.السداسي }}</div>
+          <div class="fg-field"></div>
+        </div>
+      </section>
+
+      <section id="contact-tab" class="tab-pane" role="tabpanel">
+        <div class="tab-pane__header">
+          <h2>بيانات الاتصال والإقامة</h2>
+          <p class="muted">العناوين، الهاتف، البريد، ومكان الإقامة.</p>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg-field">{{ form.البريد_الإلكتروني.label_tag }}{{ form.البريد_الإلكتروني }}</div>
+          <div class="fg-field">{{ form.رقم_الهاتف.label_tag }}{{ form.رقم_الهاتف }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.البلدية.label_tag }}{{ form.البلدية }}</div>
+          <div class="fg-field">{{ form.الولاية.label_tag }}{{ form.الولاية }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.العنوان_بالعربية.label_tag }}{{ form.العنوان_بالعربية }}</div>
+          <div class="fg-field">{{ form.بلدية_الإقامة_بالعربية.label_tag }}{{ form.بلدية_الإقامة_بالعربية }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.ولاية_الإقامة_بالعربية.label_tag }}{{ form.ولاية_الإقامة_بالعربية }}</div>
+          <div class="fg-field"></div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.العنوان_بالأجنبية.label_tag }}{{ form.العنوان_بالأجنبية }}</div>
+          <div class="fg-field">{{ form.ولاية_الإقامة_بالأجنبية.label_tag }}{{ form.ولاية_الإقامة_بالأجنبية }}</div>
+        </div>
+      </section>
+
+      <section id="status-tab" class="tab-pane" role="tabpanel">
+        <div class="tab-pane__header">
+          <h2>الحالة الإدارية</h2>
+          <p class="muted">الحالة الحالية، أرقام التعريف، والشطب عند الحاجة.</p>
+        </div>
+
+        <div class="fg-row">
+          <div class="fg-field">{{ form.رقم_التعريف_الوطني.label_tag }}{{ form.رقم_التعريف_الوطني }}</div>
+          <div class="fg-field">{{ form.رقم_الضمان_الاجتماعي.label_tag }}{{ form.رقم_الضمان_الاجتماعي }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.الحالة.label_tag }}{{ form.الحالة }}</div>
+          <div class="fg-field">{{ form.تاريخ_الشطب.label_tag }}{{ form.تاريخ_الشطب }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.رقم_الشطب.label_tag }}{{ form.رقم_الشطب }}</div>
+          <div class="fg-field">{{ form.رقم_مقرر_الفصل.label_tag }}{{ form.رقم_مقرر_الفصل }}</div>
+        </div>
+      </section>
+
+      {% if form.معيد or custom_fields %}
+      <section id="extra-tab" class="tab-pane" role="tabpanel">
+        <div class="tab-pane__header">
+          <h2>الحقول الإضافية</h2>
+          <p class="muted">حقول مخصصة قابلة للتوسع دون تشويه الواجهة.</p>
+        </div>
+
+        {% if form.معيد %}
+        <div class="fg-row">
+          <div class="fg-field">{{ form.معيد.label_tag }}{{ form.معيد }}</div>
+          <div class="fg-field">{{ form.تاريخ_التكوين_السابق_للمعيدين.label_tag }}{{ form.تاريخ_التكوين_السابق_للمعيدين }}</div>
+        </div>
+        <div class="fg-row">
+          <div class="fg-field">{{ form.المستخدم.label_tag }}{{ form.المستخدم }}</div>
+          <div class="fg-field"></div>
+        </div>
+        {% endif %}
+
+        {% if custom_fields %}
+        <div class="custom-fields-grid">
+          {% for f,val in cf_pairs %}
+          <div class="custom-field-card">
+            <label class="fg-label" for="cf_{{ f.id }}">{{ f.label }}{% if f.required %} <span class="required-star">*</span>{% endif %}</label>
+            <div class="fg-control">
+              {% if f.field_type == "date" %}
+              <div class="cf-date-stack">
+                <input type="date" name="cf_{{ f.id }}" id="cf_{{ f.id }}_date" value="{{ val|default:'' }}" data-cf-id="{{ f.id }}">
+                <input type="text" id="cf_{{ f.id }}_text" value="{{ val|default:'' }}" placeholder="YYYY-MM-DD أو DD/MM/YYYY أو DD-MM-YYYY" data-cf-id="{{ f.id }}">
+              </div>
+              {% elif f.field_type == "number" %}
+              <input type="number" name="cf_{{ f.id }}" id="cf_{{ f.id }}" value="{{ val|default:'' }}">
+              {% elif f.field_type == "boolean" %}
+              <label class="checkbox-inline"><input type="checkbox" name="cf_{{ f.id }}" id="cf_{{ f.id }}" value="1" {% if val == "1" %}checked{% endif %}> <span>تفعيل</span></label>
+              {% else %}
+              <input type="text" name="cf_{{ f.id }}" id="cf_{{ f.id }}" value="{{ val|default:'' }}">
+              {% endif %}
+              {% if f.required %}
+              <div class="muted">هذا الحقل إجباري</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {% if form.non_field_errors %}
+      <div class="fg-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="fg-actions sticky-form-actions">
+        <button type="submit" name="action" value="stay">حفظ والبقاء</button>
+        <button type="submit" name="action" value="list">حفظ والرجوع للقائمة</button>
+        <a class="toolbar-btn" href="javascript:history.back()">رجوع</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var shell = document.querySelector('[data-tabs-shell]');
+    if (!shell) return;
+
+    var buttons = shell.querySelectorAll('.tab-btn');
+    var panes = shell.querySelectorAll('.tab-pane');
+
+    function activateTab(targetId) {
+      buttons.forEach(function (btn) {
+        var active = btn.getAttribute('data-tab-target') === targetId;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      panes.forEach(function (pane) {
+        pane.classList.toggle('active', pane.id === targetId);
+      });
+    }
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activateTab(btn.getAttribute('data-tab-target'));
+      });
+    });
+  })();
+
+  function isValidYMD(yyyy, mm, dd) {
+    var y = Number(yyyy), m = Number(mm), d = Number(dd);
+    if (!Number.isInteger(y) || !Number.isInteger(m) || !Number.isInteger(d)) return false;
+    if (y < 1900 || y > 2100) return false;
+    if (m < 1 || m > 12) return false;
+    if (d < 1 || d > 31) return false;
+    var dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && (dt.getMonth() + 1) === m && dt.getDate() === d;
+  }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function normalizeDateInput(v) {
+    v = (v || '').trim();
+    if (!v) return { value: '', valid: true };
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      var p = v.split('-');
+      if (!isValidYMD(p[0], p[1], p[2])) return { value: null, valid: false };
+      return { value: v, valid: true };
+    }
+    var m1 = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (m1) {
+      var dd = pad2(m1[1]), mm = pad2(m1[2]), yy = m1[3];
+      if (!isValidYMD(yy, mm, dd)) return { value: null, valid: false };
+      return { value: yy + '-' + mm + '-' + dd, valid: true };
+    }
+    var m2 = v.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+    if (m2) {
+      var dd2 = pad2(m2[1]), mm2 = pad2(m2[2]), yy2 = m2[3];
+      if (!isValidYMD(yy2, mm2, dd2)) return { value: null, valid: false };
+      return { value: yy2 + '-' + mm2 + '-' + dd2, valid: true };
+    }
+    return { value: null, valid: false };
+  }
+
+  function setInvalid(el, msg) {
+    el.style.border = '2px solid #d9534f';
+    el.title = msg || 'تاريخ غير صالح';
+    el.setCustomValidity(msg || 'تاريخ غير صالح');
+  }
+
+  function clearInvalid(el) {
+    el.style.border = '';
+    el.title = '';
+    el.setCustomValidity('');
+  }
+
+  document.querySelectorAll('input[type="date"][data-cf-id]').forEach(function (dateInput) {
+    var id = dateInput.getAttribute('data-cf-id');
+    var textInput = document.getElementById('cf_' + id + '_text');
+
+    dateInput.addEventListener('change', function () {
+      if (textInput) {
+        textInput.value = dateInput.value || '';
+        clearInvalid(textInput);
+      }
+    });
+
+    if (!textInput) return;
+
+    function syncFromText() {
+      var res = normalizeDateInput(textInput.value);
+      if (res.valid && res.value !== null) {
+        clearInvalid(textInput);
+        dateInput.value = res.value;
+      } else if (res.valid && res.value === '') {
+        clearInvalid(textInput);
+        dateInput.value = '';
+      } else {
+        setInvalid(textInput, 'صيغة أو تاريخ غير صالح. استخدم YYYY-MM-DD أو DD/MM/YYYY أو DD-MM-YYYY');
+      }
+    }
+
+    textInput.addEventListener('input', syncFromText);
+    textInput.addEventListener('blur', function () {
+      var res = normalizeDateInput(textInput.value);
+      if (res.valid && res.value !== null) {
+        clearInvalid(textInput);
+        if (res.value) textInput.value = res.value;
+        dateInput.value = res.value;
+      } else if (!(res.valid && res.value === '')) {
+        setInvalid(textInput, 'تاريخ غير صالح');
+      }
+    });
+
+    var form = textInput.closest('form');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        syncFromText();
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          form.reportValidity();
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

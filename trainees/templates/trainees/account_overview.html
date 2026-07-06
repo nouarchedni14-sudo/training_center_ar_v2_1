@@ -1,0 +1,93 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide" style="max-width:1150px;margin-inline:auto">
+  <div class="row" style="align-items:flex-start">
+    <div>
+      <h1>حالة الحساب والصلاحيات</h1>
+      <p class="muted">هذه الصفحة تشرح للمستخدم ما الذي يملكه من صلاحيات، وما حالة التفعيل الحالية، وماذا يستطيع فتحه داخل النظام.</p>
+    </div>
+    <div class="flash {{ access_ui.badge_class|default:'' }}" style="margin:0"><div><span class="notice-title">الحالة الحالية</span><span class="notice-text">{{ access_summary.state_label }}</span></div></div>
+  </div>
+
+  {% if request.user.access_profile %}
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="stat-card">
+      <div class="muted">الدور الجاهز</div>
+      <div style="font-weight:800;margin-top:10px">{{ request.user.access_profile.get_role_label }}</div>
+      <div class="muted">الدور الأساسي المرتبط بالحساب.</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">حالة التخصيص</div>
+      <div style="font-weight:800;margin-top:10px">{% if request.user.access_profile.is_customized %}صلاحيات مخصصة يدويًا{% else %}مطابق للدور الجاهز{% endif %}</div>
+      <div class="muted">يساعدك على فهم هل الحساب ما زال على الإعدادات القياسية أم لا.</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">النافذة اليومية</div>
+      <div style="font-weight:800;margin-top:10px">{{ request.user.access_profile.current_daily_window_label }}</div>
+      <div class="muted">وقت السماح اليومي إن كان مفعلًا.</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">الأيام المسموحة</div>
+      <div style="font-weight:800;margin-top:10px">{{ request.user.access_profile.allowed_weekdays_display }}</div>
+      <div class="muted">تقييد الدخول بحسب أيام الأسبوع.</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    <div class="stat-card">
+      <div class="muted">رسالة الحالة</div>
+      <div style="font-weight:800;margin-top:10px">{{ access_summary.message }}</div>
+      <div class="muted">النص الذي يفسر سبب السماح أو المنع</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">نافذة الصلاحية</div>
+      <div style="font-weight:800;margin-top:10px">{{ access_summary.window_label }}</div>
+      <div class="muted">بداية ونهاية التفعيل الحالية</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">الأيام المتبقية</div>
+      <div class="stat-num" style="font-size:24px">{{ access_summary.days_until_expiry|default:'—' }}</div>
+      <div class="muted">يفيد المدير في متابعة الحسابات المؤقتة</div>
+    </div>
+    <div class="stat-card">
+      <div class="muted">البرامج المتاحة</div>
+      <div class="stat-num" style="font-size:24px">{{ allowed_programs_verbose|length }}</div>
+      <div class="muted">عدد البرامج التي تملك حق عرضها</div>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+    {% for card in permission_cards %}
+      <div class="stat-card">
+        <div class="muted">{{ card.label }}</div>
+        <div style="font-weight:800;margin-top:10px">{{ card.value }}</div>
+        <div class="muted">{% if card.active %}هذه الصلاحية مفعلة لهذا الحساب.{% else %}هذه الصلاحية غير مفعلة لهذا الحساب.{% endif %}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="stats-grid" style="margin-top:16px;grid-template-columns:1fr 1fr">
+    <div class="stat-card">
+      <h3 style="margin-top:0">البرامج المتاحة</h3>
+      {% if allowed_programs_verbose %}
+        {% for program in allowed_programs_verbose %}
+          <div class="stat-line"><span>{{ program }}</span><strong>مسموح</strong></div>
+        {% endfor %}
+      {% else %}
+        <div class="muted">لا توجد برامج مفعلة لهذا الحساب حاليًا.</div>
+      {% endif %}
+    </div>
+    <div class="stat-card">
+      <h3 style="margin-top:0">صلاحيات إضافية</h3>
+      {% if access_summary.permission_labels %}
+        {% for label in access_summary.permission_labels %}
+          <div class="stat-line"><span>{{ label }}</span><strong>مفعلة</strong></div>
+        {% endfor %}
+      {% else %}
+        <div class="muted">لا توجد صلاحيات إضافية مثل التقارير أو التصدير أو الإدارة.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

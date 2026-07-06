@@ -1,0 +1,403 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card wide attendance-card">
+  <style>
+    .attendance-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+    .attendance-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px;align-items:end}
+    .attendance-filters .fg-field label{display:block;margin-bottom:6px;font-weight:700;color:#111}
+    .attendance-filters .fg-field input,.attendance-filters .fg-field select{width:100%;min-width:0;padding:10px 12px;border-radius:12px;border:1px solid #c8d4cc;background:#fff;color:#111827;font-size:.95rem;line-height:1.2}
+    .attendance-filters .fg-field select option{color:#111}
+    .attendance-summary{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 0}
+    .legend-item{display:inline-flex;align-items:center;gap:6px;font-size:.88rem;color:#000}
+    .legend-swatch{width:14px;height:14px;border-radius:4px;border:1px solid #b9c5be}
+    .table-wrap.attendance-grid{max-height:70vh;overflow:auto;border-radius:10px;border:1px solid #aab8af;background:#fff}
+    .attendance-grid table{min-width:max-content;background:#fff;border-collapse:collapse !important}
+    .attendance-grid th,.attendance-grid td{border:1px solid #aebbb3 !important}
+    .attendance-grid th{position:sticky;top:0;z-index:2;background:#edf3ee;color:#0f172a}
+    .attendance-grid th:nth-child(1), .attendance-grid td:nth-child(1), .attendance-grid th:nth-child(2), .attendance-grid td:nth-child(2){position:sticky;z-index:1;background:#f8fbf9}
+    .attendance-grid th:nth-child(1), .attendance-grid td:nth-child(1){right:0}
+    .attendance-grid th:nth-child(2), .attendance-grid td:nth-child(2){right:58px}
+    .attendance-grid td.name-cell{min-width:200px;white-space:nowrap;font-weight:700}
+    .attendance-grid td.status-cell{padding:2px;min-width:68px}
+    .attendance-grid td.status-slot{min-width:34px;width:34px;padding:0;text-align:center}
+    .attendance-grid td.status-slot.blank{background:#fff}
+    .attendance-grid table.apprentice-split td.status-slot .status-select,.attendance-grid table.apprentice-split td.status-slot .status-readonly{width:100%;min-width:0;border:none !important;border-radius:0 !important;padding:0 !important;display:flex;align-items:center;justify-content:center}
+    .status-select{width:100%;padding:3px 6px;border:1px solid #d3ddd7;border-radius:6px;font-weight:700;color:#0b1325;background:#fff;outline:none;font-size:12px;min-height:28px;text-align:center;text-align-last:center}
+    .status-readonly{padding:4px 6px;border-radius:6px;font-weight:700;text-align:center;color:#0b1325;background:#fff;font-size:12px}
+.attendance-grid table.apprentice-split td.status-slot .status-select{font-size:16px;font-weight:800;min-height:34px;line-height:1;-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:none}
+    .attendance-grid table.apprentice-split td.status-slot .status-readonly{font-size:16px;font-weight:800;min-height:34px;line-height:1}
+    .status-present{background:#bbf7d0}
+    .status-absent{background:#fecaca}
+    .status-excused{background:#fef08a}
+    .status-late{background:#bfdbfe}
+    .year-input{width:140px !important;min-width:140px !important;text-align:center}
+    .muted{color:#000}
+    .attendance-buttons{display:flex;gap:8px;flex-wrap:wrap}
+    .btn-secondary{background:#475569;color:#fff}
+    .print-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .print-note{font-size:12px;color:#111}
+
+    @media print {
+      @page { size: A4 landscape; margin: 4mm; }
+      body{background:#fff !important}
+      .topbar,.institution-banner,.attendance-toolbar .row,.attendance-filters,.attendance-buttons,.legend,.print-actions,.flash-wrap,.no-print{display:none !important}
+      .wrap,.card,.attendance-card{padding:0 !important;margin:0 !important;box-shadow:none !important;border:none !important;background:#fff !important}
+      .table-wrap.attendance-grid{max-height:none !important;overflow:visible !important;border:none !important}
+      .attendance-grid table{width:100% !important;min-width:0 !important;table-layout:fixed}
+      .attendance-grid th,.attendance-grid td{border:1px solid #000 !important;padding:1px !important;font-size:8px !important;line-height:1.1 !important}
+      .attendance-grid th{background:#fff !important;color:#000 !important;position:static !important}
+      .attendance-grid td.name-cell{min-width:0 !important;font-size:8px !important}
+      .attendance-grid td.status-cell{min-width:0 !important;padding:0 !important}
+      .status-select,.status-readonly{min-height:16px !important;height:16px !important;font-size:8px !important;padding:0 1px !important;border:none !important;border-radius:0 !important}
+      .attendance-grid table.apprentice-split td.status-slot{min-width:20px !important;width:20px !important}
+      .attendance-grid table.apprentice-split td.status-slot .status-select,.attendance-grid table.apprentice-split td.status-slot .status-readonly{min-height:20px !important;height:20px !important;font-size:10px !important;font-weight:800 !important;padding:0 !important}
+      .attendance-summary{gap:8px !important;margin-bottom:4px !important}
+      .attendance-summary .muted{font-size:9px !important}
+      .num{font-size:8px !important}
+    }
+  </style>
+
+  <div class="attendance-toolbar">
+    <div>
+      <h1>{{ program_label }}</h1>
+      <p style="color:#000; font-weight:500;">
+  {{ program_description }}
+</p>
+    </div>
+    <div class="row" style="gap:8px">
+      <a href="{% url 'attendance_home' %}" class="btn">اختيار نمط آخر</a>
+      <a href="{% url 'dashboard' %}" class="btn">الرئيسية</a>
+    </div>
+  </div>
+
+  <form method="get" class="attendance-filters" autocomplete="off" id="attendance-filter-form">
+    <input type="hidden" name="show_table" id="show_table_input" value="{% if show_table %}1{% else %}0{% endif %}">
+    <div class="fg-field">
+      <label>الشهر</label>
+      <select name="month">
+        {% for item in month_choices %}
+          <option value="{{ item.value }}" {% if scope.month == item.value %}selected{% endif %}>{{ item.label }} ({{ item.value }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>السنة</label>
+      <input type="number" min="2020" max="2100" name="year" value="{{ scope.year }}" class="year-input" autocomplete="off">
+    </div>
+    <div class="fg-field">
+      <label>الدفعة</label>
+      <select name="promotion" autocomplete="off" onchange="resetAttendanceShowAndSubmit(true)">
+        <option value="">كل الدفعات</option>
+        {% for p in promotion_options %}
+          <option value="{{ p.id }}" {% if scope.promotion_id == p.id|stringformat:'s' %}selected{% endif %}>{{ p.اسم_الدفعة }} {{ p.السنة }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="fg-field">
+      <label>التخصص</label>
+      <select name="specialty" id="specialty_select" onchange="resetAttendanceShowOnly()">
+        <option value="">كل التخصصات</option>
+        {% for s in specialty_options %}
+          <option value="{{ s }}" {% if scope.specialty == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if requires_custom_weekdays %}
+      <div class="fg-field">
+        <label>يوم الدراسة الأول</label>
+        <select name="weekday1">
+          <option value="">اختر اليوم</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday1 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="fg-field">
+        <label>يوم الدراسة الثاني</label>
+        <select name="weekday2">
+          <option value="">اختر اليوم</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday2 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_third_weekday %}
+      <div class="fg-field">
+        <label>اليوم الثالث الإضافي</label>
+        <select name="weekday3">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday3 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_fourth_weekday %}
+      <div class="fg-field">
+        <label>اليوم الرابع الإضافي</label>
+        <select name="weekday4">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday4 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    {% if allow_fifth_weekday %}
+      <div class="fg-field">
+        <label>اليوم الخامس الإضافي</label>
+        <select name="weekday5">
+          <option value="">اختياري</option>
+          {% for item in weekday_choices %}
+            <option value="{{ item.value }}" {% if scope.weekday5 == item.value|stringformat:'s' %}selected{% endif %}>{{ item.label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endif %}
+
+    <div class="fg-field">
+      <label>&nbsp;</label>
+      <div class="attendance-buttons">
+        <button type="submit" name="action" value="filter" class="btn" onclick="setAttendanceShow(1)">عرض الجدول</button>
+        <button type="submit" name="action" value="all" class="btn btn-secondary" onclick="setAttendanceShow(1)">عرض كل التخصصات</button>
+      </div>
+    </div>
+  </form>
+
+  {% if not columns %}
+    <div class="card" style="margin-top:16px">
+      <p class="muted" style="margin:0">
+        {% if weekday_validation.message %}
+          {{ weekday_validation.message }}
+        {% elif not scope.promotion and not scope.specialty %}
+          اختر الدفعة ثم التخصص، أو اضغط على "عرض كل التخصصات".
+        {% elif current_action != 'all' and not scope.specialty %}
+          اختر التخصص ثم اضغط على زر عرض الجدول.
+        {% elif requires_custom_weekdays and not scope.weekday1 and not scope.weekday2 %}
+          اختر أيام الدراسة لعرض الجدول.
+        {% else %}
+          اضغط على الزر المناسب لعرض الجدول.
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <form method="post" style="margin-top:16px">
+      {% csrf_token %}
+      <input type="hidden" name="month" value="{{ scope.month }}">
+      <input type="hidden" name="year" value="{{ scope.year }}">
+      <input type="hidden" name="promotion" value="{{ scope.promotion_id }}">
+      <input type="hidden" name="specialty" value="{{ scope.specialty }}">
+      <input type="hidden" name="weekday1" value="{{ scope.weekday1 }}">
+      <input type="hidden" name="weekday2" value="{{ scope.weekday2 }}">
+      <input type="hidden" name="weekday3" value="{{ scope.weekday3 }}">
+      <input type="hidden" name="weekday4" value="{{ scope.weekday4 }}">
+      <input type="hidden" name="weekday5" value="{{ scope.weekday5 }}">
+      <input type="hidden" name="show_table" value="1">
+      <input type="hidden" name="action" value="{% if show_all_specialties %}all{% else %}filter{% endif %}">
+      <div class="attendance-summary">
+        <div class="muted">عدد المتكونين: {{ rows|length }}</div>
+        <div class="muted">عدد الأيام المعروضة: {{ columns|length }}</div>
+        {% if show_all_specialties %}<div class="muted">العرض: كل التخصصات</div>{% endif %}
+        {% if sheet %}<div class="muted">الجدول: {{ sheet }}</div>{% endif %}
+<div class="print-actions">
+        <a class="btn no-print" href="{% url 'attendance_stats' program %}?{{ current_query }}">حساب نسبة الغيابات</a>
+        <a class="btn no-print" href="{% url 'attendance_actions' program %}?{{ current_query }}">إدارة الأعذار</a>
+        <a class="btn no-print" href="{% url 'attendance_export' program 'excel' %}?{{ current_query }}">تصدير Excel</a>
+        <a class="btn no-print" href="{% url 'attendance_export' program 'pdf' %}?{{ current_query }}">تصدير PDF</a>
+        <button type="button" class="btn no-print" onclick="window.print()">طباعة</button>
+      </div>
+{% if can_change %}
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+  <button type="submit" class="btn" name="post_action" value="save">
+    حفظ الجدول
+  </button>
+
+  <button type="submit" class="btn danger-btn" name="post_action" value="delete_saved" onclick="return confirm('سيتم حذف كل البيانات المحفوظة ضمن الجدول الحالي حسب الفلاتر المعروضة. هل تريد المتابعة؟');">
+    حذف البيانات المحفوظة
+  </button>
+
+  <button type="button" class="btn danger-btn" onclick="clearAllCells()">
+    🗑️ مسح الكل
+  </button>
+
+  <button type="button" class="btn" style="background:#22c55e;" onclick="setAllStatus('present')">
+    ✅ الجميع حاضر
+  </button>
+
+  <button type="button" class="btn" style="background:#ef4444;" onclick="setAllStatus('absent')">
+    ❌ الجميع غائب
+  </button>
+
+</div>
+{% endif %}
+      <div class="legend">
+        {% if program == "apprentice" %}
+        <span class="legend-item"><span class="legend-swatch status-present"></span> ح = حاضر</span>
+        <span class="legend-item"><span class="legend-swatch status-absent"></span> غ = غائب</span>
+        <span class="legend-item"><span class="legend-swatch status-excused"></span> ع = غائب بعذر</span>
+        <span class="legend-item"><span class="legend-swatch status-late"></span> ت = متأخر</span>
+        {% else %}
+        <span class="legend-item"><span class="legend-swatch status-present"></span> حاضر</span>
+        <span class="legend-item"><span class="legend-swatch status-absent"></span> غائب</span>
+        <span class="legend-item"><span class="legend-swatch status-excused"></span> بعذر</span>
+        <span class="legend-item"><span class="legend-swatch status-late"></span> متأخر</span>
+        {% endif %}
+      </div>
+      <div class="print-note">الطباعة والتصدير يعتمدان على الفلاتر المعروضة حاليًا.</div>
+      <div class="table-wrap attendance-grid">
+        <table class="rtl-table {% if slot_count > 1 %}apprentice-split{% endif %}">
+          <thead>
+            <tr>
+              <th rowspan="2">الرقم</th>
+              <th rowspan="2">الاسم واللقب</th>
+              {% if show_all_specialties %}<th rowspan="2">التخصص</th>{% endif %}
+              {% for col in columns %}
+                <th colspan="{{ slot_count }}">{{ col.weekday_label }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for col in columns %}
+                <th colspan="{{ slot_count }}"><span class="num">{{ col.day_num }}</span></th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td><span class="num">{{ row.index|stringformat:"02d" }}</span></td>
+                <td class="name-cell">{{ row.trainee.اللقب }} {{ row.trainee.الاسم }}</td>
+                {% if show_all_specialties %}<td class="name-cell">{{ row.trainee.التخصص|default:"—" }}</td>{% endif %}
+                {% for cell in row.cells %}
+                  {% if slot_count > 1 %}
+                    {% for slot in cell.slots %}
+                    <td class="status-slot status-cell">
+                      {% if can_change %}
+                        <select name="status__{{ row.trainee.pk }}__{{ cell.iso }}__{{ slot.slot }}"
+          class="status-select {% if slot.status %}status-{{ slot.status }}{% endif %}"
+          onchange="applySelectColor(this)"
+          ondblclick="cycleStatus(this)">
+                          <option value="" {% if not slot.status %}selected{% endif %}></option>
+                          {% for value,label in status_choices %}
+                            <option value="{{ value }}" {% if slot.status == value %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      {% else %}
+                        <div class="status-readonly {% if slot.status %}status-{{ slot.status }}{% endif %}">{{ slot.display_label }}</div>
+                      {% endif %}
+                    </td>
+                    {% endfor %}
+                  {% else %}
+                    <td class="status-cell">
+                      {% if can_change %}
+                        <select name="status__{{ row.trainee.pk }}__{{ cell.iso }}"
+          class="status-select {% if cell.status %}status-{{ cell.status }}{% endif %}"
+          onchange="this.className='status-select' + (this.value ? ' status-' + this.value : '');"
+          ondblclick="cycleStatus(this)">
+                          <option value="" {% if not cell.status %}selected{% endif %}></option>
+                          {% for value,label in status_choices %}
+                            <option value="{{ value }}" {% if cell.status == value %}selected{% endif %}>{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      {% else %}
+                        <div class="status-readonly {% if cell.status %}status-{{ cell.status }}{% endif %}">{{ cell.display_label }}</div>
+                      {% endif %}
+                    </td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+            {% empty %}
+              <tr><td colspan="{% if show_all_specialties %}{{ display_columns_count|add:3 }}{% else %}{{ display_columns_count|add:2 }}{% endif %}">لا يوجد متكونون ضمن هذا النطاق.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+  {% endif %}
+</div>
+
+<script>
+function setAttendanceShow(value){
+  var el = document.getElementById('show_table_input');
+  if (el) el.value = value ? '1' : '0';
+}
+function resetAttendanceShowOnly(){
+  var el = document.getElementById('show_table_input');
+  if (el) el.value = '0';
+}
+function resetAttendanceShowAndSubmit(resetSpecialty){
+  resetAttendanceShowOnly();
+  if (resetSpecialty) {
+    var specialty = document.getElementById('specialty_select');
+    if (specialty) specialty.value = '';
+  }
+  document.getElementById('attendance-filter-form').submit();
+}
+</script>
+<script>
+function clearAllCells() {
+  if (!confirm("هل أنت متأكد من مسح كل الخلايا؟")) return;
+  const selects = document.querySelectorAll('select[name^="status__"]');
+  selects.forEach(select => {
+    select.value = "";
+    applySelectColor(select);
+  });
+}
+
+function setAllStatus(status) {
+  let message = "";
+  if (status === "present") message = "تعيين الجميع حاضر؟";
+  if (status === "absent") message = "تعيين الجميع غائب؟";
+  if (!confirm(message)) return;
+
+  const selects = document.querySelectorAll('select[name^="status__"]');
+  selects.forEach(select => {
+    select.value = status;
+    applySelectColor(select);
+  });
+}
+
+function cycleStatus(selectEl) {
+  const states = ["", "present", "absent", "excused", "late"];
+  const current = selectEl.value || "";
+  let index = states.indexOf(current);
+  if (index === -1) index = 0;
+  const nextIndex = (index + 1) % states.length;
+  selectEl.value = states[nextIndex];
+  applySelectColor(selectEl);
+}
+
+function applySelectColor(selectEl) {
+  selectEl.classList.remove(
+    "status-empty",
+    "status-present",
+    "status-absent",
+    "status-excused",
+    "status-late"
+  );
+
+  const value = selectEl.value || "";
+  if (value === "") selectEl.classList.add("status-empty");
+  else if (value === "present") selectEl.classList.add("status-present");
+  else if (value === "absent") selectEl.classList.add("status-absent");
+  else if (value === "excused") selectEl.classList.add("status-excused");
+  else if (value === "late") selectEl.classList.add("status-late");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const selects = document.querySelectorAll('select[name^="status__"]');
+  selects.forEach(select => {
+    applySelectColor(select);
+    select.addEventListener("change", function () {
+      applySelectColor(this);
+    });
+  });
+});
+</script>
+{% endblock %}

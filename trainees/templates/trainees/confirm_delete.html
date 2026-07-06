@@ -1,0 +1,22 @@
+<!-- وراثة قالب (Template inheritance) -->
+{% extends "trainees/base.html" %}
+<!-- بداية كتلة قابلة للاستبدال -->
+{% block content %}
+<div class="card">
+  <h1>تأكيد الحذف</h1>
+  <p class="muted">هل أنت متأكد أنك تريد حذف هذا السجل؟</p>
+
+  <div class="alert">
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <strong>{{ obj }}</strong>
+  </div>
+
+  <form method="post" style="display:flex;gap:10px;flex-wrap:wrap">
+    <!-- حماية CSRF للفورم -->
+    {% csrf_token %}
+    <button type="submit" class="danger-btn">🗑️ حذف</button>
+    <a class="toolbar-btn" href="javascript:history.back()">إلغاء</a>
+  </form>
+</div>
+<!-- نهاية كتلة -->
+{% endblock %}

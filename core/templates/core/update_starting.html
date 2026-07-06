@@ -1,0 +1,84 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card glass" style="padding:24px;border-radius:20px;max-width:820px;margin:0 auto;">
+  <h2 style="margin-top:0;">جارٍ تجهيز بدء التحديث</h2>
+  <p>سيبدأ تشغيل أداة التحديث تلقائيًا بعد انتهاء العدّ التنازلي.</p>
+
+  <div class="flash warning" style="margin-top:16px;">
+    <div>
+      <span class="notice-title">سيتم إغلاق البرنامج تلقائيًا</span>
+      <span class="notice-text">سيبدأ التحديث للإصدار {{ pending_update.version }} بعد <strong id="countdown-seconds">{{ countdown_seconds|default:15 }}</strong> ثانية، ثم سيُغلق البرنامج تلقائيًا لإكمال العملية.</span>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;background:#f3f7f4;border:1px solid rgba(15,107,74,.12);border-radius:16px;padding:16px;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+      <strong>مؤشر بدء التحديث</strong>
+      <span id="countdown-text" style="color:#5f6f68;">الوقت المتبقي: {{ countdown_seconds|default:15 }} ثانية</span>
+    </div>
+    <div style="margin-top:12px;height:14px;background:#e3ece7;border-radius:999px;overflow:hidden;">
+      <div id="countdown-progress" style="height:100%;width:0%;background:linear-gradient(90deg,#0f6b4a,#c7a047);transition:width .9s ease;"></div>
+    </div>
+  </div>
+
+  <ol style="line-height:1.9;padding-right:20px;">
+    <li>احفظ أي أعمال مفتوحة قبل انتهاء العدّ التنازلي.</li>
+    <li>عند انتهاء المدة سيتم تشغيل أداة التحديث تلقائيًا.</li>
+    <li>بعد تشغيل الأداة سيغلق البرنامج الحالي، ثم سيتم تثبيت التحديث أو نسخ الملفات الجديدة وإعادة التشغيل.</li>
+  </ol>
+
+  <form id="start-update-form" method="post" action="{{ start_url }}" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+    {% csrf_token %}
+    <input type="hidden" name="source" value="{{ cancel_url }}">
+    <button type="submit" class="btn btn-primary" style="padding:10px 18px;border-radius:12px;cursor:pointer;">بدء التحديث الآن</button>
+    <a href="{{ cancel_url }}" class="btn btn-secondary" style="padding:10px 18px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;">إلغاء والعودة</a>
+  </form>
+
+  <p style="color:#5f6f68;margin-top:16px;">إذا لم يبدأ شيء تلقائيًا، اضغط على زر <strong>بدء التحديث الآن</strong>.</p>
+</div>
+
+<script>
+(function () {
+  const form = document.getElementById('start-update-form');
+  const countdownEl = document.getElementById('countdown-seconds');
+  const countdownTextEl = document.getElementById('countdown-text');
+  const progressEl = document.getElementById('countdown-progress');
+  const total = Number('{{ countdown_seconds|default:15 }}') || 15;
+  let remaining = total;
+  let submitted = false;
+
+  function startNow() {
+    if (submitted || !form) return;
+    submitted = true;
+    form.submit();
+  }
+
+  if (form) {
+    form.addEventListener('submit', function () {
+      submitted = true;
+    });
+  }
+
+  function renderProgress() {
+    const clamped = Math.max(remaining, 0);
+    if (countdownEl) countdownEl.textContent = clamped;
+    if (countdownTextEl) countdownTextEl.textContent = 'الوقت المتبقي: ' + clamped + ' ثانية';
+    if (progressEl) {
+      const done = ((total - clamped) / total) * 100;
+      progressEl.style.width = done + '%';
+    }
+  }
+
+  renderProgress();
+
+  const timer = window.setInterval(function () {
+    remaining -= 1;
+    renderProgress();
+    if (remaining <= 0) {
+      window.clearInterval(timer);
+      startNow();
+    }
+  }, 1000);
+})();
+</script>
+{% endblock %}

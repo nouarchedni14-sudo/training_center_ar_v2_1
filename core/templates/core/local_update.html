@@ -1,0 +1,291 @@
+{% extends "trainees/base.html" %}
+
+{% block content %}
+<div class="card glass tc-system-page" style="padding:24px; border-radius:20px;">
+  <h2 style="margin-top:0;">التحديث المحلي للبرنامج</h2>
+  <p style="margin-top:0;">استخدم هذه الصفحة عندما تريد رفع حزمة ZIP يدويًا. في الوضع المؤسسي يفضَّل استخدام زر "تنزيل وتجهيز التحديث تلقائيًا" من مركز التحديثات، ثم الرجوع لهذه الصفحة فقط عند الحاجة إلى تحديث يدوي.</p>
+
+  <style>
+    .upload-picker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .upload-hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    .upload-picker-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #0f6b4a, #12805a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 6px 18px rgba(15, 107, 74, 0.18);
+      transition: 0.2s ease;
+      text-decoration: none;
+    }
+
+    .upload-picker-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(15, 107, 74, 0.22);
+    }
+
+    .upload-picker-btn:active {
+      transform: translateY(0);
+    }
+
+    .upload-file-name {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: #f8faf8;
+      border: 1px solid #dbe7df;
+      color: #555;
+      font-size: 14px;
+      min-width: 220px;
+      max-width: 100%;
+      word-break: break-word;
+    }
+
+    .upload-file-name.has-file {
+      color: #0f6b4a;
+      font-weight: 700;
+      border-color: #b8d7c7;
+      background: #f4fbf7;
+    }
+
+    .upload-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+  </style>
+
+  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <h3>الإصدار الحالي</h3>
+      <p><strong>{{ display_current_version|default:config.current_version|default:"1.0.0" }}</strong></p>
+      <p style="color:#666;">ضع في ملف التحديث <code>manifest.json</code> فيه نسخة جديدة ونوع الحزمة، ويمكن أن تكون الحزمة كاملة أو جزئية.</p>
+    </div>
+    <div class="card" style="padding:16px;border-radius:16px;">
+      <h3>بنية ملف التحديث</h3>
+      <pre style="white-space:pre-wrap;direction:ltr;text-align:left;background:#f8faf8;padding:12px;border-radius:12px;">update_package.zip
+manifest.json
+app/
+  ... الملفات الجديدة أو المعدلة فقط في التحديث الجزئي
+
+manifest.json
+{
+  "version": "{{ pending_update.version|default:config.latest_version|default:display_current_version|default:"1.0.0" }}",
+  "package_type": "partial أو full",
+  "files": [...],
+  "deleted_files": [...]
+}</pre>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;padding:16px;border-radius:16px;">
+    <h3>رفع ملف التحديث</h3>
+    <form method="post" enctype="multipart/form-data" id="local-update-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="upload_local_update">
+      {{ form.non_field_errors }}
+
+      <div style="margin-bottom:12px;">
+        {{ form.update_file.label_tag }}<br>
+
+        <div class="upload-picker-wrap">
+          <input
+            type="file"
+            name="update_file"
+            id="id_update_file"
+            class="upload-hidden-input"
+            accept=".zip,application/zip"
+          >
+
+          <button type="button" id="custom-file-trigger" class="upload-picker-btn">
+            <span class="upload-icon">📁</span>
+            <span>اختيار ملف التحديث</span>
+          </button>
+
+          <div id="file-name-display" class="upload-file-name">
+            لم يتم اختيار ملف
+          </div>
+        </div>
+
+        {% if form.update_file.errors %}
+          <div style="color:#c62828;margin-top:8px;">{{ form.update_file.errors }}</div>
+        {% endif %}
+
+        <div style="color:#666;margin-top:8px;">{{ form.update_file.help_text }}</div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button
+          type="submit"
+          id="check-update-btn"
+          class="btn btn-primary"
+          style="padding:10px 18px;border-radius:12px;cursor:pointer;"
+        >
+          فحص ملف التحديث
+        </button>
+
+
+        {% if pending_update %}
+          <button
+            type="submit"
+            name="action"
+            value="apply_pending_update"
+            class="btn btn-warning"
+            style="padding:10px 18px;border-radius:12px;cursor:pointer;"
+          >
+            تطبيق التحديث الآن
+          </button>
+        {% endif %}
+
+        {% if pending_update %}
+          <button
+            type="submit"
+            name="action"
+            value="clear_local_update"
+            class="btn"
+            style="padding:10px 18px;border-radius:12px;cursor:pointer;"
+          >
+            مسح التحديث المجهّز
+          </button>
+        {% endif %}
+      </div>
+
+      <div
+        id="upload-status-message"
+        class="flash info"
+        style="display:none;margin-top:12px;"
+        aria-live="polite"
+      ></div>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const form = document.getElementById("local-update-form");
+      if (!form) return;
+
+      const fileInput = document.getElementById("id_update_file");
+      const customFileTrigger = document.getElementById("custom-file-trigger");
+      const submitBtn = document.getElementById("check-update-btn");
+      const statusBox = document.getElementById("upload-status-message");
+      const fileNameDisplay = document.getElementById("file-name-display");
+
+      if (customFileTrigger && fileInput) {
+        customFileTrigger.addEventListener("click", function () {
+          fileInput.click();
+        });
+      }
+
+      if (fileInput && fileNameDisplay) {
+        fileInput.addEventListener("change", function () {
+          if (fileInput.files && fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+            fileNameDisplay.classList.add("has-file");
+          } else {
+            fileNameDisplay.textContent = "لم يتم اختيار ملف";
+            fileNameDisplay.classList.remove("has-file");
+          }
+        });
+      }
+
+      form.addEventListener("submit", function (event) {
+        const clickedButton = document.activeElement;
+        const clickedAction = clickedButton ? clickedButton.value : "";
+
+        if (clickedAction === "clear_local_update" || clickedAction === "apply_pending_update") {
+          return;
+        }
+
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+          event.preventDefault();
+          statusBox.style.display = "block";
+          statusBox.className = "flash warning";
+          statusBox.textContent = "يرجى اختيار ملف التحديث أولًا.";
+          return;
+        }
+
+        statusBox.style.display = "block";
+        statusBox.className = "flash info";
+        statusBox.textContent = "جاري رفع ملف التحديث...";
+
+        setTimeout(function () {
+          statusBox.textContent = "جاري فحص ملف التحديث...";
+        }, 500);
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "جاري الفحص...";
+          submitBtn.style.cursor = "not-allowed";
+          submitBtn.style.opacity = "0.7";
+        }
+      });
+    })();
+  </script>
+
+  {% if pending_update %}
+  <div class="card" style="margin-top:18px;padding:16px;border-radius:16px;">
+    <h3>نتيجة فحص التحديث</h3>
+    <p><strong>الإصدار في الحزمة:</strong> {{ pending_update.version }}</p>
+    <p><strong>نوع الحزمة:</strong> {% if pending_update.package_type == "partial" %}تحديث جزئي{% else %}تحديث كامل{% endif %}</p>
+    {% if pending_update.changed_files_count %}<p><strong>عدد الملفات المعدلة:</strong> {{ pending_update.changed_files_count }}</p>{% endif %}
+    {% if pending_update.deleted_files_count %}<p><strong>عدد الملفات المحذوفة:</strong> {{ pending_update.deleted_files_count }}</p>{% endif %}
+    <p><strong>وقت التجهيز:</strong> {{ pending_update.prepared_at }}</p>
+    <p><strong>الحالة:</strong>
+      {% if pending_update.is_newer %}
+        <span style="color:#0f6b4a;font-weight:700;">هذا التحديث أحدث من الإصدار الحالي.</span>
+      {% else %}
+        <span style="color:#b26a00;font-weight:700;">الإصدار داخل الحزمة ليس أحدث من الإصدار الحالي، لكن يمكنك اختباره إذا أردت.</span>
+      {% endif %}
+    </p>
+    {% if pending_update.notes %}
+      <div class="flash info" style="margin-top:10px;"><div><span class="notice-title">ملاحظات الحزمة</span><span class="notice-text">{{ pending_update.notes|linebreaksbr }}</span></div></div>
+    {% endif %}
+    <div class="flash warning" style="margin-top:12px;">
+      <div><span class="notice-title">تنبيه قبل التطبيق</span><span class="notice-text">أغلق البرنامج أولًا، ثم شغّل ملف التطبيق المحلي للتحديث. إذا كانت الحزمة جزئية فسيتم استبدال الملفات المعدلة فقط.</span></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <a href="{% url 'system_local_update_script' %}" class="btn btn-warning" style="padding:10px 18px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">
+        تحميل ملف تطبيق التحديث
+      </a>
+      <a class="btn" href="{% url 'system_settings' %}" style="padding:10px 18px;border-radius:12px;">العودة إلى إعدادات النظام</a>
+    </div>
+
+    <div class="flash info" style="margin-top:12px;">
+      <div><span class="notice-title">ملاحظة حول التنزيل</span><span class="notice-text">عند الضغط على زر <strong>تحميل ملف تطبيق التحديث</strong> قد لا تظهر رسالة تنزيل داخل نافذة البرنامج بسبب طريقة عمل نسخة سطح المكتب. إذا لم يظهر أي إشعار، فهذا لا يعني أن الزر لا يعمل.</span></div>
+    </div>
+
+    <div class="flash success" style="margin-top:10px;">
+      <div><span class="notice-title">مكان الملف بعد التحميل</span><span class="notice-text">يمكنك العثور على الملف مباشرة هنا:</span><br>
+      <code>local_updates/scripts/apply_local_update.ps1</code></div>
+    </div>
+
+    <p style="margin-top:14px;color:#666;">
+      بعد تحميل الملف أو العثور عليه في المسار أعلاه: أغلق البرنامج أولًا، ثم افتح
+      <code>apply_local_update.ps1</code>
+      ليتم نسخ الملفات الجديدة ثم إعادة تشغيل النسخة المحدثة.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

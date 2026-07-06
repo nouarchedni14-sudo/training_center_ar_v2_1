@@ -1,0 +1,25 @@
+/* =========================================================
+   ألوان القوائم - نسخة احترافية هادئة
+   ========================================================= */
+
+/* صف المتكوّن المشطوب */
+tr.row-removed > td{
+  background:#fff5ea !important;
+}
+
+/* خلية الجنس - ألوان احترافية غير حادة */
+td.gender-cell.gender-male{
+  background:#e8f7ee !important;
+  color:#0f6b4a !important;
+}
+
+td.gender-cell.gender-female{
+  background:#fff1f0 !important;
+  color:#b42318 !important;
+}
+
+td.gender-cell{
+  font-weight:800;
+  text-align:center;
+  border-radius:10px;
+}

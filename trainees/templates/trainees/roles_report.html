@@ -1,0 +1,52 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <h2>تقرير المستخدمين حسب الدور</h2>
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:end;">
+    <div>
+      <label>الدور</label><br>
+      <select name="role_code">
+        <option value="">كل الأدوار</option>
+        {% for value, label in role_choices %}
+          <option value="{{ value }}" {% if selected_role_code == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">تطبيق</button>
+  </form>
+  <p class="muted">إجمالي المستخدمين في النتائج: <strong>{{ total_users }}</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>الدور</th>
+        <th>الإجمالي</th>
+        <th>نشطة</th>
+        <th>معطلة</th>
+        <th>مخصصة يدويًا</th>
+        <th>لها نهاية صلاحية</th>
+        <th>آخر تحديث</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.role_label }}</td>
+        <td>{{ row.total }}</td>
+        <td>{{ row.active }}</td>
+        <td>{{ row.inactive }}</td>
+        <td>{{ row.customized }}</td>
+        <td>{{ row.expiring }}</td>
+        <td>{% if row.latest_update %}{{ row.latest_update|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7">لا توجد بيانات مطابقة.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+    <a href="{% url 'expiring_users_report' %}">تقرير انتهاء الصلاحيات</a>
+    <a href="{% url 'customized_users_report' %}">تقرير التخصيص اليدوي</a>
+    <a href="{% url 'account_activity_report' %}">تقرير نشاط الحسابات</a>
+  </div>
+</div>
+{% endblock %}

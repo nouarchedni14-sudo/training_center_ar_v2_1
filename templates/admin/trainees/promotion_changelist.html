@@ -1,0 +1,5 @@
+{% extends "admin/change_list.html" %}
+{% block object-tools-items %}
+<li><a href="{{ relink_url|default:'#' }}" class="addlink" style="background:#0b57d0;">إعادة ربط المتكوّنين بالدفعات</a></li>
+{{ block.super }}
+{% endblock %}

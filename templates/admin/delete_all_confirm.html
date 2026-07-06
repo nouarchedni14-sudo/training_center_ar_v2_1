@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="module" style="max-width:820px;">
+    <h1 style="margin-bottom:10px;">🗑 {{ title|default:"تأكيد الحذف" }}</h1>
+
+    <div style="padding:14px;border:1px solid #ef4444;background:#fff5f5;border-radius:12px;">
+      <p style="margin:0 0 10px 0;">
+        أنت على وشك حذف <strong>{{ count }}</strong> سجل/سجلات من:
+        <strong>{{ model_verbose }}</strong>
+      </p>
+      {% if delete_scope %}
+        <p style="margin:0 0 10px 0;">نطاق الحذف: <strong>{{ delete_scope }}</strong></p>
+      {% endif %}
+      <p style="margin:0;color:#7f1d1d;">⚠️ هذا الإجراء لا يمكن التراجع عنه.</p>
+    </div>
+
+    {% if filters_note %}
+      <div style="margin-top:14px;padding:14px;border:1px solid #f59e0b;background:#fffbeb;border-radius:12px;">
+        <p style="margin:0;">{{ filters_note }}</p>
+      </div>
+    {% endif %}
+
+    <form method="post" style="margin-top:16px;">
+      {% csrf_token %}
+      <button type="submit" name="confirm" value="yes" class="deletelink"
+              style="padding:10px 14px;border-radius:12px;">
+        {{ submit_label|default:"نعم، احذف" }}
+      </button>
+      <button type="submit" name="confirm" value="no" class="button"
+              style="padding:10px 14px;border-radius:12px;margin-right:8px;">
+        {{ cancel_label|default:"إلغاء" }}
+      </button>
+      <a href="{{ changelist_url }}" class="button"
+         style="padding:10px 14px;border-radius:12px;margin-right:8px;">
+        رجوع
+      </a>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+<div class="sanction-copy">
+  <div class="official-header">
+    <div class="official-main">
+      <div>الجمهورية الجزائرية الديمقراطية الشعبية</div>
+      <div>وزارة التكوين و التعليم المهنيين</div>
+    </div>
+    <div class="right-block">
+      <div>المعهد الوطني المتخصص في التكوين المهني</div>
+      <div>الشهيد تاج الدين حامد عبد الوهاب تيسمسيلت</div>
+      <div>المديرية الفرعية للإعلام والتوجيه والرقمنة والإدماج المهني</div>
+      <div>مصلحة المراقبة العامة</div>
+      <div class="number-line">الرقم: {{ item.document_number|default:'........' }} / م.ع / م.ف.إ.ت.ر.إ.م / م.و.م.ت.م / {{ item.document_year|default:'....' }}</div>
+    </div>
+  </div>
+
+  <div class="director-to">
+    <div class="from-line">مــــديــــر المـــعــهـــد</div>
+    <div class="to-line">إلـــــــــــــــــى</div>
+    <div class="to-trainee">المتربص(ة) المتمهن(ة): <strong>{{ item.trainee_name|default:'.........................' }}</strong></div>
+    <div>التخصص: <strong>{{ item.specialty|default:'.........................' }}</strong></div>
+    <div>السداسي: <strong>{{ item.semester|default:'.........................' }}</strong></div>
+  </div>
+
+  <div class="subject-line">الموضوع: <strong>العقوبات</strong></div>
+  <p class="director-line">إن مدير المعهد الوطني المتخصص في التكوين المهني تيسمسيلت</p>
+
+  <div class="legal-text">
+    <p>- بناءا على المرسوم التنفيذي رقم 456-02 مؤرخ في 17 شوال عام 1423 الموافق 2002-12-21 يتضمن إنشاء معهد وطني متخصص في التكوين المهني وتحويل مراكز التكوين المهني والتمهين إلى معاهد وطنية متخصصة في التكوين المهني.</p>
+    <p>- بناءا على المرسوم التنفيذي رقم 130-23 مؤرخ في 25 شعبان عام 1444 الموافق 2023-03-18 يتضمن إنشاء معاهد وطنية متخصصة في التكوين المهني وتحويل مراكز التكوين المهني والتمهين إلى معاهد وطنية متخصصة في التكوين المهني.</p>
+    <p>- بناءا على المرسوم التنفيذي رقم 125-12 المؤرخ في 2012-03-19 يحدد القانون الأساسي النموذجي للمعاهد الوطنية المتخصصة في التكوين المهني.</p>
+    <p>- بناءا على القرار الوزاري المشترك المؤرخ في 07 رجب عام 1444 الموافق 29 جانفي سنة 2023 الذي يحدد التنظيم الداخلي للمعهد الوطني المتخصص في التكوين المهني.</p>
+    <p>- بناءا على القرار الوزاري رقم 123-23 المؤرخ في 02 ذوالقعدة 1444 الموافق 2023-05-22 يحدد النظام الداخلي الإطار للمؤسسات العمومية للتكوين والتعليم المهنيين.</p>
+  </div>
+
+  <p class="sanction-line">
+    لـــــذا أوجه لكم عقوبة:
+    <span class="sanction-gap"></span>
+    <strong>{{ item.sanction_text|default:'.........................' }}</strong>
+  </p>
+  <p class="body-text">وهذا راجع لعدم احترامكم لقوانين المعهد الوطني المتخصص في التكوين المهني المتمثلة في الغيابات المتكررة أو التصرفات غير اللائقة، كما نحيطكم علما أن هذه العقوبة تدرج في ملفكم وتأخذ بعين الاعتبار ويكون لها تأثير في امتحان نهاية التربص، المطلوب منكم تفادي مثل هذه التصرفات.</p>
+  {% if item.notes %}<p class="note-text">{{ item.notes|linebreaksbr }}</p>{% endif %}
+
+  <div class="bottom-lines">
+    <div class="record-number">رقم المحضر: <strong>{{ item.disciplinary_record_number|default:'........' }}</strong></div>
+    <div class="record-date">تاريخ المحضر: <strong>{% if item.disciplinary_record_date %}{{ item.disciplinary_record_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong></div>
+    <div class="issue-date">حرر بتيسمسيلت في: <strong>{% if item.decision_date %}{{ item.decision_date|date:'d-m-Y' }}{% elif item.disciplinary_record_date %}{{ item.disciplinary_record_date|date:'d-m-Y' }}{% else %}........{% endif %}</strong></div>
+  </div>
+
+  <div class="copy-label">{{ copy_label }}</div>
+</div>

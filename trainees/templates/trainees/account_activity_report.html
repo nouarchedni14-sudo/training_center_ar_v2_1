@@ -1,0 +1,50 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <h2>تقرير نشاط الحسابات</h2>
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:end;">
+    <div><label>آخر</label><br><input type="number" min="1" name="days" value="{{ days }}"></div>
+    <div>
+      <label>العملية</label><br>
+      <select name="action">
+        <option value="">كل العمليات</option>
+        {% for value, label in action_choices %}
+          <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div><label>اسم المستخدم</label><br><input type="text" name="username" value="{{ username }}"></div>
+    <button type="submit">تطبيق</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>التاريخ</th>
+        <th>المصدر</th>
+        <th>العملية</th>
+        <th>المستخدم المستهدف</th>
+        <th>تم بواسطة</th>
+        <th>الحقول</th>
+        <th>التفاصيل</th>
+        <th>IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.timestamp|date:"Y-m-d H:i" }}</td>
+        <td>{% if row.source == 'audit' %}تدقيق{% else %}نشاط{% endif %}</td>
+        <td>{{ row.action_label }}</td>
+        <td>{{ row.username }}</td>
+        <td>{{ row.actor_name }}</td>
+        <td>{% if row.changed_fields %}{{ row.changed_fields|join:"، " }}{% else %}—{% endif %}</td>
+        <td>{{ row.details }}</td>
+        <td>{{ row.ip_address }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8">لا توجد سجلات ضمن الفلتر الحالي.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

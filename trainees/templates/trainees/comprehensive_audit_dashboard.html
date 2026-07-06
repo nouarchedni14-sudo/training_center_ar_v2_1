@@ -1,0 +1,119 @@
+{% extends "trainees/base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div>
+      <h2 style="margin:0">السجل الشامل للعمليات</h2>
+      <div class="muted">متابعة كل شاشة وكل عملية مع إبراز العمليات الحساسة وإمكانية التصدير.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a class="btn" href="{% url 'comprehensive_audit_export' %}?{{ query_string }}">تصدير Excel</a>
+      <a class="btn" href="{% url 'management_overview' %}">العودة للمتابعة الإدارية</a>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px;">
+    <div class="card" style="margin:0;background:#f8fafc;"><strong>{{ summary.total|default:0 }}</strong><div class="muted">إجمالي السجلات</div></div>
+    <div class="card" style="margin:0;background:#f0fdf4;"><strong>{{ summary.success_count|default:0 }}</strong><div class="muted">عمليات ناجحة</div></div>
+    <div class="card" style="margin:0;background:#fef2f2;"><strong>{{ summary.failed_count|default:0 }}</strong><div class="muted">عمليات فاشلة</div></div>
+  </div>
+
+  <form method="get" style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+    <input type="text" name="q" value="{{ filters.q }}" placeholder="بحث عام في المستخدم/الشاشة/المسار/التفاصيل">
+    <input type="text" name="username" value="{{ filters.username }}" placeholder="اسم المستخدم">
+    <input type="text" name="object" value="{{ filters.object }}" placeholder="بحث باسم المتكون أو الكيان">
+    <select name="action">
+      <option value="">كل أنواع السجل</option>
+      {% for value,label in action_choices %}
+      <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="success">
+      <option value="">كل الحالات</option>
+      <option value="1" {% if filters.success == '1' %}selected{% endif %}>ناجحة</option>
+      <option value="0" {% if filters.success == '0' %}selected{% endif %}>فاشلة</option>
+    </select>
+    <select name="method">
+      <option value="">كل الطرق</option>
+      {% for value in method_choices %}
+      <option value="{{ value }}" {% if filters.method == value %}selected{% endif %}>{{ value }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="screen" value="{{ filters.screen }}" placeholder="اسم الشاشة">
+    <input type="text" name="model" value="{{ filters.model }}" placeholder="نوع الكيان">
+    <input type="date" name="date_from" value="{{ filters.date_from }}">
+    <input type="date" name="date_to" value="{{ filters.date_to }}">
+    <label style="display:flex;align-items:center;gap:8px;border:1px solid #e5e7eb;padding:8px 10px;border-radius:10px;">
+      <input type="checkbox" name="sensitive_only" value="1" {% if filters.sensitive_only == '1' %}checked{% endif %}>
+      العمليات الحساسة فقط
+    </label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="submit">تطبيق</button>
+      <a class="btn" href="{% url 'comprehensive_audit_dashboard' %}">إعادة ضبط</a>
+    </div>
+  </form>
+</div>
+
+<div class="card" style="margin-top:16px;overflow:auto;">
+  <table style="width:100%;border-collapse:collapse;min-width:1550px;">
+    <thead>
+      <tr>
+        <th style="text-align:right;padding:10px;">التاريخ</th>
+        <th style="text-align:right;padding:10px;">المستخدم</th>
+        <th style="text-align:right;padding:10px;">الحساسية</th>
+        <th style="text-align:right;padding:10px;">النوع</th>
+        <th style="text-align:right;padding:10px;">الطريقة</th>
+        <th style="text-align:right;padding:10px;">الشاشة / العرض</th>
+        <th style="text-align:right;padding:10px;">الكيان</th>
+        <th style="text-align:right;padding:10px;">النتيجة</th>
+        <th style="text-align:right;padding:10px;">قبل</th>
+        <th style="text-align:right;padding:10px;">بعد</th>
+        <th style="text-align:right;padding:10px;">تفاصيل</th>
+        <th style="text-align:right;padding:10px;">عرض</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr style="border-top:1px solid #e5e7eb;vertical-align:top;{% if item.is_sensitive %}background:#fff7ed;{% endif %}">
+        <td style="padding:10px;white-space:nowrap;">{{ item.created_at|date:"Y-m-d H:i:s" }}</td>
+        <td style="padding:10px;">
+          <strong>{{ item.username_snapshot|default:'—' }}</strong>
+          {% if item.ip_address %}<div class="muted">IP: {{ item.ip_address }}</div>{% endif %}
+        </td>
+        <td style="padding:10px;">{% if item.is_sensitive %}<span style="background:#f97316;color:#fff;padding:4px 8px;border-radius:999px;font-size:12px;">حساسة</span>{% else %}<span class="muted">عادية</span>{% endif %}</td>
+        <td style="padding:10px;">{{ item.get_action_display }}</td>
+        <td style="padding:10px;">{{ item.method|default:'—' }}</td>
+        <td style="padding:10px;">
+          <strong>{{ item.screen_name|default:'—' }}</strong>
+          <div class="muted">{{ item.view_name|default:'—' }}</div>
+          <div class="muted">{{ item.path }}</div>
+        </td>
+        <td style="padding:10px;">
+          {% if item.model_label %}<strong>{{ item.model_label }}</strong>{% else %}—{% endif %}
+          {% if item.object_pk %}<div class="muted">#{{ item.object_pk }}</div>{% endif %}
+          {% if item.object_repr %}<div class="muted">{{ item.object_repr }}</div>{% endif %}
+        </td>
+        <td style="padding:10px;">
+          {% if item.success %}ناجحة{% else %}فاشلة{% endif %}
+          {% if item.status_code %}<div class="muted">HTTP {{ item.status_code }}</div>{% endif %}
+        </td>
+        <td style="padding:10px;max-width:240px;word-break:break-word;">{{ item.before_data_compact|default:'—' }}</td>
+        <td style="padding:10px;max-width:240px;word-break:break-word;">{{ item.after_data_compact|default:'—' }}</td>
+        <td style="padding:10px;max-width:280px;word-break:break-word;">{{ item.details_compact|default:'—' }}</td>
+        <td style="padding:10px;"><a class="btn" href="{% url 'comprehensive_audit_detail' item.pk %}">تفاصيل</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="12" style="padding:14px;">لا توجد نتائج مطابقة.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div class="muted">الصفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}</div>
+    <div style="display:flex;gap:8px;">
+      {% if page_obj.has_previous %}<a class="btn" href="?page={{ page_obj.previous_page_number }}&{{ query_string }}">السابق</a>{% endif %}
+      {% if page_obj.has_next %}<a class="btn" href="?page={{ page_obj.next_page_number }}&{{ query_string }}">التالي</a>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

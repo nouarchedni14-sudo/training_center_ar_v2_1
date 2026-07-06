@@ -1,0 +1,38 @@
+<div class="document-copy">
+  <div class="doc-header-stack">
+    <div class="state-line state-centered">الجمهورية الجزائرية الديمقراطية الشعبية</div>
+    <div class="state-line state-centered">وزارة التكوين و التعليم المهنيين</div>
+    <div class="state-line">المعهد الوطني المتخصص في التكوين المهني</div>
+    <div class="state-line">الشهيد تاج الدين حامد عبد الوهاب تيسمسيلت</div>
+    <div class="state-line">المديرية الفرعية للإعلام والتوجيه والرقمنة والمساعدة على الإدماج المهني</div>
+    <div class="state-line">مصلحة المراقبة العامة</div>
+    <div class="doc-number-line">الرقم: {{ action_obj.document_number|default:'........................' }}/م.ف.إ.ت.ر.م.إ.م/م.ع/م.و.م.ت.م/{{ action_obj.year }}</div>
+  </div>
+
+  <div class="doc-title">{{ action_obj.document_heading }}</div>
+
+  <div class="doc-meta-block">
+    <div class="doc-meta"><strong>اللقب والإسم:</strong> {{ action_obj.trainee_name|default:'.........................' }}</div>
+    <div class="doc-meta"><strong>التخصص:</strong> {{ action_obj.trainee_specialty|default:'.........................' }}</div>
+    <div class="doc-meta"><strong>العنوان:</strong> {{ action_obj.trainee_address|default:'.........................' }}</div>
+  </div>
+
+  <div class="doc-body-block">
+    {% if action_obj.action_type == 'summon' %}
+      <div class="doc-paragraph doc-paragraph-center">لقد لفت انتباهنا غيابكم المستمر والغير المبرر منذ تاريخ <span class="date-ltr" dir="ltr">{{ action_obj.absence_start_date_display }}</span> إلى يومنا هذا، وبعد استنفاد الأعذارات الإدارية المسجلة، فإننا نستدعيكم للحضور فورًا إلى إدارة المعهد وتسوية وضعيتكم البيداغوجية.</div>
+      <div class="doc-paragraph doc-paragraph-center">وفي حالة عدم الالتحاق في مدة أقصاها (3) ثلاثة أيام عند استلامكم لهذا الاستدعاء،</div>
+      <div class="doc-paragraph doc-paragraph-center">سوف تتخذ الإجراءات الإدارية الصارمة طبقًا للقانون الخاص بالمعهد الوطني المتخصص في التكوين المهني، لا سيما المادة رقم 27.</div>
+    {% else %}
+      <div class="doc-paragraph doc-paragraph-center doc-paragraph-one-line">لقد لفت انتباهنا غيابكم المستمر والغير المبرر منذ تاريخ <span class="date-ltr" dir="ltr">{{ action_obj.absence_start_date_display }}</span> إلى يومنا هذا،لذا نطلب منكم الإلتحاق في أقرب الأجال لإستئناف تكوينكم.</div>
+      <div class="doc-paragraph doc-paragraph-center doc-paragraph-combined">وفي حالة عدم الالتحاق في مدة أقصاها (3) ثلاثة أيام عند استلامكم لهذا الإعذار، سوف تتخذ الإجراءات الإدارية الصارمة طبقًا للقانون الخاص بالمعهد الوطني المتخصص في التكوين المهني، لا سيما المادة رقم 27.</div>
+    {% endif %}
+  </div>
+
+  <div class="doc-bottom-row">
+    <div class="issue-stack">
+      <div class="issue-date">حرر يوم: <span class="date-ltr" dir="ltr">{{ action_obj.send_date_display }}</span></div>
+      <div class="copy-label">{{ copy_label }}</div>
+    </div>
+    <div class="stamp-box">ختم المراقب العام</div>
+  </div>
+</div>

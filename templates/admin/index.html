@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_dashboard %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="admin-home">
+    <div class="admin-home__hero">
+      <div>
+        <div class="admin-home__eyebrow">فضاء التسيير المركزي</div>
+        <h2 class="admin-home__title">لوحة قيادة المؤسسة</h2>
+        <p class="admin-home__subtitle">واجهة احترافية لمتابعة المتكوّنين والدفعات والصلاحيات وسجل النشاط وفق تنظيم مؤسساتي واضح.</p>
+      </div>
+    </div>
+
+    {% dashboard_cards %}
+    {% dashboard_report %}
+
+  </div>
+{% endblock %}

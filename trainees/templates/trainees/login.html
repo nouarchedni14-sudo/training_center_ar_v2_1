@@ -1,0 +1,40 @@
+{% extends "trainees/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  .login-shell{max-width:1080px;margin:30px auto 0;display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:stretch}
+  .login-panel{background:rgba(255,255,255,.94);border:1px solid rgba(15,118,110,.16);border-radius:28px;box-shadow:0 22px 60px rgba(15,46,42,.12);padding:34px;position:relative;overflow:hidden}
+  .login-panel:before{content:"";position:absolute;inset:auto -80px -100px auto;width:260px;height:260px;background:rgba(15,118,110,.08);border-radius:999px}
+  .login-logo-wrap{display:flex;justify-content:center;margin-bottom:16px}.login-logo{width:130px;height:130px;object-fit:contain;filter:drop-shadow(0 10px 24px rgba(0,0,0,.12))}
+  .login-title{font-size:34px;line-height:1.2;color:#0f2f27;margin:0 0 10px;font-weight:900;text-align:center}.login-subtitle{text-align:center;color:#64746f;margin:0 0 22px}
+  .field-block{margin-bottom:14px}.field-block label{display:block;font-weight:800;color:#173c33;margin-bottom:7px}.field-block input{width:100%;height:48px;border:1px solid #cfe4df;border-radius:14px;padding:0 15px;font-size:16px;background:#f8fbfa;box-sizing:border-box}.field-block input:focus{outline:2px solid rgba(15,118,110,.18);border-color:#0f766e;background:#fff}
+  .login-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}.login-actions button,.login-actions a{border:0;border-radius:14px;padding:13px 24px;font-weight:900;text-decoration:none;cursor:pointer;background:#0f766e;color:white;box-shadow:0 10px 24px rgba(15,118,110,.24)}
+  .login-actions .secondary{background:#334155}.login-help{background:linear-gradient(180deg,rgba(240,253,250,.9),rgba(255,255,255,.96));border:1px solid rgba(15,118,110,.16);border-radius:28px;padding:30px;box-shadow:0 18px 50px rgba(15,46,42,.09)}
+  .login-help h3{font-size:26px;margin:0 0 18px;color:#15382f}.help-row{display:flex;justify-content:space-between;gap:18px;border-bottom:1px solid rgba(15,118,110,.12);padding:13px 0;color:#536761}.help-row strong{color:#15382f}.hint{margin-top:18px;color:#687973;font-size:14px;text-align:center}.alert{background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:16px;padding:12px 14px;margin:0 0 16px;text-align:center;font-weight:800}
+  @media(max-width:850px){.login-shell{grid-template-columns:1fr}.login-panel,.login-help{padding:22px}.login-title{font-size:28px}}
+</style>
+<div class="login-shell">
+  <section class="login-panel">
+    <div class="login-logo-wrap"><img src="{% static 'branding/mfep.ico' %}" alt="MFEP" class="login-logo"></div>
+    <h1 class="login-title">تسجيل الدخول</h1>
+    <p class="login-subtitle">أدخل حسابك للوصول إلى البرامج المسموح بها فقط.</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post" class="form">
+      {% csrf_token %}
+      <div class="field-block"><label for="login-username">اسم المستخدم</label><input id="login-username" name="username" value="{{ username|default:'' }}" required autocomplete="username"></div>
+      <div class="field-block"><label for="login-password">كلمة المرور</label><input id="login-password" name="password" type="password" required autocomplete="current-password"></div>
+      <div class="login-actions"><button type="submit">دخول المستخدمين</button></div>
+    </form>
+    <div class="hint">إذا كانت الصلاحية منتهية أو غير مفعلة ستظهر لك صفحة توضح السبب مباشرة.</div>
+  </section>
+  <aside class="login-help">
+    <h3>ما الذي ستراه بعد الدخول؟</h3>
+    <div class="help-row"><span>الرئيسية</span><strong>ملخص سريع</strong></div>
+    <div class="help-row"><span>حالة الحساب</span><strong>تفاصيل الصلاحية</strong></div>
+    <div class="help-row"><span>البرامج</span><strong>فقط ما هو مسموح</strong></div>
+    <div class="help-row"><span>الغيابات</span><strong>عند توفر الصلاحية</strong></div>
+    <div class="help-row"><span>الإدارة</span><strong>للمخوّلين فقط</strong></div>
+    <div class="hint">هذه الصفحة للمستخدمين العاديين. دخول المطور له رابط خاص لا يظهر هنا.</div>
+  </aside>
+</div>
+{% endblock %}

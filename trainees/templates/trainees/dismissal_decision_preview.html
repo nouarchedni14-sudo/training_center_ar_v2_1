@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ program_label }} - معاينة مقرر الفصل</title>
+  <style>
+    :root{--ink:#000;--accent:#000;--gold:#000;--paper:#fff;--screen:#fff7ed}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;direction:rtl;background:#f7f3ea;color:#000;font-family:"Times New Roman","Traditional Arabic","Arial",sans-serif}
+    html{scrollbar-width:none;-ms-overflow-style:none}
+    html::-webkit-scrollbar,body::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
+    body{padding:18px 0;overflow-x:hidden}
+    a,button{font-family:inherit}
+    .preview-toolbar{direction:rtl;width:190mm;margin:0 auto 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #e7d3ad;border-radius:14px;padding:12px 14px;box-shadow:0 8px 22px rgba(15,23,42,.08)}
+    .preview-toolbar h1{margin:0;color:#7c2d12;font-family:Arial,sans-serif;font-size:22px}.preview-toolbar .meta{color:#64748b;font-weight:700;font-family:Arial,sans-serif}.preview-toolbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:0;border-radius:10px;background:#0b5a3d;color:#fff;padding:10px 16px;font-weight:700;text-decoration:none;cursor:pointer;font-family:Arial,sans-serif}.btn.secondary{background:#b4892b}.btn:hover{filter:brightness(.96)}
+
+    .decision-page{direction:rtl;background:var(--paper);color:#000;width:190mm;min-height:277mm;margin:0 auto 18px;padding:12mm 14mm 10mm;box-sizing:border-box;border:1px solid #e2e8f0;box-shadow:0 8px 22px rgba(15,23,42,.08);font-family:"Times New Roman","Traditional Arabic","Arial",sans-serif;font-size:19px;line-height:1.95;page-break-after:always;overflow:hidden}.decision-page:last-child{page-break-after:auto}
+    .official-header{font-weight:700;line-height:1.55;margin:0 0 4.5mm}
+.official-header-main{text-align:center;margin-bottom:3.5mm;line-height:1.5}
+.admin-header-block{display:block!important;width:100%!important;text-align:right!important;line-height:1.55;margin:0!important;padding:0!important}
+.institute-lines{display:block!important;width:100%!important;text-align:right!important;line-height:1.55;margin:0!important;padding:0!important}
+.decision-number{display:block!important;width:100%!important;text-align:right!important;white-space:nowrap;margin:2mm 0 0!important;font-weight:700;line-height:1.55}.director-line{text-align:right!important;font-weight:700;margin-top:4mm!important;margin-bottom:5mm!important;line-height:1.9!important}
+    .decision-title{text-align:center;color:var(--accent);font-size:33px;line-height:1.45;margin:7mm 0 6mm;text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:1.7px}.sub-title{text-align:center;color:var(--accent);font-size:25px;line-height:1.45;margin:6mm 0 5mm;text-decoration:underline;text-underline-offset:5px}.center{text-align:center}.strong{font-weight:700}.legal-text p{margin:0 0 3.2mm;text-align:justify;text-align-last:right;line-height:1.78}.decision-page p{margin:0 0 3.3mm;line-height:1.88}.decision-note{font-weight:700;text-align:right!important;margin-top:1.5mm!important;margin-bottom:3.5mm!important;line-height:1.8!important}.dismissal-line{margin-top:4.5mm!important;margin-bottom:4.8mm!important;line-height:1.95!important}.article-two{margin-top:4mm!important;margin-bottom:4mm!important;line-height:1.9!important}.footer-place{margin-top:7mm;text-align:left;font-weight:700;line-height:1.9}
+
+    /* إجبار لون مقرر الفصل على الأسود في المعاينة */
+    .decision-page,
+    .decision-page * {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+      text-decoration-color: #000 !important;
+      opacity: 1 !important;
+    }
+
+    .decision-title,
+    .sub-title,
+    .decision-title *,
+    .sub-title * {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+      text-decoration-color: #000 !important;
+    }
+
+    @media print{
+      @page{size:A4 portrait;margin:0}
+      html,body{background:#fff!important;margin:0!important;padding:0!important;width:210mm!important;min-width:210mm!important;height:auto!important;overflow:visible!important;scrollbar-width:none!important;-ms-overflow-style:none!important}
+      html::-webkit-scrollbar,body::-webkit-scrollbar,.decision-page::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
+      body{print-color-adjust:exact;-webkit-print-color-adjust:exact;color:#000!important;-webkit-text-fill-color:#000!important}
+      .preview-toolbar,.no-print{display:none!important}
+      *{box-shadow:none!important;text-shadow:none!important}
+      .decision-page{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:8mm 14mm 9mm 14mm!important;border:0!important;box-shadow:none!important;page-break-after:always;break-after:page;font-size:17.4px!important;line-height:1.82!important;overflow:hidden!important;color:#000!important;background:#fff!important;position:relative!important}
+      .decision-page:last-child{page-break-after:auto;break-after:auto}
+      .official-header{line-height:1.45!important;margin:0 0 3mm!important;font-size:16.4px!important;text-align:initial!important}.official-header-main{margin-bottom:2.8mm!important;text-align:center!important;line-height:1.42!important}.admin-header-block{display:block!important;width:100%!important;line-height:1.45!important;text-align:right!important;margin-right:0!important;margin-left:auto!important;padding:0!important}ight:0!important;margin-left:auto!important;padding:0!important}.institute-lines{display:block!important;width:100%!important;line-height:1.45!important;text-align:right!important;margin:0!important;padding:0!important}portant;padding:0!important}.decision-number{display:block!important;width:100%!important;font-size:16.4px!important;text-align:right!important;margin-top:1.6mm!important;white-space:nowrap!important;line-height:1.45!important}2.3mm!important;white-space:nowrap!important;line-height:1.55!important}.director-line{text-align:right!important;font-weight:700!important;margin-top:3mm!important;margin-bottom:4mm!important;line-height:1.72!important}
+      .decision-title{font-size:30px!important;margin:5.2mm 0 4.6mm!important;color:#000!important;line-height:1.32!important;text-underline-offset:4px!important}.sub-title{font-size:23px!important;margin:4.8mm 0 4mm!important;color:#000!important;line-height:1.32!important;text-underline-offset:4px!important}.center{text-align:center!important}.legal-text p{margin:0 0 2.55mm!important;text-align:justify!important;text-align-last:right!important;line-height:1.66!important}.decision-page p{margin:0 0 2.7mm!important;line-height:1.72!important}.decision-note{font-weight:700!important;text-align:right!important;margin-top:1.4mm!important;margin-bottom:2.9mm!important;line-height:1.68!important}.dismissal-line{margin-top:3.8mm!important;margin-bottom:4.2mm!important;line-height:1.78!important}.article-two{margin-top:3.4mm!important;margin-bottom:3.4mm!important;line-height:1.76!important}.footer-place{margin-top:5.5mm!important;text-align:left!important;line-height:1.72!important}
+      /* إجبار لون مقرر الفصل على الأسود عند الطباعة */
+      html,
+      body,
+      .decision-page,
+      .decision-page * {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+        text-decoration-color: #000 !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+      }
+
+      .decision-page {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+
+      .decision-title,
+      .sub-title,
+      .decision-title *,
+      .sub-title *,
+      .official-header,
+      .official-header *,
+      .legal-text,
+      .legal-text *,
+      .footer-place,
+      .footer-place * {
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+        text-decoration-color: #000 !important;
+      }
+
+    }
+</style>
+</head>
+<body>
+  <div class="preview-toolbar no-print">
+    <div><h1>{{ program_label }} - معاينة مقرر الفصل</h1><div class="meta">عدد المقررات: {{ decisions|length }}</div></div>
+    <div class="actions">
+      <button class="btn" onclick="window.print()">طباعة</button>
+      {% if decisions %}<a class="btn secondary" href="{% url 'dismissal_decisions_bulk_edit' program %}?{% for item in decisions %}ids={{ item.pk }}{% if not forloop.last %}&{% endif %}{% endfor %}{% if return_query %}&return_query={{ return_query|urlencode }}{% endif %}">تعديل</a>{% endif %}
+      <a class="btn secondary" href="{% url 'dismissal_decisions' program %}{% if return_query %}?{{ return_query }}{% endif %}">العودة للقائمة</a>
+    </div>
+  </div>
+
+  {% for item in decisions %}
+    {% include "trainees/dismissal_decision_document_block.html" with item=item %}
+  {% endfor %}
+
+  {% if auto_print %}
+  <script>
+    window.addEventListener('load', function(){ window.print(); });
+  </script>
+  {% endif %}
+</body>
+</html>

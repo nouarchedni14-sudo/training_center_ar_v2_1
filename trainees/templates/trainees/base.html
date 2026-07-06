@@ -1,0 +1,197 @@
+<!-- تحميل مكتبات template tags -->
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+  <title>{{ title|default:"برنامج المتكوّنين" }}</title>
+  {# cache-bust to ensure latest CSS loads after updates #}
+  <link rel="stylesheet" href="{% static 'css/ui.css' %}?v=20260407toast4">
+  <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=20260407toast3">
+  <link rel="stylesheet" href="{% static 'css/list_colors.css' %}?v=20260407toast3">
+
+  <style>
+    .nav a.central-return{background:#b4892b;color:#fff;box-shadow:0 10px 22px rgba(180,137,43,.24)}
+    .nav a.central-return:hover{filter:brightness(.98);transform:translateY(-1px)}
+  </style>
+</head>
+<body>
+  <div class="stars"></div><div class="twinkling"></div>
+  <div class="institution-banner">
+    <img src="{% static 'branding/INSFP.jpg' %}" alt="INSFP" class="institution-banner__logo institution-banner__logo--right">
+    <div class="institution-banner__name">المعهد الوطني المتخصص في التكوين المهني</div>
+    <img src="{% static 'branding/INSFP.jpg' %}" alt="INSFP" class="institution-banner__logo institution-banner__logo--left">
+  </div>
+  <header class="topbar">
+    <div class="brand">برنامج تسيير المتكوّنين</div>
+    <nav class="nav">
+      <!-- شرط داخل القالب -->
+      {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard' %}">الرئيسية</a>
+        <a href="{% url 'account_overview' %}">حالة الحساب</a>
+        {% if "initial" in visible_programs %}<a href="{% url 'initial_list' %}">الحضوري الأولي</a>{% endif %}
+        {% if "apprentice" in visible_programs %}<a href="{% url 'apprentice_list' %}">التمهين</a>{% endif %}
+        {% if "evening" in visible_programs %}<a href="{% url 'evening_list' %}">الدروس المسائية</a>{% endif %}
+        {% if "crossing" in visible_programs %}<a href="{% url 'crossing_list' %}">المعابر</a>{% endif %}
+        {% if visible_programs %}<a href="{% url 'attendance_home' %}">جدول الغيابات</a>{% endif %}
+        {% if access_summary.can_view_reports or can_access_admin_panel or request.user.is_superuser %}<a href="{% url 'management_overview' %}">المتابعة الإدارية</a>{% endif %}
+        {% if can_access_admin_panel %}<a href="/admin/">الإدارة</a>{% endif %}
+        {% if can_view_system_settings %}<a href="{% url 'system_settings' %}">النظام والتحديثات</a>{% endif %}
+        {% if request.user.is_superuser %}<a class="central-return" href="{{ central_dashboard_url }}">لوحة المطور المركزية</a>{% endif %}
+        <a class="danger" href="{% url 'logout' %}">خروج</a>
+      <!-- نهاية الشرط -->
+      {% endif %}
+    </nav>
+  </header>
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <main class="wrap">
+
+    {% if system_update_available and request.user.is_authenticated %}
+      <template id="system-update-toast-template">
+        <div>
+          <strong>{% if system_configuration.update_required %}تنبيه: تحديث مهم للنظام{% else %}يوجد تحديث جديد للنظام{% endif %}</strong>
+          {% if system_configuration.latest_version %}<div class="toast__meta">الإصدار المتاح: {{ system_configuration.latest_version }}</div>{% endif %}
+          {% if system_configuration.update_message %}<div class="toast__meta">{{ system_configuration.update_message }}</div>{% endif %}
+          <div class="toast__actions">
+            {% if can_view_system_settings %}<a href="{% url 'system_updates' %}">فتح مركز التحديثات</a>{% endif %}
+            {% if system_configuration.update_download_url %}<a href="{{ system_configuration.update_download_url }}" target="_blank" rel="noopener">فتح رابط التحديث</a>{% endif %}
+            {% if can_check_system_updates %}<a href="{% url 'system_updates' %}">إدارة التحديث</a>{% endif %}
+          </div>
+        </div>
+      </template>
+    {% endif %}
+    {% if request.user.is_authenticated %}
+      <template id="account-status-toast-template">
+        <div>
+          <strong>حالة الحساب: {{ access_summary.state_label }}</strong>
+          <div class="toast__meta">{{ access_summary.message }}</div>
+          <div class="toast__actions"><a href="{% url 'account_overview' %}">عرض التفاصيل</a></div>
+        </div>
+      </template>
+    {% endif %}
+    <!-- بداية كتلة قابلة للاستبدال -->
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{% static 'js/auto_input_width.js' %}?v=20260606devlogin"></script>
+  <script src="{% static 'js/form_numbers_times.js' %}?v=20260211"></script>
+<script>
+  (function () {
+    function onReady(callback) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', callback, { once: true });
+      } else {
+        callback();
+      }
+    }
+
+    onReady(function () {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      if (container.parentElement !== document.body) {
+        document.body.appendChild(container);
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function iconFor(type) {
+        const normalized = (type || 'info').toLowerCase();
+        if (normalized.includes('success')) return '✓';
+        if (normalized.includes('error') || normalized.includes('danger')) return '✕';
+        if (normalized.includes('warning')) return '⚠';
+        return 'ℹ';
+      }
+
+      function titleFor(type) {
+        const normalized = (type || 'info').toLowerCase();
+        if (normalized.includes('success')) return 'نجاح العملية';
+        if (normalized.includes('error') || normalized.includes('danger')) return 'حدث خطأ';
+        if (normalized.includes('warning')) return 'تنبيه مهم';
+        return 'معلومة';
+      }
+
+      function normalizeType(type) {
+        const normalized = (type || 'info').toLowerCase();
+        if (normalized.includes('success')) return 'success';
+        if (normalized.includes('error') || normalized.includes('danger')) return 'error';
+        if (normalized.includes('warning')) return 'warning';
+        return 'info';
+      }
+
+      function queueToast(payload, delay) {
+        window.setTimeout(function () {
+          window.showToast(payload);
+        }, delay || 0);
+      }
+
+      window.showToast = function (options) {
+        const settings = typeof options === 'string' ? { message: options } : (options || {});
+        const type = normalizeType(settings.type);
+        const title = escapeHtml(settings.title || titleFor(type));
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--' + type;
+        toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        toast.innerHTML = '' +
+          '<div class="toast__accent" aria-hidden="true"></div>' +
+          '<div class="toast__icon" aria-hidden="true">' + iconFor(type) + '</div>' +
+          '<div class="toast__content">' +
+            '<div class="toast__header">' +
+              '<div class="toast__eyebrow">' + title + '</div>' +
+              '<button type="button" class="toast__close" aria-label="إغلاق الرسالة">×</button>' +
+            '</div>' +
+            '<div class="toast__message">' + (settings.html || escapeHtml(settings.message || '')) + '</div>' +
+          '</div>' +
+          '<div class="toast__progress"></div>';
+        container.appendChild(toast);
+
+        const duration = Number(settings.duration || 4800);
+        toast.style.setProperty('--toast-duration', duration + 'ms');
+        let closed = false;
+        function closeToast() {
+          if (closed) return;
+          closed = true;
+          toast.classList.add('is-leaving');
+          window.setTimeout(function () { toast.remove(); }, 260);
+        }
+        toast.querySelector('.toast__close').addEventListener('click', closeToast);
+        window.setTimeout(closeToast, duration);
+        return toast;
+      };
+
+      let delay = 220;
+      {% if system_update_available and request.user.is_authenticated %}
+        const updateTemplate = document.getElementById('system-update-toast-template');
+        if (updateTemplate) {
+          queueToast({ type: 'warning', html: updateTemplate.innerHTML, duration: 5400 }, delay);
+          delay += 380;
+        }
+      {% endif %}
+
+      {% if request.user.is_authenticated %}
+        const accountTemplate = document.getElementById('account-status-toast-template');
+        if (accountTemplate) {
+          queueToast({ type: 'info', html: accountTemplate.innerHTML, duration: 4800 }, delay);
+          delay += 340;
+        }
+      {% endif %}
+
+      {% if messages %}
+        {% for message in messages %}
+          queueToast({ message: "{{ message|escapejs }}", type: '{{ message.tags|default:"info"|escapejs }}', duration: 4200 }, delay);
+          delay += 220;
+        {% endfor %}
+      {% endif %}
+    });
+  })();
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

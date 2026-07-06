@@ -1,0 +1,55 @@
+<!-- وراثة قالب (Template inheritance) -->
+{% extends "admin/base_site.html" %}
+
+<!-- بداية كتلة قابلة للاستبدال -->
+{% block content %}
+<div class="admin-pro-card" style="max-width: 900px; margin: 20px auto;">
+  <h1 style="margin-top:0;">⚠️ الأعمدة غير مطابقة</h1>
+  <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+  <p>لا يمكن استيراد الورقة <b>{{ sheet_name }}</b> لأن أعمدة Excel لا تطابق أعمدة البرنامج.</p>
+
+  <!-- شرط داخل القالب -->
+  {% if missing %}
+    <h3>أعمدة ناقصة (يجب إضافتها):</h3>
+    <ul>
+      <!-- حلقة تكرار داخل القالب -->
+      {% for c in missing %}
+        <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+        <li>{{ c }}</li>
+      <!-- نهاية الحلقة -->
+      {% endfor %}
+    </ul>
+  <!-- نهاية الشرط -->
+  {% endif %}
+
+  <!-- شرط داخل القالب -->
+  {% if extra %}
+    <h3>أعمدة إضافية (ليست ضمن البرنامج):</h3>
+    <ul>
+      <!-- حلقة تكرار داخل القالب -->
+      {% for c in extra %}
+        <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+        <li>{{ c }}</li>
+      <!-- نهاية الحلقة -->
+      {% endfor %}
+    </ul>
+  <!-- نهاية الشرط -->
+  {% endif %}
+
+  <hr>
+  <p><b>هل تريد تصدير قالب أعمدة البرنامج (Excel)؟</b></p>
+
+  <form method="post" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <!-- حماية CSRF للفورم -->
+    {% csrf_token %}
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <input type="hidden" name="temp_id" value="{{ temp_id }}">
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <input type="hidden" name="sheet_name" value="{{ sheet_name }}">
+    <button class="button default" type="submit" name="action" value="download_template">نعم، صدّر القالب</button>
+    <!-- طباعة متغير/قيمة من السياق (Context) داخل القالب -->
+    <a class="button" href="{{ import_url }}">لا</a>
+  </form>
+</div>
+<!-- نهاية كتلة -->
+{% endblock %}
